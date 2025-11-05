@@ -49,8 +49,14 @@ const app = express();
 app.use(
   prerender
     .set("prerenderToken", "hgXlNw2uPFrYM9J4FLoZ")
-    .blacklisted("api") // API routes skip
+    .blacklisted("api")
+    .whitelisted(["/", "/colleges", "/colleges/*"])
+    .beforeRender((req, done) => {
+      console.log("Prerender request for URL:", req.url, "User-Agent:", req.headers['user-agent']);
+      done();
+    })
 );
+
 
 // Enhanced CORS configuration
 const allowedOrigins = [
@@ -163,6 +169,9 @@ app.get("/ping", (req, res) => {
     uptime: process.uptime()
   });
 });
+
+
+
 
 // Error handling
 app.use((err, req, res, next) => {
