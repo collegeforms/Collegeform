@@ -47,7 +47,7 @@ const AdminUpload = () => {
   // Fetch functions
   const fetchCourses = async () => {
     try {
-      const response = await axios.get(`${API_URL}/courses`);
+      const response = await axios.get(`${API_URL}/api/courses`);
       setCourses(response.data);
     } catch (error) {
       console.error('Error fetching courses', error);
@@ -57,7 +57,7 @@ const AdminUpload = () => {
 
   const fetchSpecializations = async () => {
     try {
-      const response = await axios.get(`${API_URL}/specializations`);
+      const response = await axios.get(`${API_URL}/api/specializations`);
       setSpecializations(response.data);
     } catch (error) {
       console.error('Error fetching specializations', error);
@@ -67,7 +67,7 @@ const AdminUpload = () => {
 
   const fetchLocations = async () => {
     try {
-      const response = await axios.get(`${API_URL}/locations`);
+      const response = await axios.get(`${API_URL}/api/locations`);
       setLocations(response.data);
     } catch (error) {
       console.error('Error fetching locations', error);
@@ -85,7 +85,7 @@ const AdminUpload = () => {
     };
     
     try {
-      const response = await axios.post(`${API_URL}/courses`, courseData);
+      const response = await axios.post(`${API_URL}/api/courses`, courseData);
       if (response.status === 201) {
         showSnackbar('Course uploaded successfully!', 'success');
         setName('');
@@ -108,7 +108,7 @@ const AdminUpload = () => {
 
   const handleUpdateCourse = async () => {
     try {
-      const response = await axios.put(`${API_URL}/courses/${editCourseId}`, {
+      const response = await axios.put(`${API_URL}/api/courses/${editCourseId}`, {
         name: editCourseName,
         type: editCourseType,
         specializations: editCourseSpecializations.map(spec => spec._id || spec)
@@ -125,7 +125,7 @@ const AdminUpload = () => {
 
   const handleDeleteCourse = async (id) => {
     try {
-      await axios.delete(`${API_URL}/courses/${id}`);
+      await axios.delete(`${API_URL}/api/courses/${id}`);
       showSnackbar('Course deleted successfully!', 'success');
       fetchCourses();
     } catch (error) {
@@ -137,7 +137,7 @@ const AdminUpload = () => {
   const handleSubmitLocation = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_URL}/locations`, { name: location });
+      const response = await axios.post(`${API_URL}/api/locations`, { name: location });
       if (response.status === 201) {
         showSnackbar('Location uploaded successfully!', 'success');
         setLocation('');
@@ -156,7 +156,7 @@ const AdminUpload = () => {
 
   const handleUpdateLocation = async () => {
     try {
-      const response = await axios.put(`${API_URL}/locations/${editLocationId}`, {
+      const response = await axios.put(`${API_URL}/api/locations/${editLocationId}`, {
         name: editLocationName
       });
       if (response.status === 200) {
@@ -171,7 +171,7 @@ const AdminUpload = () => {
 
   const handleDeleteLocation = async (id) => {
     try {
-      await axios.delete(`${API_URL}/locations/${id}`);
+      await axios.delete(`${API_URL}/api/locations/${id}`);
       showSnackbar('Location deleted successfully!', 'success');
       fetchLocations();
     } catch (error) {

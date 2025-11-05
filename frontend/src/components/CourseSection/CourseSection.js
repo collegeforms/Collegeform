@@ -39,7 +39,7 @@ const CourseSection = (props) => {
       try {
         const [collegesRes, coursesRes] = await Promise.all([
           axios.get(`${API_URL}/api/colleges`),
-          axios.get(`${API_URL}/courses`)
+          axios.get(`${API_URL}/api/courses`)
         ]);
         
         console.log(collegesRes);

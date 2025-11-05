@@ -20,7 +20,7 @@ const AdminSpecialization = () => {
 
   const fetchSpecializations = async () => {
     try {
-      const response = await axios.get(`${API_URL}/specializations`);
+      const response = await axios.get(`${API_URL}/api/specializations`);
       setSpecializations(response.data);
     } catch (error) {
       console.error('Error fetching specializations', error);
@@ -29,7 +29,7 @@ const AdminSpecialization = () => {
 
   const fetchPriceRanges = async () => {
     try {
-      const response = await axios.get(`${API_URL}/priceRanges`);
+      const response = await axios.get(`${API_URL}/api/priceRanges`);
       setPriceRanges(response.data);
     } catch (error) {
       console.error('Error fetching price ranges', error);
@@ -45,7 +45,7 @@ const AdminSpecialization = () => {
   const handleSpecializationSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_URL}/specializations`, { name: specialization });
+      const response = await axios.post(`${API_URL}/api/specializations`, { name: specialization });
       if (response.status === 201) {
         setSnackbarMessage('Specialization added successfully!');
         setSnackbarSeverity('success');
@@ -74,7 +74,7 @@ const AdminSpecialization = () => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/priceRanges`, priceRange);
+      const response = await axios.post(`${API_URL}/api/priceRanges`, priceRange);
       if (response.status === 201) {
         setSnackbarMessage('Price range added successfully!');
         setSnackbarSeverity('success');
@@ -90,7 +90,7 @@ const AdminSpecialization = () => {
 
   const handleDeleteSpecialization = async (id) => {
     try {
-      await axios.delete(`${API_URL}/specializations/${id}`);
+      await axios.delete(`${API_URL}/api/specializations/${id}`);
       setSpecializations(specializations.filter(spec => spec._id !== id));
       setSnackbarMessage('Specialization deleted successfully!');
       setSnackbarSeverity('success');
@@ -104,7 +104,7 @@ const AdminSpecialization = () => {
 
   const handleDeletePriceRange = async (id) => {
     try {
-      await axios.delete(`${API_URL}/priceRanges/${id}`);
+      await axios.delete(`${API_URL}/api/priceRanges/${id}`);
       setPriceRanges(priceRanges.filter(range => range._id !== id));
       setSnackbarMessage('Price range deleted successfully!');
       setSnackbarSeverity('success');

@@ -853,12 +853,12 @@ const EditCollege = () => {
     ];
     setAvailableExams(availableExams);
     
-    fetch(`${API_URL}/courses`)
+    fetch(`${API_URL}/api/courses`)
       .then((res) => res.json())
       .then((data) => setAvailableCourses(data.map(course => course.name || course)))
       .catch((err) => console.error("Error fetching courses:", err));
 
-    fetch(`${API_URL}/specializations`)
+    fetch(`${API_URL}/api/specializations`)
       .then((res) => res.json())
       .then((data) => setAvailableSpecializations(data.map(spec => spec.name || spec)))
       .catch((err) => console.error("Error fetching specializations:", err));

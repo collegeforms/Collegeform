@@ -808,7 +808,7 @@ const AddCollegePage = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get(`${API_URL}/courses`);
+      const response = await axios.get(`${API_URL}/api/courses`);
       setAvailableCourses(response.data);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -817,7 +817,7 @@ const AddCollegePage = () => {
 
   const fetchSpecializations = async () => {
     try {
-      const response = await axios.get(`${API_URL}/specializations`);
+      const response = await axios.get(`${API_URL}/api/specializations`);
       setAvailableSpecializations(response.data);
     } catch (error) {
       console.error("Error fetching specializations:", error);

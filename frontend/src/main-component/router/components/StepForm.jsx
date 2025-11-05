@@ -131,7 +131,7 @@ const StepForm = () => {
     const fetchCoursesAndColleges = async () => {
       try {
         // Fetch all courses
-        const coursesResponse = await axios.get(`${API_URL}/courses`);
+        const coursesResponse = await axios.get(`${API_URL}/api/courses`);
         setAllCourses(coursesResponse.data);
         
         // If a college is pre-selected, show only its courses

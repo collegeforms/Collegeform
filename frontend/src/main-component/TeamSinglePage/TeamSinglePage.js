@@ -42,7 +42,7 @@ const API_URL = "https://collegeforms.in";
         const fetchCollege = async () => {
             try {
                 const response = await axios.get(`${API_URL}/api/colleges/${id}`);
-                const coursesResponse = await axios.get(`${API_URL}/courses`);
+                const coursesResponse = await axios.get(`${API_URL}/api/courses`);
                 
                 setCollege(response.data.college || response.data);
                 setAllCourses(coursesResponse.data);

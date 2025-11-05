@@ -253,7 +253,7 @@ const API_URL = "https://collegeforms.in";
 
   const fetchDropdownData = async () => {
     try {
-      const coursesRes = await axios.get(`${API_URL}/courses`);
+      const coursesRes = await axios.get(`${API_URL}/api/courses`);
       const allCourses = coursesRes.data;
       console.log("Courses API Response:", coursesRes.data);
 
