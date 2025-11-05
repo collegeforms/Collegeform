@@ -4,7 +4,7 @@ import College from "../models/College.js"; // your college model
 const router = express.Router();
 const BASE_URL = "https://collegeforms.in";
 
-router.get("/sitemap.xml", async (req, res) => {
+router.get("/sitemap2.xml", async (req, res) => {
   try {
     const colleges = await College.find({}, "slug updatedAt");
 
