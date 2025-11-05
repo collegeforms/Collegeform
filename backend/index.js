@@ -45,18 +45,42 @@ startCleanupService();
 
 const app = express();
 
-// ✅ Prerender middleware (Google ko static HTML serve karega)
+// ✅ FIXED: Use the correct prerender token
 app.use(
   prerender
-    .set("prerenderToken", "hgXlNw2uPFrYM9J4FLoZ")
-    .blacklisted("api")
-    .whitelisted(["/", "/colleges", "/colleges/*"])
+    .set("prerenderToken", "VR7GmlHSBjoVcv51pp5k") // ← CORRECT TOKEN
+    .set("host", "https://collegeforms.in") // ← ADD THIS
+    .set("protocol", "https") // ← ADD THIS
+    .blacklisted([
+      "/api", 
+      "/uploads", 
+      "/static", 
+      "/.well-known",
+      "/admin"
+    ])
+    .whitelisted([
+      "/", 
+      "/colleges", 
+      "/colleges/*",
+      "/studyabroad",
+      "/courses",
+      "/exams",
+      "/blogs",
+      "/about",
+      "/contact"
+    ])
     .beforeRender((req, done) => {
-      console.log("Prerender request for URL:", req.url, "User-Agent:", req.headers['user-agent']);
+      console.log("🔄 Prerender request for URL:", req.url, "User-Agent:", req.headers['user-agent']);
       done();
     })
+    .afterRender((err, req, res) => {
+      if (!err) {
+        console.log("✅ Successfully prerendered:", req.url);
+      } else {
+        console.log("❌ Prerender failed for:", req.url, "Error:", err.message);
+      }
+    })
 );
-
 
 // Enhanced CORS configuration
 const allowedOrigins = [
@@ -119,8 +143,11 @@ app.use(bodyParser.urlencoded({
   parameterLimit: 100000
 }));
 
-// Serve static files
+// Serve static files - IMPORTANT: This should come AFTER prerender
 app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
+
+// Serve React build files
+app.use(express.static(path.join(path.resolve(), "build")));
 
 // Sitemap route
 app.use('/', sitemapRouter);
@@ -132,7 +159,6 @@ app.use("/api/slider", sliderRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/upload", upload);
 app.use("/api/cart", cartRoutes);
-
 app.use("/api/documents", documents);
 app.use("/api/tests", testSeriesRoutes);
 app.use("/api/admin/tests", adminTestSeriesRoutes);
@@ -151,8 +177,8 @@ app.use("/api", password);
 app.use("/api/admin", adminUroutes);
 app.use('/api/students', studentrouter);
 app.use("/api/search", searchHistoryRoutes);
-
 app.use("/api/faqs", faqRoutes);
+
 // Health check
 app.get("/start", (req, res) => {
   res.status(200).json({ 
@@ -170,8 +196,10 @@ app.get("/ping", (req, res) => {
   });
 });
 
-
-
+// Catch-all handler for React routes - IMPORTANT for SPA
+app.get('*', (req, res) => {
+  res.sendFile(path.join(path.resolve(), 'build', 'index.html'));
+});
 
 // Error handling
 app.use((err, req, res, next) => {
@@ -207,5 +235,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running in ${ENV} mode on port ${PORT}`);
   console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
   console.log(`Sitemap available at: /sitemap.xml`);
-  console.log(`✅ Prerender.io enabled with token hgXlNw2uPFrYM9J4FLoZ`);
+  console.log(`✅ Prerender.io enabled with correct token: VR7GmlHSBjoVcv51pp5k`);
 });
