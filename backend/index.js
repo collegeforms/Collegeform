@@ -33,7 +33,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 
 import { startCleanupService } from './services/cleanupService.js';
 
-// 👉 Add prerender-node
+// 👉 FIX: Import prerender-node correctly for ES modules
 import prerender from "prerender-node";
 
 // Load environment variables
@@ -45,42 +45,34 @@ startCleanupService();
 
 const app = express();
 
-// ✅ FIXED: Use the correct prerender token
-app.use(
-  prerender
-    .set("prerenderToken", "VR7GmlHSBjoVcv51pp5k") // ← CORRECT TOKEN
-    .set("host", "https://collegeforms.in") // ← ADD THIS
-    .set("protocol", "https") // ← ADD THIS
-    .blacklisted([
-      "/api", 
-      "/uploads", 
-      "/static", 
-      "/.well-known",
-      "/admin"
-    ])
-    .whitelisted([
-      "/", 
-      "/colleges", 
-      "/colleges/*",
-      "/studyabroad",
-      "/courses",
-      "/exams",
-      "/blogs",
-      "/about",
-      "/contact"
-    ])
-    .beforeRender((req, done) => {
-      console.log("🔄 Prerender request for URL:", req.url, "User-Agent:", req.headers['user-agent']);
-      done();
-    })
-    .afterRender((err, req, res) => {
-      if (!err) {
-        console.log("✅ Successfully prerendered:", req.url);
-      } else {
-        console.log("❌ Prerender failed for:", req.url, "Error:", err.message);
-      }
-    })
-);
+// ✅ FIXED: Simple prerender configuration
+prerender.set("prerenderToken", "VR7GmlHSBjoVcv51pp5k");
+prerender.set("host", "https://collegeforms.in");
+prerender.set("protocol", "https");
+
+// Add blacklisted and whitelisted routes separately
+[
+  "/api", 
+  "/uploads", 
+  "/static", 
+  "/.well-known",
+  "/admin",
+  "/sitemap2.xml"
+].forEach(route => prerender.blacklisted(route));
+
+[
+  "/", 
+  "/colleges", 
+  "/studyabroad",
+  "/courses",
+  "/exams",
+  "/blogs",
+  "/about",
+  "/contact"
+].forEach(route => prerender.whitelisted(route));
+
+// Apply prerender middleware
+app.use(prerender);
 
 // Enhanced CORS configuration
 const allowedOrigins = [
@@ -143,14 +135,11 @@ app.use(bodyParser.urlencoded({
   parameterLimit: 100000
 }));
 
-// Serve static files - IMPORTANT: This should come AFTER prerender
+// Serve static files
 app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
 // Serve React build files
 app.use(express.static(path.join(path.resolve(), "build")));
-
-// Sitemap route
-app.use('/', sitemapRouter);
 
 // API Routes
 app.use("/api/colleges", collegeRoutes);
@@ -178,6 +167,9 @@ app.use("/api/admin", adminUroutes);
 app.use('/api/students', studentrouter);
 app.use("/api/search", searchHistoryRoutes);
 app.use("/api/faqs", faqRoutes);
+
+// ✅ FIXED: Move sitemap route HERE (before catch-all handler)
+app.use('/', sitemapRouter);
 
 // Health check
 app.get("/start", (req, res) => {
@@ -231,9 +223,9 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 const ENV = process.env.NODE_ENV || 'development';
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running in ${ENV} mode on port ${PORT}`);
   console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
-  console.log(`Sitemap available at: /sitemap.xml`);
+  console.log(`Sitemap available at: /sitemap2.xml`);
   console.log(`✅ Prerender.io enabled with correct token: VR7GmlHSBjoVcv51pp5k`);
 });
