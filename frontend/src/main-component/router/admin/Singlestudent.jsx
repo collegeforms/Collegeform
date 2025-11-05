@@ -9,8 +9,7 @@ import * as XLSX from 'xlsx';
 import dayjs from 'dayjs';
 
 const Singlestudent = () => {
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   const { id } = useParams();
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);

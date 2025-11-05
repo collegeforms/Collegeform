@@ -92,8 +92,7 @@ const BlogDetails = () => {
   const [loading, setLoading] = useState(true);
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [expandedFAQ, setExpandedFAQ] = useState(false);
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   // Function to generate meta description from content
   const generateMetaDescription = (content, maxLength = 160) => {
     if (!content) return '';

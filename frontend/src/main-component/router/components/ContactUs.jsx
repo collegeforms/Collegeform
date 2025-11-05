@@ -6,8 +6,7 @@ import Footer from '../../../components/footer/Footer';
 
 const ContactUs = () => {
 
-    const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+ const API_URL = "https://collegeforms.in";
   const [formData, setFormData] = useState({
     name: '',
     email: '',

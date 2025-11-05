@@ -8,8 +8,7 @@ const ClickHandler = () => {
 }
 
 const BlogList = (props) => {
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

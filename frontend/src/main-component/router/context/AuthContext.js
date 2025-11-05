@@ -4,8 +4,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+ const API_URL = "https://collegeforms.in";
   
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);

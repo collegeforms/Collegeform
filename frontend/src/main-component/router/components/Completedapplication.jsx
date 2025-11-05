@@ -4,8 +4,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 const CompletedApplication = () => {
-      const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+   const API_URL = "https://collegeforms.in";
 
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);

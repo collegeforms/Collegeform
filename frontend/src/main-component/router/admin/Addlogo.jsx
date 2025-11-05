@@ -18,8 +18,7 @@ import { Delete, CloudUpload } from "@mui/icons-material";
 import axios from "axios";
 
 const AddLogo = () => {
-    const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+ const API_URL = "https://collegeforms.in";
   
   const [logos, setLogos] = useState([]);
   const [colleges, setColleges] = useState([]);

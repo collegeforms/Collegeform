@@ -8,8 +8,7 @@ import {
 import { Close, Add, Edit, Delete } from '@mui/icons-material';
 
 const AdminReviews = () => {
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   
   const [reviews, setReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({

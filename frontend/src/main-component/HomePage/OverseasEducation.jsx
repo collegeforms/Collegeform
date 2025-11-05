@@ -27,8 +27,7 @@ const OverseasEducation = (props) => {
   });
   
   const collegesPerPage = 9;
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   const navigate = useNavigate();
   const { category } = useParams();
   const location = useLocation();

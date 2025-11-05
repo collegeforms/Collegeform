@@ -56,8 +56,7 @@ import { useNavigate } from "react-router-dom";
 import TiptapEditor from './TiptapEditor';
 
 const AdminBlogs = () => {
-    const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+ const API_URL = "https://collegeforms.in";
 
 
   const { enqueueSnackbar } = useSnackbar();

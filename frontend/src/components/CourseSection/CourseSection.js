@@ -15,8 +15,7 @@ const CourseSection = (props) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedCards, setExpandedCards] = useState({});
-    const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-  
+ const API_URL = "https://collegeforms.in";  
   const navigate = useNavigate();
 
   const toggleExpand = (id) => {

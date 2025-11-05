@@ -20,8 +20,7 @@ import { Delete, Add } from "@mui/icons-material";
 import axios from "axios";
 
 const SliderManager = () => {
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   const sliderContentRef = useRef(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));

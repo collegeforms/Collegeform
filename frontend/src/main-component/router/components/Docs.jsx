@@ -28,8 +28,7 @@ import {
   Image as ImageIcon
 } from '@mui/icons-material';
 
-const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+const API_URL = "https://collegeforms.in";
 // Styled components
 const PageContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),

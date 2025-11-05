@@ -47,8 +47,7 @@ const MyAccount = () => {
   const [allFormProgress, setAllFormProgress] = useState([]);
   const [loadingProgress, setLoadingProgress] = useState(false);
   const [progressError, setProgressError] = useState(null);
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-    
+  const API_URL = "https://collegeforms.in";    
 
 
  

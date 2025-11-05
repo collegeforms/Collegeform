@@ -11,8 +11,7 @@ const Bhome = () => {
   const [mbanners, setmBanners] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   useEffect(() => {
     const fetchBanners = async () => {
       try {

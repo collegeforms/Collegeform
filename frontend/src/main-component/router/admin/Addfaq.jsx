@@ -39,8 +39,7 @@ const Addfaq = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [faqToDelete, setFaqToDelete] = useState(null);
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-  
+  const API_URL = "https://collegeforms.in";  
 
   useEffect(() => {
     fetchFAQs();

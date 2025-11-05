@@ -121,8 +121,7 @@ const StepForm = () => {
   const [allCourses, setAllCourses] = useState([]);
   const [filteredColleges, setFilteredColleges] = useState([]);
   const [showThankYou, setShowThankYou] = useState(false);
-    const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+ const API_URL = "https://collegeforms.in";
     
 
   const userToken = localStorage.getItem("userToken");

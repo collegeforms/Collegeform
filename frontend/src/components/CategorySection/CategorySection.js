@@ -48,8 +48,7 @@ const settings = {
 
 const CategorySection = (props) => {
     const [logos, setLogos] = useState([]);
-    const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+ const API_URL = "https://collegeforms.in";
     const fetchLogos = async () => {
         try {
             const response = await axios.get(`${API_URL}/api/logos`);

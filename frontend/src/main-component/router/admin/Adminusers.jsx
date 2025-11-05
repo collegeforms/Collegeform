@@ -20,8 +20,7 @@ import {
 } from "react-icons/fi";
 
 const Adminusers = () => {
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-  
+  const API_URL = "https://collegeforms.in";  
   const { admin, logoutAdmin } = useContext(AuthContext);
   const token = localStorage.getItem("adminToken");
 

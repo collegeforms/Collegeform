@@ -10,8 +10,7 @@ import {
 import { Close, Edit } from '@mui/icons-material';
 
 const AdminUpload = () => {
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
 
   // State for courses
   const [name, setName] = useState('');

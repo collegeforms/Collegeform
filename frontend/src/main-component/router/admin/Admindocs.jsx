@@ -31,8 +31,7 @@ import {
 import axios from "axios";
 
 const AdminDocs = () => {
-      const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+   const API_URL = "https://collegeforms.in";
 
   const [documents, setDocuments] = useState([]);
   const [filteredDocuments, setFilteredDocuments] = useState([]);

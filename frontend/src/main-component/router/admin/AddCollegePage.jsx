@@ -751,8 +751,7 @@ const RequiredDocumentsSection = ({ requiredDocuments, setRequiredDocuments }) =
 
 const AddCollegePage = () => {
   const navigate = useNavigate();
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
   const [newCollege, setNewCollege] = useState({
     name: "",
     location: "",

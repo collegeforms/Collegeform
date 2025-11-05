@@ -23,8 +23,7 @@ const BannerRow = ({category}) => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const API_URL = "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
 
   // Fetch banners from API
   const fetchBanners = async () => {
