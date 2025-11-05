@@ -1,0 +1,353 @@
+import React, { useEffect } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
+import { Box, ButtonGroup, Tooltip } from '@mui/material';
+import {
+  FormatBold,
+  FormatItalic,
+  FormatUnderlined,
+  StrikethroughS,
+  Title,
+  FormatListBulleted,
+  FormatListNumbered,
+  FormatQuote,
+  Code,
+  HorizontalRule,
+  Undo,
+  Redo,
+  Image as ImageIcon,
+  Link,
+  FormatAlignLeft,
+  FormatAlignCenter,
+  FormatAlignRight,
+  FormatAlignJustify
+} from '@mui/icons-material';
+import axios from 'axios';
+
+const MenuBar = ({ editor, onImageUpload }) => {
+  if (!editor) return null;
+
+  const handleImageUpload = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        try {
+          // Call the image upload handler passed from parent
+          const imageUrl = await onImageUpload(file);
+          if (imageUrl) {
+            editor.chain().focus().setImage({ src: imageUrl }).run();
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image. Please try again.');
+        }
+      }
+    };
+    
+    input.click();
+  };
+
+  const setLink = () => {
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+
+    if (url === null) {
+      return;
+    }
+
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
+  return (
+    <Box sx={{ 
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '4px',
+      p: 1,
+      mb: 1,
+      borderBottom: 1,
+      borderColor: 'divider',
+      backgroundColor: 'background.paper',
+      borderRadius: '4px 4px 0 0'
+    }}>
+      <ButtonGroup variant="outlined" size="small" sx={{ m: 0.5 }}>
+        <Tooltip title="Bold">
+          <button
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={`menu-button ${editor.isActive('bold') ? 'is-active' : ''}`}
+          >
+            <FormatBold fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Italic">
+          <button
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={`menu-button ${editor.isActive('italic') ? 'is-active' : ''}`}
+          >
+            <FormatItalic fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Underline">
+          <button
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            className={`menu-button ${editor.isActive('underline') ? 'is-active' : ''}`}
+          >
+            <FormatUnderlined fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Strike">
+          <button
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={`menu-button ${editor.isActive('strike') ? 'is-active' : ''}`}
+          >
+            <StrikethroughS fontSize="small" />
+          </button>
+        </Tooltip>
+      </ButtonGroup>
+
+      <ButtonGroup variant="outlined" size="small" sx={{ m: 0.5 }}>
+        <Tooltip title="Heading 1">
+          <button
+            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+            className={`menu-button ${editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}`}
+          >
+            <span style={{ fontWeight: 'bold' }}>H1</span>
+          </button>
+        </Tooltip>
+        <Tooltip title="Heading 2">
+          <button
+            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            className={`menu-button ${editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}`}
+          >
+            <span style={{ fontWeight: 'bold' }}>H2</span>
+          </button>
+        </Tooltip>
+        <Tooltip title="Heading 3">
+          <button
+            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            className={`menu-button ${editor.isActive('heading', { level: 3 }) ? 'is-active' : ''}`}
+          >
+            <span style={{ fontWeight: 'bold' }}>H3</span>
+          </button>
+        </Tooltip>
+      </ButtonGroup>
+
+      <ButtonGroup variant="outlined" size="small" sx={{ m: 0.5 }}>
+        <Tooltip title="Bullet List">
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={`menu-button ${editor.isActive('bulletList') ? 'is-active' : ''}`}
+          >
+            <FormatListBulleted fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Numbered List">
+          <button
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={`menu-button ${editor.isActive('orderedList') ? 'is-active' : ''}`}
+          >
+            <FormatListNumbered fontSize="small" />
+          </button>
+        </Tooltip>
+      </ButtonGroup>
+
+      <ButtonGroup variant="outlined" size="small" sx={{ m: 0.5 }}>
+        <Tooltip title="Blockquote">
+          <button
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={`menu-button ${editor.isActive('blockquote') ? 'is-active' : ''}`}
+          >
+            <FormatQuote fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Code Block">
+          <button
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            className={`menu-button ${editor.isActive('codeBlock') ? 'is-active' : ''}`}
+          >
+            <Code fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Horizontal Rule">
+          <button
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            className="menu-button"
+          >
+            <HorizontalRule fontSize="small" />
+          </button>
+        </Tooltip>
+      </ButtonGroup>
+
+      <ButtonGroup variant="outlined" size="small" sx={{ m: 0.5 }}>
+        <Tooltip title="Link">
+          <button
+            onClick={setLink}
+            className={`menu-button ${editor.isActive('link') ? 'is-active' : ''}`}
+          >
+            <Link fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Upload Image">
+          <button
+            onClick={handleImageUpload}
+            className="menu-button"
+          >
+            <ImageIcon fontSize="small" />
+          </button>
+        </Tooltip>
+      </ButtonGroup>
+
+      <ButtonGroup variant="outlined" size="small" sx={{ m: 0.5 }}>
+        <Tooltip title="Undo">
+          <button
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editor.can().undo()}
+            className="menu-button"
+          >
+            <Undo fontSize="small" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Redo">
+          <button
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editor.can().redo()}
+            className="menu-button"
+          >
+            <Redo fontSize="small" />
+          </button>
+        </Tooltip>
+      </ButtonGroup>
+    </Box>
+  );
+};
+
+const TiptapEditor = ({ content, onUpdate, onImageUpload }) => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
+      Image.configure({
+        inline: true,
+        allowBase64: false,
+      }),
+    ],
+    content: content,
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      onUpdate(html);
+    },
+  });
+
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
+
+  return (
+    <Box sx={{ 
+      border: 1, 
+      borderColor: 'divider', 
+      borderRadius: 1,
+      backgroundColor: 'background.paper',
+      '& .menu-button': {
+        minWidth: '32px',
+        height: '32px',
+        padding: '4px',
+        margin: 0,
+        border: 'none',
+        backgroundColor: 'transparent',
+        color: 'text.primary',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        '&:hover': {
+          backgroundColor: 'action.hover',
+        },
+        '&.is-active': {
+          backgroundColor: 'action.selected',
+          color: 'primary.main',
+        },
+        '&:disabled': {
+          opacity: 0.5,
+          cursor: 'not-allowed',
+        },
+      },
+      '& .ProseMirror': {
+        minHeight: '300px',
+        padding: '16px',
+        '&:focus': {
+          outline: 'none'
+        },
+        '& ul, & ol': {
+          paddingLeft: '24px'
+        },
+        '& h1': { 
+          fontSize: '2em',
+          margin: '0.67em 0',
+          fontWeight: 'bold'
+        },
+        '& h2': { 
+          fontSize: '1.5em',
+          margin: '0.75em 0',
+          fontWeight: 'bold'
+        },
+        '& h3': { 
+          fontSize: '1.17em',
+          margin: '0.83em 0',
+          fontWeight: 'bold'
+        },
+        '& img': {
+          maxWidth: '100%',
+          height: 'auto',
+          borderRadius: '4px'
+        },
+        '& blockquote': {
+          borderLeft: '3px solid',
+          borderColor: 'primary.main',
+          paddingLeft: '1rem',
+          marginLeft: '0',
+          fontStyle: 'italic',
+          color: 'text.secondary'
+        },
+        '& code': {
+          backgroundColor: 'action.selected',
+          borderRadius: '3px',
+          padding: '0.2em 0.4em',
+          fontSize: '0.9em'
+        },
+        '& pre': {
+          backgroundColor: 'background.default',
+          padding: '1rem',
+          borderRadius: '4px',
+          overflowX: 'auto'
+        },
+        '& hr': {
+          border: 'none',
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          margin: '1rem 0'
+        }
+      }
+    }}>
+      <MenuBar editor={editor} onImageUpload={onImageUpload} />
+      <EditorContent editor={editor} />
+    </Box>
+  );
+};
+
+export default TiptapEditor;

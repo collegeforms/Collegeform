@@ -1,0 +1,232 @@
+import React from 'react';
+import Navbar from '../../components/Navbar/Navbar';
+import PageTitle from '../../components/pagetitle/PageTitle';
+import Footer from '../../components/footer/Footer';
+import Scrollbar from '../../components/scrollbar/scrollbar';
+import { Helmet } from "react-helmet-async";
+import './StudyAbroad.css'; // Create this CSS file
+
+const PrivacyPage = (props) => {
+    // Country data with images
+    const countries = [
+        { 
+            name: "United States", 
+            image: "https://images.unsplash.com/photo-1483721310020-03333e577078?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Home to Ivy League and top STEM programs"
+        },
+        { 
+            name: "United Kingdom", 
+            image: "https://images.unsplash.com/photo-1486299267070-83823f5448dd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Prestigious universities with rich history"
+        },
+        { 
+            name: "Canada", 
+            image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Affordable education with PR opportunities"
+        },
+        { 
+            name: "Australia", 
+            image: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "High quality of life and post-study work"
+        },
+        { 
+            name: "Germany", 
+            image: "https://images.unsplash.com/photo-1528728329032-2972f65dfb3f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Tuition-free education at public universities"
+        },
+        { 
+            name: "Singapore", 
+            image: "https://images.unsplash.com/photo-1565967511849-76a60a516170?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Asian hub for business and technology"
+        },
+        { 
+            name: "France", 
+            image: "https://images.unsplash.com/photo-1431274172761-fca41d930114?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Cultural experience with affordable education"
+        },
+        { 
+            name: "Dubai (UAE)", 
+            image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Tax-free salaries and modern infrastructure"
+        },
+        { 
+            name: "Ireland", 
+            image: "https://images.unsplash.com/photo-1549918864-48ac978761a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "English-speaking with strong tech industry"
+        },
+        { 
+            name: "New Zealand", 
+            image: "https://images.unsplash.com/photo-1507699622108-4be3abd695ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+            description: "Stunning landscapes and research opportunities"
+        }
+    ];
+
+    // Courses data
+    const courses = [
+        {
+            name: "Data Science & AI",
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "Cybersecurity",
+            image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "Renewable Energy",
+            image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "Robotics & Automation",
+            image: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "Biomedical Engineering",
+            image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "Digital Marketing",
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        }
+    ];
+
+    // Exams data
+    const exams = [
+        {
+            name: "GRE",
+            description: "Graduate programs (USA)",
+            cutoff: "300-330+",
+            image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "GMAT",
+            description: "MBA programs",
+            cutoff: "650-700+",
+            image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "IELTS/TOEFL",
+            description: "English proficiency",
+            cutoff: "6.5-7.5/80-100",
+            image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        },
+        {
+            name: "SAT",
+            description: "Undergraduate (USA)",
+            cutoff: "1400+",
+            image: "https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+        }
+    ];
+
+    return (
+        <div className="study-abroad-page">
+   <Helmet>
+  <title>Study Abroad Programs – Scholarships & Admissions | CollegeForms</title>
+  <meta name="description" content="Looking to study abroad? Explore top international colleges, scholarships on tuition, and MBA programs. Get expert college guidance and application help with CollegeForms.in." />
+  <meta name="keywords" content="study abroad programs, international colleges, MBA abroad options, tuition fee scholarships, overseas admission help, best global colleges, IELTS EXAMs, SAT Exam, GRE/GMAT Exam" />
+  
+  {/* Open Graph / Facebook */}
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.collegeforms.in/studyabroad" />
+  <meta property="og:title" content="Study Abroad Programs – Scholarships & Admissions | CollegeForms" />
+  <meta property="og:description" content="Explore international colleges with tuition scholarships. Get expert guidance for MBA abroad, IELTS, SAT, GRE/GMAT exams at CollegeForms.in" />
+  <meta property="og:image" content="https://www.collegeforms.in/images/study-abroad-og.jpg" />
+  
+  {/* Twitter */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://www.collegeforms.in/studyabroad" />
+  <meta name="twitter:title" content="Study Abroad Programs – Scholarships & Admissions | CollegeForms" />
+  <meta name="twitter:description" content="Get admission help for top global colleges with scholarship opportunities. Expert guidance for MBA abroad, IELTS, SAT, GRE/GMAT exams." />
+  <meta name="twitter:image" content="https://www.collegeforms.in/images/study-abroad-twitter.jpg" />
+  
+  {/* Canonical URL */}
+  <link rel="canonical" href="https://www.collegeforms.in/studyabroad" />
+</Helmet>
+            
+            <Navbar />
+            {/* <PageTitle pageTitle={'Study Abroad'} pagesub={'Your Gateway to Global Education'} /> */}
+            
+            <section className="hero-section-1">
+                <div className="container">
+                    <div className="hero-content-1">
+                        <h1>Unlock Your Global Education Potential</h1>
+                        <p>Discover world-class universities and programs tailored to your aspirations</p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="destinations-section">
+                <div className="container">
+                    <h2 className="section-title">Top Study Destinations</h2>
+                    <p className="section-subtitle">Explore the most popular countries for Indian students</p>
+                    
+                    <div className="countries-grid">
+                        {countries.map((country, index) => (
+                            <div className="country-card" key={index}>
+                                <div className="country-image" style={{ backgroundImage: `url(${country.image})` }}>
+                                    <div className="country-overlay">
+                                        <h3 className='text-light fw-bold'>{country.name}</h3>
+                                    </div>
+                                </div>
+                                <p>{country.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="courses-section">
+                <div className="container">
+                    <h2 className="section-title">In-Demand & Futuristic Courses</h2>
+                    <p className="section-subtitle">Prepare for the careers of tomorrow</p>
+                    
+                    <div className="courses-grid">
+                        {courses.map((course, index) => (
+                            <div className="course-card" key={index}>
+                                <div className="course-image" style={{ backgroundImage: `url(${course.image})` }}></div>
+                                <h3>{course.name}</h3>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="exams-section">
+                <div className="container">
+                    <h2 className="section-title">Key Entrance Exams</h2>
+                    <p className="section-subtitle">Your gateway to global universities</p>
+                    
+                    <div className="exams-grid">
+                        {exams.map((exam, index) => (
+                            <div className="exam-card" key={index}>
+                                <div className="exam-image" style={{ backgroundImage: `url(${exam.image})` }}></div>
+                                <div className="exam-content">
+                                    <h3>{exam.name}</h3>
+                                    <p>{exam.description}</p>
+                                    <div className="exam-cutoff">
+                                        <span>Top Universities Cut-off:</span>
+                                        <strong>{exam.cutoff}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+            <section className="cta-section">
+                
+                {/* <div className="container">
+                    <div className="cta-content">
+                        <h2>Your Global Education Journey Starts Here!</h2>
+                        <p>Let our experts guide you through every step of your study abroad journey</p>
+                        <a href='https://thecounselingcafe.in/' className="cta-button">Get Free Consultation</a>
+                    </div>
+                </div> */}
+            </section>
+
+            <Footer />
+            <Scrollbar />
+        </div>
+    )
+}
+
+export default PrivacyPage;

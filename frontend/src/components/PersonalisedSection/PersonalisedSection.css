@@ -1,0 +1,158 @@
+.personalised-section {
+  background-color: #fafbfe; /* Light bluish background */
+  text-align: center;
+  padding: 50px 20px;
+  border-radius: 8px;
+  font-family: "Poppins", sans-serif;
+}
+
+.personalised-section h2 {
+  font-size: 24px;
+  color: #1a237e; /* dark blue */
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.personalised-section h2 span {
+  font-weight: 700;
+  color: #1b7aff; /* highlight color for Trusted Experts */
+}
+
+.personalised-section p {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+/* ===== Form Section ===== */
+.callback-form {
+  display: flex;
+  flex-direction: column; /* main form stacked vertically */
+  align-items: center;
+  gap: 20px; /* space between input row and button */
+  margin-bottom: 25px;
+}
+
+.input-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: nowrap; /* keep inputs in one line */
+}
+
+.input-row input,
+.input-row select {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 180px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-row input:focus,
+.input-row select:focus {
+  border-color: #002244;
+  box-shadow: 0 0 5px rgba(255, 167, 38, 0.4);
+}
+
+.callback-form button {
+  background-color: #002244;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.callback-form button:hover {
+  background-color: #fb8c00;
+}
+
+/* ===== Terms Text ===== */
+.terms-text {
+  font-size: 12px;
+  color: #777;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.terms-text a {
+  color: #1b7aff;
+  text-decoration: none;
+}
+
+/* ============================= */
+/* 📱 Mobile Responsive (max 600px) */
+/* ============================= */
+@media (max-width: 600px) {
+  .personalised-section {
+    padding: 30px 15px;
+  }
+
+  .personalised-section h2 {
+    font-size: 20px;
+  }
+
+  .personalised-section p {
+    font-size: 13px;
+  }
+
+  .input-row {
+    flex-direction: column; /* stack inputs vertically on mobile */
+    gap: 10px;
+  }
+
+  .input-row input,
+  .input-row select {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .callback-form button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* ============================= */
+/* 📱 Small Tablets (max 900px) */
+/* ============================= */
+@media (max-width: 900px) and (min-width: 601px) {
+  .input-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .input-row input,
+  .input-row select {
+    min-width: 200px;
+  }
+
+  .callback-form button {
+    margin-top: 10px;
+  }
+}
+
+/* ============================= */
+/* 💻 Large Screens */
+/* ============================= */
+@media (min-width: 1200px) {
+  .personalised-section {
+    max-width: '100%';
+    margin: 0 auto;
+  }
+
+  .personalised-section h2 {
+    font-size: 28px;
+  }
+
+  .callback-form button {
+    font-size: 15px;
+    padding: 12px 25px;
+  }
+}

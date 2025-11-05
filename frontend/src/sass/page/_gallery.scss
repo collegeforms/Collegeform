@@ -1,0 +1,83 @@
+/*======================================
+14. wpo-gallery-page
+ =======================================*/
+
+/* 6.2 wpo-portfolio-section */
+.wpo-portfolio-section {
+    position: relative;
+
+    .portfolio-grids {
+
+        .grid {
+
+            img {
+                width: 100%;
+            }
+        }
+    }
+
+    .grid {
+        .img-holder {
+            position: relative;
+
+            .hover-content {
+                transition: all .3s;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                opacity: 0;
+                text-align: center;
+                width: 260px;
+
+                span {
+                    color: #6788a7;
+                }
+
+                h4 {
+                    font-size: 30px;
+                    font-weight: 600;
+
+                    a {
+                        color: $dark-gray;
+
+                        &:hover {
+                            color: $theme-primary-color;
+                        }
+                    }
+                }
+
+                i {
+                    font-size: 30px;
+                    color: $white;
+                }
+            }
+
+            &:before {
+                position: absolute;
+                left: 2%;
+                top: 2%;
+                width: 96%;
+                height: 96%;
+                content: "";
+                background: $theme-primary-color-s3;
+                opacity: 0;
+                transition: all .3s;
+                transform: scale(0);
+            }
+        }
+    }
+
+    .img-holder:hover .hover-content {
+        opacity: 1;
+    }
+
+    .img-holder:hover {
+        &:before {
+            opacity: .8;
+            transform: scale(1);
+        }
+
+    }
+
+}

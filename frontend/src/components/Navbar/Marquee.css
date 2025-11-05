@@ -1,0 +1,30 @@
+/* Marquee Container */
+.marquee-container {
+    width: 100%;
+    height: 40px; /* Adjust height as needed */
+    background: #002147;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 13px;
+    top: 0;
+    letter-spacing: 1px;
+    left: 0;
+    z-index: 1000;
+    overflow: hidden;
+  }
+  
+  /* Marquee Text */
+  .marquee-text {
+    position: absolute;
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    text-align: center;
+  }
+  
+  /* Slide Up Animation */
+  .slide-up {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  

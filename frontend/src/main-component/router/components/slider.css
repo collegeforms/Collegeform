@@ -1,0 +1,48 @@
+/* Ensure the swiper container takes up the full width */
+.content {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .clients-slider5 {
+  }
+  
+  .swiper-container {
+    width: 100%;
+    padding: 10px;
+    overflow: hidden; /* Ensures the slides do not overflow outside the container */
+  }
+  
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .swiper-slide img {
+    max-width: 100%;
+    max-height: 100px; /* Adjust the height if needed */
+    object-fit: contain;
+    border-radius: 10px; /* Add border-radius if you want rounded corners */
+  }
+  
+  .img {
+    display: block;
+    padding: 10px;
+  }
+  
+  .shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+  
+  .border-3 {
+    border: 3px solid #ddd;
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 767px) {
+    .swiper-slide img {
+      max-height: 80px;
+    }
+  }
+  

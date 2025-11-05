@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap');
+
+:root {
+  --primary: #003366;
+  --primary-light: rgba(0, 51, 102, 0.1);
+  --accent: #00a8e8;
+}
+
+.education-blocks-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 30px 20px ;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.section-title-2 {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 70px;
+  color: var(--primary);
+  position: relative;
+}
+
+.section-title-2 span {
+  position: relative;
+  z-index: 1;
+}
+
+.section-title-2 span::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  height: 15px;
+  background: rgba(0, 168, 232, 0.3);
+  z-index: -1;
+  transform: rotate(-1deg);
+}
+
+.education-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  perspective: 1000px;
+}
+
+.education-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
+}
+
+.education-card:hover {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 51, 102, 0.1);
+  
+}
+
+.card-front {
+  background: white;
+  border: 1px solid rgba(0, 51, 102, 0.519);
+}
+
+.card-back {
+  background: linear-gradient(135deg, var(--primary) 0%, #002244 100%);
+  transform: rotateY(180deg);
+  color: white;
+  overflow: hidden;
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+
+
+.card-front h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-align: center;
+  margin: 0;
+}
+
+.reflection {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0) 50%
+  );
+  transform: rotate(30deg);
+  transition: all 0.5s ease;
+}
+
+.education-card:hover .reflection {
+  animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
+}
+
+.explore-btn {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 12px 25px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  z-index: 2;
+}
+
+.explore-btn:hover {
+  background: white;
+  color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.explore-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.explore-btn:hover svg {
+  transform: translateX(5px);
+}
+
+.card-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: radial-gradient(circle at center, var(--accent) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.education-card:hover .card-glow {
+  opacity: 0.15;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2.2rem;
+  }
+  
+  .education-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .education-card {
+  }
+}
+
+
+/* Add these new styles to your existing CSS */
+
+.section-description {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto 50px;
+  line-height: 1.6;
+}
+
+.learn-more-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 5px;
+  transition: all 0.3s ease;
+}
+
+.learn-more-link:hover {
+  text-decoration: underline;
+  color: var(--primary);
+}
+
+.card-description {
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+/* Update the card icon styles to better work with Remix icons */
+.card-icon {
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-icon svg {
+  font-size: 3rem;
+  color: var(--primary);
+}
+
+.card-back .card-icon svg {
+  color: white;
+}
+
+/* Update these styles in your existing CSS */
+
+.education-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  perspective: 1000px;
+}
+
+@media (max-width: 1024px) {
+  .education-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+
+.card-front {
+  background: white;
+  border: 1px solid rgba(0, 51, 102, 0.1);
+}
+
+.card-front-desc {
+  font-size: 0.95rem;
+  text-align: center;
+  color: #555;
+  margin: 10px 0 15px;
+  line-height: 1.4;
+}
+
+.card-hint {
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin-top: auto;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.education-card:hover .card-hint {
+  opacity: 1;
+  transform: translateY(5px);
+}
+
+.explore-btn {
+  text-decoration: none;
+  /* rest of your existing button styles */
+}
+
+/* Make sure cards have consistent height */
+.education-card {
+  height: 200px; /* Increased to accommodate more content */
+  display: flex;
+}
+
+.education-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+/* Add this to prevent double hover effects */
+.education-card-link:hover .education-card {
+  transform: rotateY(180deg);
+}
+
+.how-it-works-section {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.how-it-works-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-size: 1rem; /* Mobile first */
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.arrow-svg {
+  margin-left: 0.5rem;
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.3s ease;
+}
+
+/* Hover animation for SVG arrow */
+.how-it-works-title:hover .arrow-svg {
+  transform: translateX(5px);
+}
+
+.how-it-works-description {
+  color: #6c757d;
+  max-width: 700px;
+  font-size: 0.9rem;
+
+}
+
+/* Responsive styles for tablets and up */
+@media (min-width: 768px) {
+  .how-it-works-title {
+    font-size: 2.5rem;
+  }
+
+  .how-it-works-description {
+    font-size: 1.1rem;
+  }
+
+  .how-it-works-section {
+    margin-bottom: 4rem;
+  }
+}
+
+
+
+@media (max-width: 768px) {
+.education-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.education-grid > *:last-child {
+  grid-column: 1 / -1; /* makes the last item span across both columns */
+}
+
+  .card-icon{
+    font-size: 2rem !important;
+  }
+  .card-icon svg {
+  font-size: 2rem !important;
+  color: var(--primary);
+}
+
+.card-front h3{
+  font-size: 14px;
+}
+
+.card-front-desc{
+  font-size: 0.7rem;
+}
+}

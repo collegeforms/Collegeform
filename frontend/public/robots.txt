@@ -1,0 +1,11 @@
+# Allow all crawlers full access except sensitive folders
+User-agent: *
+Disallow: /wp-admin/
+Disallow: /wp-login.php
+Disallow: /cgi-bin/
+
+# Block specific URL parameters (optional)
+Disallow: /?*utm_
+
+# Sitemap location
+Sitemap: https://collegeforms.in/sitemap.xml 

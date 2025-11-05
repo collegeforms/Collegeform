@@ -1,0 +1,49 @@
+ul.social-icons {
+  display: flex;
+  gap: 15px;
+  list-style: none;
+  padding: 0;
+}
+
+ul.social-icons li a {
+  font-size: 23px !important; /* icons ka size */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  background-color: #F8F9FA !important;
+}
+
+ul.social-icons li a i {
+  transition: transform 0.3s ease;
+}
+
+/* Brand Colors */
+ul.social-icons li a .ti-facebook {
+  color: #1877F2;
+}
+
+ul.social-icons li a .ti-linkedin {
+  color: #0077B5;
+}
+
+ul.social-icons li a .ti-youtube {
+  color: #FF0000;
+}
+
+ul.social-icons li a .ti-instagram {
+  color: #E4405F;
+}
+
+/* Hover effects */
+ul.social-icons li a:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+ul.social-icons li a:hover i {
+  transform: scale(1.2);
+}

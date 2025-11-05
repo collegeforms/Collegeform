@@ -1,0 +1,285 @@
+.study-abroad-page {
+    font-family: 'Poppins', sans-serif;
+    color: #2d3748;
+    line-height: 1.6;
+}
+
+/* Hero Section */
+.hero-section-1 {
+    background: linear-gradient(rgba(0, 0, 0, 0.795), rgba(0, 0, 0, 0.805)), 
+                url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 6rem 0;
+    text-align: center;
+}
+
+.hero-content-1 h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    z-index: 9999;
+    color: rgb(255, 255, 255);
+    font-weight: 700;
+}
+
+.hero-content-1 p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin-left: auto;
+    color: white;
+    margin-right: auto;
+}
+
+/* Section Styling */
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #2d3748;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: #4f46e5;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 3rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Destinations Grid */
+.destinations-section {
+    padding: 5rem 0;
+    background-color: #f7fafc;
+}
+
+.countries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.country-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.country-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.country-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.country-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    padding: 1.5rem;
+    color: white;
+}
+
+.country-overlay h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.country-card p {
+    padding: 1.5rem;
+    margin: 0;
+    color: #4a5568;
+}
+
+/* Courses Section */
+.courses-section {
+    padding: 5rem 0;
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.course-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+}
+
+.course-image {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+}
+
+.course-card h3 {
+    padding: 1.5rem;
+    margin: 0;
+    text-align: center;
+    color: #2d3748;
+    font-size: 1.1rem;
+}
+
+/* Exams Section */
+.exams-section {
+    padding: 5rem 0;
+    background-color: #f7fafc;
+}
+
+.exams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.exam-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    transition: transform 0.3s ease;
+}
+
+.exam-card:hover {
+    transform: translateY(-5px);
+}
+
+.exam-image {
+    width: 120px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.exam-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.exam-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: #2d3748;
+}
+
+.exam-content p {
+    margin: 0 0 1rem 0;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.exam-cutoff {
+    background: #edf2f7;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.exam-cutoff span {
+    display: block;
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+}
+
+.exam-cutoff strong {
+    color: #2d3748;
+    font-size: 1.1rem;
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 5rem 0;
+    background-color: #FFFFFF;
+    color: white;
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.cta-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.9;
+}
+
+/* Button Styles */
+.cta-button {
+    background: white;
+    color: #4f46e5;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    border: 1px solid #4f46e5;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .exam-card {
+        flex-direction: column;
+    }
+    
+    .exam-image {
+        width: 100%;
+        height: 150px;
+    }
+}

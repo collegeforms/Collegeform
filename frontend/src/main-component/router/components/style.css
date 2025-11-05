@@ -1,0 +1,1278 @@
+
+
+
+body,
+html {
+
+}
+
+/* Initial navbar styling */
+.navbar {
+  position: relative;
+  background-color: #f6f6f8;
+  transition: top 0.9s ease;
+}
+/* Hide navbar on scroll down */
+.navbar-hidden {
+}
+/* Show navbar on scroll up */
+.navbar-visible {
+  top: 0;
+  position: sticky;
+  width: 100%;
+  z-index: 1030;
+}
+
+/* Shining button effect */
+.nav-link.num {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    rgb(66, 133, 244),
+    rgb(66, 133, 244)
+  );
+  color: white;
+  border-radius: 5px;
+  padding: 8px 15px;
+  text-decoration: none;
+  font-weight: bold;
+  overflow: hidden;
+  animation: glow 1.5s infinite alternate, periodicShake 2s infinite; /* Shake every 1 second */
+}
+
+.nav-link.num::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: skewX(-45deg);
+  transition: 0.5s;
+}
+
+.nav-link.num:hover::before {
+  left: 100%;
+}
+@keyframes periodicShake {
+  0%,
+  90% {
+    transform: translateX(0);
+  }
+  92%,
+  96% {
+    transform: translateX(-5px);
+  }
+  94%,
+  98% {
+    transform: translateX(5px);
+  }
+}
+/* Glowing border effect */
+
+@media only screen and (max-width: 600px) {
+  .second-box {
+    margin-top: 90px;
+  }
+}
+
+.footer {
+  background: #f9f9f9;
+  color: black;
+  padding: 40px 0;
+}
+.footer .logo img {
+  width: 120px; /* Logo size */
+  height: auto;
+  margin-bottom: 20px;
+}
+.footer h4 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+.footer p {
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+.footer a {
+  color: #01132d; /* Gold color for links */
+  text-decoration: none;
+}
+.footer a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+.footer .social-icons a {
+  margin: 0 10px;
+  color: white;
+  font-size: 20px;
+}
+.footer .social-icons a:hover {
+  color: #004aad;
+}
+.footer-bottom {
+  background-color: #000000;
+  padding: 10px 0;
+  border: 1px solid rgb(81, 79, 79);
+  text-align: center;
+  color: white;
+  font-size: 14px;
+}
+
+.accordion-button {
+  background-color: #f8f9fa;
+  color: black;
+  font-weight: bold;
+}
+.accordion-button:not(.collapsed) {
+  color: white;
+  background: linear-gradient(45deg, #0404b5, #060649);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.accordion-body {
+  background-color: white;
+}
+.section-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #003366;
+}
+
+
+
+
+
+
+
+.box{
+width: 100%;
+height: 300vh;
+}
+
+
+
+
+.section-heading{
+
+
+font-family: "Jost", serif;
+}
+
+
+/* Banner styles */
+.banner {
+  position: relative;
+  height: 84vh;
+  color: white;
+  display: flex;
+  align-items: center;
+gap: 20px;
+  padding: 0 50px;
+  background: linear-gradient(to right, rgb(7, 7, 7) 0%, rgba(255, 255, 255, 0) 90%), 
+              url('https://png.pngtree.com/thumb_back/fh260/background/20210907/pngtree-school-season-blackboard-student-green-cartoon-banner-image_811922.jpg') center center/cover no-repeat;
+}
+
+
+
+
+
+
+
+
+/* Text section */
+.banner-content {
+  max-width: 40%;
+}
+
+.banner-content h1 {
+  font-size: 3rem;
+  
+font-family: "Jost", serif;
+
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #f1eaea; /* Dark text for contrast with white fade */
+}
+
+
+  .banner-content h1 span {
+
+  color: #4285F4; /* Dark text for contrast with white fade */
+}
+
+.banner-content p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  
+font-family: "Jost", serif;
+  color: #eee9e9; /* Muted text for better readability */
+}
+
+.banner-content .btn {
+  margin-right: 15px;
+}
+
+
+
+
+
+/* Play icon section */
+
+
+/* Play icon styles */
+.play-icon {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: waveEffect 2s infinite; /* Apply wavy effect */
+}
+
+.play-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.play-icon i {
+  font-size: 2.5rem;
+  color: rgb(66, 133, 244);
+}
+
+
+
+@media only screen and (max-width: 600px) {
+  .banner-content {
+    max-width: 85%;
+  }
+
+  .banner-content h1 {
+
+    font-size: 2rem;
+
+  }
+
+
+  .banner{
+    
+padding: 0 10px;
+  }
+
+
+
+
+  .play-icon{
+    width: 60px;
+    height: 40px;
+  }
+
+  .play-icon i {
+    font-size: 1.5rem;
+    color: rgb(66, 133, 244);
+  }
+}
+
+
+/* Wavy animation */
+@keyframes waveEffect {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+}
+
+.btn-row {
+gap: 20px;
+display: flex;
+}
+
+
+
+
+.f-btn{color: #eee9e9;
+  padding: 10px 40px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  background-color:#4285F4;
+}
+
+
+.s-btn{color: #4285F4;
+  padding: 10px 20px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  background-color: white;
+  border:1px solid #4285F4;
+}
+
+.feature-box {
+  border-radius: 5px;
+  background: linear-gradient(135deg, #ffffff 0%, #c3d5f1 100%);
+  color: rgb(18, 8, 8);
+  border: #b6c6d6 1px solid;
+
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.feature-box .icon {
+  margin-top: -30px;
+}
+.icon i{
+  color: #003366;
+}
+.feature-box h5 {
+  margin: 0;
+  font-size: 1.65rem;
+}
+.feature-box p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+
+
+/* Slider container */
+.slider-container {
+  width: 100%;
+  overflow: hidden;
+  background-color: #003366; /* Dark Blue Background */
+  padding: 10px 0;
+}
+
+/* Slider track */
+.slider-track {
+  display: flex;
+  align-items: center;
+  animation: slide 10s linear infinite;
+}
+
+/* Individual items */
+.slider-item {
+  flex-shrink: 0;
+  margin: 0 30px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff; /* White text */
+  white-space: nowrap;
+  transition: transform 0.3s ease;
+}
+
+/* Hover stop */
+.slider-container:hover .slider-track {
+  animation-play-state: paused; /* Stops animation on hover */
+}
+
+/* Animation for continuous sliding */
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+
+
+@media only screen and (max-width: 600px) {
+
+  .btn-row {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    }
+  
+    .slider-item {
+      font-size: 1rem;
+    }
+
+
+  
+  }
+
+
+
+/* Duplicate items for seamless loop */
+.slider-track .slider-item:last-child {
+  margin-right: 0;
+}
+.heading h1{
+font-weight: bold;
+text-transform: capitalize;
+color: #1A1A4B;
+}
+
+
+
+
+
+.hero-section {
+  background: linear-gradient(to top, rgb(255, 255, 255) 0%, rgba(255, 255, 255, 0) 100%), 
+  url('https://media.istockphoto.com/id/973856430/photo/young-teacher-helping-his-student-in-chemistry-class-education-tutoring-and-encouragement.jpg?s=612x612&w=0&k=20&c=xE6RnXt6zE_aYxS3by86WAWGaoLCY5KOtbIpZOThEW4=') center center/cover no-repeat;
+
+  background-size: cover;
+  background-position: center;
+  padding: 35px 0;
+  margin: 30px 0px;
+  text-align: center;
+}
+.hero-section h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1f1e1e;
+}
+.hero-section p {
+  font-size: 1.25rem;
+  color: #201e1e;
+}
+.hero-section .btns {
+  background-color: #4285F4;
+  color: #fff;
+  font-size: 1.25rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 2px;
+}
+
+
+.btns:hover {
+background-color: #0b5ad9;
+color: #fff;
+font-size: 1.25rem;
+padding: 10px 20px;
+border: none;
+border-radius: 2px;
+}
+
+
+.highlight {
+  color: white;
+  font-family: poppins,serif;
+-webkit-text-stroke: 2px #003366; /* Stroke thickness and color */
+}
+
+
+
+.main-text {
+background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+background-size: 300% 100%;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+font-weight: bold;
+font-size: 4rem; /* Adjust size as needed */
+animation: gradientAnimation 3s infinite alternate ease-in-out;
+}
+
+@keyframes gradientAnimation {
+0% {
+  background-position: 0% 50%;
+}
+100% {
+  background-position: 100% 50%;
+}
+}
+
+
+
+
+
+
+
+.btn-primary {
+  background-color: #4285F4;
+  border-color: #4285F4;
+}
+
+@keyframes shake {
+  0%, 90% {
+      transform: translateX(0);
+    }
+    92%, 96% {
+      transform: translateX(-5px);
+    }
+    94%, 98% {
+      transform: translateX(5px);
+    }
+}
+
+.shake-button {
+  animation: shake 1s ease-in-out infinite; /* Shake animation every 1 second */
+}
+
+.shake-button:hover {
+  animation-play-state: paused; /* Pause the animation on hover */
+}
+
+
+
+.achievement-container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.section-heading {
+  font-size: 2rem;
+  color: #003366;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.achievement-slider {
+  position: relative;
+}
+
+.achievement-slide {
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  margin: 0 10px; /* Adjusted margin for gap between slides */
+}
+
+
+
+
+.achievement-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.achievement-description {
+  margin-top: 15px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.achievement-title {
+  font-size: 1.25rem;
+  color: #003366;
+  font-weight: bold;
+}
+
+
+
+/* Arrows */
+.slick-prev, .slick-next {
+  background-color: #003366;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 20px;
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.slick-prev {
+  left: -30px;
+}
+
+.slick-next {
+  right: -30px;
+}
+
+.slick-prev:hover, .slick-next:hover {
+  background-color: #00509e;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .achievement-slider {
+    width: 100%;
+  }
+
+  .achievement-slide {
+    margin: 0 10px; /* Reduced margin for a compact look */
+  }
+}
+
+@media (max-width: 768px) {
+  .achievement-slider {
+    padding: 0 20px;
+  }
+
+  .achievement-slide {
+    margin: 0 5px; /* Even smaller margin for mobile */
+  }
+}
+
+
+
+
+
+.testimonial-container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.section-heading {
+  font-size: 2rem;
+  color: #003366;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.testimonial-slider {
+  position: relative;
+}
+
+.testimonial-slide {
+  padding: 20px;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  margin: 0 10px;
+}
+
+
+
+.testimonial-content {
+  margin-top: 15px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.testimonial-author {
+  font-size: 1.25rem;
+  color: #003366;
+  font-weight: bold;
+}
+
+.testimonial-position {
+  font-size: 1rem;
+  color: #777;
+  font-style: italic;
+}
+
+/* Arrows */
+.slick-prev, .slick-next {
+  background-color: #003366;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 20px;
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.slick-prev {
+  left: -30px;
+}
+
+.slick-next {
+  right: -30px;
+}
+
+.slick-prev:hover, .slick-next:hover {
+  background-color: #00509e;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .testimonial-slider {
+    width: 100%;
+  }
+
+  .testimonial-slide {
+    margin: 0 10px; /* Adjusted margin for a compact look */
+  }
+}
+
+@media (max-width: 768px) {
+  .testimonial-slider {
+    padding: 0 20px;
+  }
+
+  .testimonial-slide {
+    margin: 0 5px; /* Smaller margin for mobile */
+  }
+}
+
+
+
+.testimonial-card {
+  background-color: #F9F9F9;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px;
+  border: #a9d4ff solid 1px;
+
+  position: relative;
+  text-align: center;
+}
+.testimonial-card img {
+  border-radius: 50%;
+  border: 5px solid #004aad;
+  width: 100px;
+  object-fit: cover;
+  height: 100px;
+  margin: auto;
+}
+.testimonial-card .quote-icon {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  padding: 10px;
+}
+.testimonial-card .quote-icon-right {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  background-color: #004aad;
+  border-radius: 50%;
+  padding: 10px;
+}
+.testimonial-card .stars {
+  color: #004aad;
+}
+
+
+
+
+input, select {
+width: 100%;
+padding: 11px;
+border: 1px solid #ccc;
+border-radius: 0;
+box-sizing: border-box;
+outline: none; /* Remove focus outline */
+}
+
+/* Remove focus styles (border and outline) */
+input:focus, select:focus {
+border-color: #ccc; /* Keep the border same color */
+outline: none;
+}
+
+label {
+display: block;
+font-weight: bold;
+margin-left: 7px;
+margin-top: 4px;
+}
+
+
+
+
+.modal-dialog {
+top: 100px;
+min-width: 800px; /* Increase the modal width */
+margin: 30px auto; /* Center the modal */
+}
+@media only screen and (max-width: 600px) {
+.modal-dialog {
+top: 100px;
+min-width: auto; /* Increase the modal width */
+margin: 30px auto; /* Center the modal */
+}
+}
+/* Blurred background effect */
+.modal-backdrop.show {
+backdrop-filter: blur(5px);
+}
+
+/* For modal content, to make sure it stands out */
+.modal-content {
+border-radius: 10px;
+box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+  .modal-header {
+      background-color:  #004aad;
+      color: white;
+  }
+  .modal-footer button {
+    border-radius: 0px;
+    padding: 10px 20px;
+      background-color: #004aad;
+      color: white;
+  }
+  .form-control {
+      border: 1px solid #4285F4;
+  }
+  .btn-primary {
+      background-color: #4285F4;
+      border: none;
+  }
+  .btn-primary:hover {
+      background-color: #306acb;
+  }
+
+
+
+
+  .footer {
+    background: linear-gradient(45deg, #003366, #001020);
+    color: white;
+    padding: 40px 0;
+  }
+  .footer .logo img {
+    width: 120px; /* Logo size */
+    height: auto;
+    margin-bottom: 20px;
+  }
+  .footer h4 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  .footer p {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+  .footer a {
+    color: #ffd700; /* Gold color for links */
+    text-decoration: none;
+  }
+  .footer a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+  .footer .social-icons a {
+    margin: 0 10px;
+    color: white;
+    font-size: 20px;
+  }
+  .footer .social-icons a:hover {
+    color: #ffd700;
+  }
+  .footer-bottom {
+    background-color: #070000;
+    padding: 10px 0;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+  }
+
+
+
+
+
+
+  .banner-slider {
+    height: auto  ;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+
+  @media only screen and (max-width: 600px) {
+    
+  .banner-slider{
+    height: auto;
+  }
+  }
+  .banner-slider img {
+    width: 100%;
+    height: 300px;
+    object-fit: contain; /* Ensures the image covers the entire area */
+  }
+  
+
+
+
+
+
+
+
+  /* Cities Section */
+.cities-section {
+background: #f8f9fa;
+}
+
+/* Card Styling */
+
+
+
+
+
+/* City Card Styling */
+/* City Card Styling */
+/* City Card Styling with Enhanced Box Shadow */
+
+
+/* Container styling for the logo slider */
+.logo-slider {
+width: 100%; /* Full width */
+margin: 0 auto;
+}
+
+.logo-slider div{
+margin-right: 20px;
+}
+
+
+/* Logo images inside the slider */
+/* Styling for logos with a more beautiful box shadow */
+.logo-slider img {
+margin: 20px;
+padding: 10px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19); /* Beautiful box shadow */
+width: 100%; /* Make the logos fill the container */
+max-height: 160px; /* Adjust the height of logos */
+object-fit: contain; /* Ensure logos maintain their aspect ratio */
+border-radius: 20px;
+transition: box-shadow 0.3s ease-in-out; /* Smooth transition for box-shadow */
+}
+
+.logo-slider img:hover {
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 12px 40px rgba(0, 0, 0, 0.25); /* Stronger shadow on hover */
+}
+
+
+
+
+
+/* Add smooth up-and-down animation to the icons */
+.feature-box .icon img {
+animation: moveUpDown 5s ease-in-out infinite; /* Apply the animation */
+}
+
+/* Keyframes for smooth vertical movement */
+@keyframes moveUpDown {
+0% {
+transform: translateY(0); /* Start position */
+}
+50% {
+transform: translateY(-30px); /* Move up */
+}
+100% {
+transform: translateY(0); /* End position */
+}
+}
+
+
+
+
+
+.swiper-container {
+overflow: hidden;
+}
+
+.swiper-slide {
+border: none;
+border-radius: 12px;
+overflow: hidden;
+transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+padding: 20px;
+text-align: center;
+}
+
+.service-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.service-card .icon img {
+width: 100px;
+padding: 30%;
+border-radius: 10px;
+}
+
+.icon img {
+width: 200px;
+height: 200px;
+border-radius: 10px;
+}
+
+.service-card h5 {
+font-size: 22px;
+color: #333;
+font-weight: bold;
+margin-top: 10px;
+}
+
+.service-card p {
+font-size: 16px;
+color: #666;
+margin-top: 8px;
+}
+
+.btn-icon-circle {
+display: inline-block;
+padding: 12px 25px;
+border-radius: 50px;
+background-color: #007bff;
+color: white;
+font-weight: bold;
+text-decoration: none;
+transition: background 0.3s ease-in-out;
+}
+
+.btn-icon-circle:hover {
+background-color: #0056b3;
+}
+
+a{
+text-decoration: none;
+}
+.info p{
+text-decoration: none;
+color: black;
+}
+
+.info h5{
+text-decoration: none;
+color: black;
+margin-top: 20px;
+}
+
+.offer-card{
+text-decoration: none;
+}
+
+
+
+
+
+.breadcrumb {
+padding-top: 30px;
+background-color: transparent;
+margin-bottom: 0;
+}
+.breadcrumb-item + .breadcrumb-item::before {
+content: '>';
+}
+.header-title {
+font-size: 24px;
+font-weight: bold;
+color: #1a1a1a;
+}
+
+
+.breadcrumb-item a{
+text-decoration: none;
+}
+
+
+
+
+.filter-section {
+border-right: 1px solid #ddd;
+padding-right: 20px;
+}
+.filter-section h5 {
+font-weight: bold;
+}
+.filter-section .form-check-label {
+font-size: 14px;
+}
+.filter-section .form-control {
+font-size: 14px;
+}
+.college-card {
+border: 1px solid #ddd;
+border-radius: 5px;
+padding: 15px;
+margin-bottom: 20px;
+}
+.college-card img {
+width: 100%;
+height: 200px;
+object-fit: cover;
+border-radius: 5px;
+}
+.college-card .college-info {
+display: flex;
+justify-content: start;
+text-align: left;
+}
+.college-card .college-info h5 {
+font-weight: bold;
+}
+.college-card .college-info .rating {
+color: #f39c12;
+}
+.college-card .college-info .location {
+color: #888;
+}
+.college-card .college-info .actions {
+display: flex;
+align-items: center;
+}
+.college-card .college-info .actions button {
+margin-left: 10px;
+}
+.college-card .details {
+}
+.college-card .details .fees {
+font-weight: bold;
+}
+.college-card .details .apply-btn {
+background-color: #007bff;
+color: white;
+}
+.college-card .details .brochure-btn {
+background-color: #f8f9fa;
+color: #007bff;
+border: 1px solid #007bff;
+}
+
+
+
+.btn-link{
+text-decoration: none;
+}
+
+.form-check{
+padding-bottom: 15px;
+}
+
+.pill-container {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+margin-bottom: 14px;
+}
+
+
+
+
+.pill-button {
+display: inline-block;
+border: none;
+padding: 3px 10px;
+border-radius: 50px; /* Makes it pill-shaped */
+background-color: #e1e4e6; /* Blue color */
+color: rgb(71, 57, 134);
+font-size: 13px;
+cursor: pointer;
+transition: background 0.3s ease;
+text-decoration: none;
+}
+
+
+.clg-card img{
+height: 200px;
+object-fit: cover;
+
+}
+
+
+
+
+
+
+.shake-button {
+    border: 6px solid #b1d8ff;
+    position: relative;
+    background-color: #1b7aff;
+    font-weight: bold;
+    border-radius: 40px;
+    text-decoration: none;
+    outline: none;
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+    animation: shakeAnimation 2s infinite;
+  }
+
+  /* Shake Animation */
+  @keyframes shakeAnimation {
+    0%,
+    90% {
+      transform: translateX(0);
+    }
+    92% {
+      transform: translateX(-5px);
+    }
+    94% {
+      transform: translateX(5px);
+    }
+    96% {
+      transform: translateX(-5px);
+    }
+    98% {
+      transform: translateX(5px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+
+  .view-button{
+    border-radius: 37px;
+    font-weight: bold;
+    border: 7px solid #B1D8FF;
+    background-color: #1B7AFF;
+  }
+
+
+
+
+  .filter-section {
+    position: sticky;
+    top: 80px; /* Adjust according to the height of your header */
+    height: 90vh; /* This makes sure the filter section has a scrollable height */
+    overflow-y: auto; /* Enables vertical scrolling if the content exceeds the section's height */
+    padding-right: 10px; /* Optional, to avoid clipping scrollbars */
+  }
+  
+
+
+  
+
+
+
+  .load-more-btn {
+    background-color: #4540E1;
+    color: #fff;
+    font-size: 16px;
+    margin-top: 50px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 30px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 10px rgba(69, 64, 225, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.load-more-btn:hover {
+    background-color: #3731c8;
+    box-shadow: 0px 6px 15px rgba(69, 64, 225, 0.5);
+    transform: translateY(-2px);
+}
+
+.load-more-btn:active {
+    transform: scale(0.98);
+}
