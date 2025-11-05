@@ -16,8 +16,7 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   // Base API URL - adjust according to your environment
-  const API_BASE_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+const API_BASE_URL = "https://collegeforms.in";
   // Load cart items on component mount
   useEffect(() => {
     loadCartItems();

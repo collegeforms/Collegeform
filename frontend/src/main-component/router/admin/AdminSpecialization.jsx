@@ -4,8 +4,7 @@ import { TextField, Button, Container, Typography, Box, Paper, Grid, IconButton,
 import { Close } from '@mui/icons-material';
 
 const AdminSpecialization = () => {
-  const API_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-  
+ const API_URL = "https://collegeforms.in";
   const [specialization, setSpecialization] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [specializations, setSpecializations] = useState([]);

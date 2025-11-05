@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 const Colleges = () => {
     const [colleges, setColleges] = useState([]);
     const [visibleColleges, setVisibleColleges] = useState(5); // State to track visible colleges
-    const API_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+const API_URL = "https://collegeforms.in";
     useEffect(() => {
         // Fetch colleges from backend
         const fetchColleges = async () => {

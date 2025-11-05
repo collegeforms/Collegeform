@@ -38,8 +38,7 @@ const Home = () => {
 
 
   const [banners, setBanners] = useState([]);
-  const API_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+const API_URL = "https://collegeforms.in";
   useEffect(() => {
     // Fetch banners from the API
     const fetchBanners = async () => {

@@ -12,11 +12,7 @@ export default function Navbar(props) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  setInterval(() => {
-    fetch("https://collegeform.onrender.com/ping")
-      .catch(err => console.error("Keep-alive failed:", err));
-  }, 45000); // Pings every 45 seconds
-  
+
 
   const className = scroll > 80 ? "fixed-navbar active" : "fixed-navbar";
 

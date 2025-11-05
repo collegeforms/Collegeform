@@ -19,8 +19,7 @@ const Logos = () => {
 
   const [logos, setLogos] = useState([]);
 console.log(logos);
-const API_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+const API_URL = "https://collegeforms.in";
   useEffect(() => {
     // Fetch logos from the API
     const fetchLogos = async () => {

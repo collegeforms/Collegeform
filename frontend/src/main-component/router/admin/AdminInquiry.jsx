@@ -13,8 +13,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 
 const AdminInquiry = () => {
-  const API_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+const API_URL = "https://collegeforms.in";
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");

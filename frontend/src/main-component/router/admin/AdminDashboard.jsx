@@ -21,8 +21,7 @@ const orderData = [
 const COLORS = ["#696CFF", "#6DCBA2", "#E1675E"];
 
 const Dashboard = () => {
-  const API_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-  
+  const API_URL = "https://collegeforms.in";
   return (
     <Box sx={{ display: "flex" }}>
       <Container sx={{ flexGrow: 1, paddingTop: "20px" }}>

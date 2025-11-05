@@ -5,8 +5,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Importing eye icons for v
 import './AuthLogin.css'; // Import custom CSS
 
 const AuthLogin = () => {
-    const API_URL =  "https://collegeform.onrender.com" || "https://collegeform-production.up.railway.app" || "http://localhost:5000";
-
+  const API_URL = "https://collegeforms.in";
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility

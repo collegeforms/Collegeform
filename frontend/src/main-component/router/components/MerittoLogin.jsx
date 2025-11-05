@@ -103,7 +103,7 @@ const LoginPopup = ({ isOpen, onClose, onLogin }) => {
 
       // Login API call
       const response = await axios.post(
-        "https://collegeform.onrender.com/api/auth/login",
+        "https://collegeforms.in/api/auth/login",
         {
           email,
           password,
@@ -197,11 +197,7 @@ const MerittoLogin = () => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const navigate = useNavigate();
-  const API_URL =
-    "https://collegeform.onrender.com" ||
-    "https://collegeform-production.up.railway.app" ||
-    "http://localhost:5000";
-
+const API_URL = "https://collegeforms.in";
   // State for filters and dropdown options
   const [filters, setFilters] = useState({
     course: "",
