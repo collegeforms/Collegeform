@@ -490,7 +490,7 @@ const API_URL = "https://collegeforms.in";
                                         )}
 
                                         {/* Important Dates */}
-                                        <div className="college-section">
+                                        {/* <div className="college-section">
                                             <h3 className="section-title-2">Important Dates</h3>
                                             {(college.importantDates && college.importantDates.length > 0) || college.applicationDeadline ? (
                                                 <div className="dates-container">
@@ -523,7 +523,7 @@ const API_URL = "https://collegeforms.in";
                                                     <p>No important dates available</p>
                                                 </div>
                                             )}
-                                        </div>
+                                        </div> */}
 
                                         {/* Required Documents */}
                                         {college.requiredDocuments && college.requiredDocuments.length > 0 && (

@@ -27,6 +27,7 @@ const menuItems = [
   { text: "Logos", icon: <FaUsers />, path: "/admin/addlogo", section: "uploads" },
   { text: "Users", icon: <FaUsers />, path: "/admin/users", section: "user-management" },
   { text: "Applications", icon: <FaUsers />, path: "/admin/Applications", section: "user-management" },
+  { text: "Callbacks", icon: <FaCog />, path: "/admin/callbacks", section: "user-management" },
 
   { text: "Details", icon: <FaCog />, path: "/admin/upload", section: "uploads" },
 ];

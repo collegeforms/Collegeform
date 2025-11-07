@@ -30,6 +30,7 @@ import sitemapRouter from "./routes/sitemap.js";
 import faqRoutes from "./routes/faq.js";
 import upload from "./routes/upload.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import callbackRoutes from "./routes/callbackRoutes.js";
 
 import { startCleanupService } from './services/cleanupService.js';
 
@@ -167,6 +168,7 @@ app.use("/api/admin", adminUroutes);
 app.use('/api/students', studentrouter);
 app.use("/api/search", searchHistoryRoutes);
 app.use("/api/faqs", faqRoutes);
+app.use("/api/callbacks", callbackRoutes);
 
 // ✅ FIXED: Move sitemap route HERE (before catch-all handler)
 app.use('/', sitemapRouter);

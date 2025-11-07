@@ -63,6 +63,7 @@ import Privacy from './components/Privacy.jsx';
 import Terms from './components/Terms.jsx';
 import Educationloan from './components/Educationloan.jsx';
 import Accommodation from './components/Accommodation.jsx';
+import Requestcallback from './admin/Requestcallback.jsx';
 
 const AllRoute = () => {
   const theme = createTheme();
@@ -106,6 +107,7 @@ const AllRoute = () => {
                       <Route path="/edit-college/:id" element={<EditCollege />} />
                       <Route path="/colleges/add" element={<AddCollegePage />} />
 
+<Route path="/callbacks" element={<Requestcallback />} />
                     </Routes>
                   </AdminLayout>
                 </AdminProtected>

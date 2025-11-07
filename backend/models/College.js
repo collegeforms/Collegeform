@@ -1,43 +1,43 @@
 import mongoose from "mongoose";
 
 const coursePricingSchema = new mongoose.Schema({
-  courseName: { type: String, required: true },
-  originalFees: { type: Number, required: true },
-  discountedFees: { type: Number, required: true },
+  courseName: { type: String },
+  originalFees: { type: Number },
+  discountedFees: { type: Number },
   discountPercentage: { type: Number },
-  duration: { type: String, required: true },
-  eligibility: { type: String, required: true },
-  seatsAvailable: { type: Number, required: true }
+  duration: { type: String },
+  eligibility: { type: String },
+  seatsAvailable: { type: Number }
 });
 
 const admissionProcessSchema = new mongoose.Schema({
-  step: { type: Number, required: true },
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  duration: { type: String, required: true }
+  step: { type: Number },
+  title: { type: String },
+  description: { type: String },
+  duration: { type: String }
 });
 
 const importantDatesSchema = new mongoose.Schema({
-  event: { type: String, required: true },
-  date: { type: Date, required: true },
-  description: { type: String, required: true }
+  event: { type: String },
+  date: { type: Date },
+  description: { type: String }
 });
 
 const placementCompanySchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String },
   avgPackage: { type: Number },
   studentsPlaced: { type: Number }
 });
 
 const requiredDocumentSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  isRequired: { type: Boolean, default: true },
+  name: { type: String, },
+  isRequired: { type: Boolean },
   description: { type: String }
 });
 
 const keyHighlightSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true }
+  title: { type: String },
+  description: { type: String }
 });
 
 const placementStatsSchema = new mongoose.Schema({

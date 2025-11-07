@@ -369,98 +369,6 @@ const AdmissionProcessSection = ({ admissionProcess, setAdmissionProcess }) => {
 };
 
 // Important Dates Component
-const ImportantDatesSection = ({ importantDates, setImportantDates }) => {
-  const addImportantDate = () => {
-    setImportantDates([
-      ...importantDates,
-      {
-        event: "",
-        date: "",
-        description: ""
-      }
-    ]);
-  };
-
-  const updateImportantDate = (index, field, value) => {
-    const updated = [...importantDates];
-    updated[index][field] = value;
-    setImportantDates(updated);
-  };
-
-  const removeImportantDate = (index) => {
-    setImportantDates(importantDates.filter((_, i) => i !== index));
-  };
-
-  return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CalendarToday /> Important Dates
-          </Typography>
-          <Button startIcon={<Add />} onClick={addImportantDate} size="small">
-            Add Date
-          </Button>
-        </Box>
-
-        {importantDates.map((date, index) => (
-          <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="subtitle1">Date #{index + 1}</Typography>
-              <IconButton 
-                size="small" 
-                color="error" 
-                onClick={() => removeImportantDate(index)}
-              >
-                <Delete />
-              </IconButton>
-            </Box>
-
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  label="Event Name"
-                  value={date.event}
-                  onChange={(e) => updateImportantDate(index, 'event', e.target.value)}
-                  fullWidth
-                  size="small"
-                  placeholder="e.g., Application Start"
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  label="Date"
-                  type="date"
-                  value={date.date}
-                  onChange={(e) => updateImportantDate(index, 'date', e.target.value)}
-                  fullWidth
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  label="Description"
-                  value={date.description}
-                  onChange={(e) => updateImportantDate(index, 'description', e.target.value)}
-                  fullWidth
-                  size="small"
-                  placeholder="Additional details"
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        ))}
-
-        {importantDates.length === 0 && (
-          <Typography variant="body2" color="text.secondary" textAlign="center">
-            No important dates added. Click "Add Date" to add important events.
-          </Typography>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
 
 // Placement Companies Component
 const PlacementCompaniesSection = ({ placementCompanies, setPlacementCompanies }) => {
@@ -1369,10 +1277,6 @@ const EditCollege = () => {
                 setAdmissionProcess={setAdmissionProcess}
               />
               
-              <ImportantDatesSection 
-                importantDates={importantDates}
-                setImportantDates={setImportantDates}
-              />
 
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
