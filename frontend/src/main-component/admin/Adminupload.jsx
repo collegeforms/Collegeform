@@ -23,7 +23,7 @@ const AdminUpload = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/courses');
+      const response = await axios.get('https://collegeforms.in/courses');
       setCourses(response.data);
     } catch (error) {
       console.error('Error fetching courses', error);
@@ -32,7 +32,7 @@ const AdminUpload = () => {
 
   const fetchLocations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/locations');
+      const response = await axios.get('https://collegeforms.in/locations');
       setLocations(response.data);
     } catch (error) {
       console.error('Error fetching locations', error);
@@ -43,7 +43,7 @@ const AdminUpload = () => {
     e.preventDefault();
     const courseData = { name, description, price: parseFloat(price) };
     try {
-      const response = await axios.post('http://localhost:5000/courses', courseData);
+      const response = await axios.post('https://collegeforms.in/courses', courseData);
       if (response.status === 201) {
         setSnackbarMessage('Course uploaded successfully!');
         setSnackbarSeverity('success');
@@ -62,7 +62,7 @@ const AdminUpload = () => {
   const handleSubmitLocation = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/locations', { name: location });
+      const response = await axios.post('https://collegeforms.in/locations', { name: location });
       if (response.status === 201) {
         setSnackbarMessage('Location uploaded successfully!');
         setSnackbarSeverity('success');
@@ -78,7 +78,7 @@ const AdminUpload = () => {
 
   const handleDeleteCourse = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/courses/${id}`);
+      await axios.delete(`https://collegeforms.in/courses/${id}`);
       setCourses(courses.filter(course => course._id !== id));
       setSnackbarMessage('Course deleted successfully!');
       setSnackbarSeverity('success');
@@ -92,7 +92,7 @@ const AdminUpload = () => {
 
   const handleDeleteLocation = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/locations/${id}`);
+      await axios.delete(`https://collegeforms.in/locations/${id}`);
       setLocations(locations.filter(loc => loc._id !== id));
       setSnackbarMessage('Location deleted successfully!');
       setSnackbarSeverity('success');

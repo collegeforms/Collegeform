@@ -58,16 +58,16 @@ const Collegespage = () => {
     const fetchFilterOptions = async () => {
       try {
         const coursesResponse = await axios.get(
-          "http://localhost:5000/courses"
+          "https://collegeforms.in/courses"
         );
         const locationsResponse = await axios.get(
-          "http://localhost:5000/locations"
+          "https://collegeforms.in/locations"
         );
         const specializationResponse = await axios.get(
-          "http://localhost:5000/specializations"
+          "https://collegeforms.in/specializations"
         );
         const rangeResponse = await axios.get(
-          "http://localhost:5000/priceRanges"
+          "https://collegeforms.in/priceRanges"
         );
 
         setFilterOptions({
@@ -86,7 +86,7 @@ const Collegespage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/colleges")
+      .get("https://collegeforms.in/api/colleges")
       .then((response) => {
         setColleges(response.data);
         setFilteredColleges(response.data);

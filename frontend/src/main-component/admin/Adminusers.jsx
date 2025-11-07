@@ -21,7 +21,7 @@ const Adminusers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/admin/users", {
+        const response = await fetch("https://collegeforms.in/api/admin/users", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -47,7 +47,7 @@ const Adminusers = () => {
 
   const changeStatus = async (userId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/status`, {
+      const response = await fetch(`https://collegeforms.in/api/admin/users/${userId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const Adminusers = () => {
     if (!selectedUser) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${selectedUser._id}/remark`, {
+      const response = await fetch(`https://collegeforms.in/api/admin/users/${selectedUser._id}/remark`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

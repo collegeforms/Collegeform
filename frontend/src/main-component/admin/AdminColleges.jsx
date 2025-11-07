@@ -29,7 +29,7 @@ const Colleges = () => {
 
   const fetchColleges = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/colleges");
+      const response = await axios.get("https://collegeforms.in/api/colleges");
       setColleges(response.data);
     } catch (error) {
       console.error("Error fetching colleges:", error);
@@ -54,12 +54,12 @@ const Colleges = () => {
       }
 
       if (editCollege) {
-        await axios.put(`http://localhost:5000/api/colleges/${editCollege._id}`, formData, {
+        await axios.put(`https://collegeforms.in/api/colleges/${editCollege._id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         Swal.fire("Updated!", "College details updated successfully.", "success");
       } else {
-        const response = await axios.post("http://localhost:5000/api/colleges", formData, {
+        const response = await axios.post("https://collegeforms.in/api/colleges", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         setColleges([...colleges, response.data.college]);
@@ -84,7 +84,7 @@ const Colleges = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:5000/api/colleges/${id}`);
+          await axios.delete(`https://collegeforms.in/api/colleges/${id}`);
           setColleges(colleges.filter((college) => college._id !== id));
           Swal.fire("Deleted!", "The college has been deleted.", "success");
         } catch (error) {
@@ -123,7 +123,7 @@ const Colleges = () => {
               <TableRow key={college._id} sx={{ "&:hover": { backgroundColor: "#E8F5E9" } }}>
                 <TableCell align="center">{college.name}</TableCell>
                 <TableCell align="center">
-                  <img src={`http://localhost:5000${college.image}`} alt={college.name} style={{ width: "50px" }} />
+                  <img src={`https://collegeforms.in${college.image}`} alt={college.name} style={{ width: "50px" }} />
                 </TableCell>
                 <TableCell align="center">{college.location}</TableCell>
                 <TableCell align="center">{college.courses.join(", ")}</TableCell>

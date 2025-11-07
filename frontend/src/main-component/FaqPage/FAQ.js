@@ -25,7 +25,7 @@ const FAQ = () => {
   const [expanded, setExpanded] = useState(false);
   const API_URL = "https://collegeforms.in";  
   const location = useLocation();
-  const isBlogsPage = location.pathname === '/blogs';
+  const isFAQPage = location.pathname === '/faq';
 
   useEffect(() => {
     fetchFAQs();
@@ -54,47 +54,49 @@ const FAQ = () => {
   if (loading) {
     return (
       <>
-        {!isBlogsPage && <Navbar />}
+        {isFAQPage && <Navbar />}
         <Box className="faq-loading">
           <CircularProgress size={60} />
           <Typography variant="h6" sx={{ mt: 2 }}>
             Loading FAQs...
           </Typography>
         </Box>
-        {!isBlogsPage && <Footer />}
+        {isFAQPage && <Footer />}
       </>
     );
   }
 
   return (
     <>
-      {!isBlogsPage && <Navbar />}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        {/* Header */}
-        <Box className="faq-header" sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography 
-            variant="h3" 
-            className="faq-title"
-            sx={{ 
-              fontWeight: 'bold',
-              mb: 2
-            }}
-          >
-            Frequently Asked Questions
-          </Typography>
-          <Typography 
-            variant="h6" 
-            className="faq-subtitle"
-            sx={{ 
-              color: 'text.secondary',
-              maxWidth: '600px',
-              mx: 'auto'
-            }}
-          >
-            Find answers to common questions about our college forms platform
-          </Typography>
-        </Box>
 
+      {isFAQPage && <Navbar />}
+    <div className='main-div-faq' >
+    
+      <Container maxWidth="lg" sx={{ py: 5 , pb:0 }}>
+        {/* Header - Only show on FAQ page */}
+          <Box className="faq-header" sx={{ textAlign: 'center', mb: 6 }}>
+            <Typography 
+              variant="h3" 
+              className="faq-title"
+              sx={{ 
+                fontWeight: 'bold',
+                mb: 2
+              }}
+            >
+              Frequently Asked Questions
+            </Typography>
+            <Typography 
+              variant="h6" 
+              className="faq-subtitle"
+              sx={{ 
+                color: 'text.secondary',
+                maxWidth: '600px',
+                mx: 'auto'
+              }}
+            >
+              Find answers to common questions about our college forms platform
+            </Typography>
+          </Box>
         {/* Error Alert */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
@@ -187,25 +189,28 @@ const FAQ = () => {
           )}
         </Box>
 
-        {/* Footer */}
-        <Box className="faq-footer" sx={{ textAlign: 'center', mt: 6 }}>
-          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-            Still have questions?{' '}
-            <Button 
-              href="/contact" 
-              variant="text" 
-              sx={{ 
-                fontWeight: 'bold',
-                textTransform: 'none',
-                fontSize: 'inherit'
-              }}
-            >
-              Contact our support team
-            </Button>
-          </Typography>
-        </Box>
+        {/* Footer - Only show on FAQ page */}
+        {isFAQPage && (
+          <Box className="faq-footer" sx={{ textAlign: 'center', mt: 6 }}>
+            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+              Still have questions?{' '}
+              <Button 
+                href="/contact" 
+                variant="text" 
+                sx={{ 
+                  fontWeight: 'bold',
+                  textTransform: 'none',
+                  fontSize: 'inherit'
+                }}
+              >
+                Contact our support team
+              </Button>
+            </Typography>
+          </Box>
+        )}
       </Container>
-      {!isBlogsPage && <Footer />}
+      </div>
+      {isFAQPage && <Footer />}
     </>
   );
 };

@@ -59,6 +59,10 @@ import Addfaq from './admin/Addfaq.jsx';
 import Adminapplications from './admin/Adminapplications.jsx';
 import CartPage from './components/CartPage.js';
 import AddCollegePage from './admin/AddCollegePage.jsx';
+import Privacy from './components/Privacy.jsx';
+import Terms from './components/Terms.jsx';
+import Educationloan from './components/Educationloan.jsx';
+import Accommodation from './components/Accommodation.jsx';
 
 const AllRoute = () => {
   const theme = createTheme();
@@ -116,6 +120,9 @@ const AllRoute = () => {
             <Route path="/video" element={<VideoCarousel />} />
             <Route path="/myaccount" element={<MyAccount />} />
             <Route path="/contactus" element={<ContactUs />} />
+            <Route path="/education/education-loan" element={<Educationloan />} />
+            <Route path="/education/accommodation" element={<Accommodation />} />
+
             <Route path="/cart" element={<CartPage />} />
             <Route path="/studyabroad" element={<PrivacyPage />} />
             <Route path="/events" element={<Events />} />
@@ -135,6 +142,9 @@ const AllRoute = () => {
             <Route path="/college/:id?" element={<TeamSinglePage />} />
             <Route path="/blogs" element={<BlogPageFullwidth />} />
             <Route path="/blogs/:slug" element={<BlogDetails />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+
 
           </Routes>
         </Router>

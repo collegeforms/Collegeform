@@ -28,7 +28,7 @@ const AddLogo = () => {
   // Fetch logos from the API
   const fetchLogos = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/logos");
+      const response = await axios.get("https://collegeforms.in/api/logos");
       setLogos(response.data); // Assuming the response is an array of logo objects
     } catch (error) {
       showSnackbar("Error fetching logos.", "error");
@@ -48,7 +48,7 @@ const AddLogo = () => {
     formData.append("image", selectedFile);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/logos", formData, {
+      const response = await axios.post("https://collegeforms.in/api/logos", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -65,7 +65,7 @@ const AddLogo = () => {
     if (!window.confirm("Are you sure you want to delete this logo?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/logos/${id}`);
+      await axios.delete(`https://collegeforms.in/api/logos/${id}`);
       setLogos(logos.filter((logo) => logo._id !== id)); // Remove deleted logo from UI
       showSnackbar("Logo deleted successfully!", "success");
     } catch (error) {
@@ -113,7 +113,7 @@ const AddLogo = () => {
                 component="img"
                 height="150"
                 style={{ objectFit: "contain" }}
-                image={`http://localhost:5000${logo.image}`} // Adjust API path
+                image={`https://collegeforms.in${logo.image}`} // Adjust API path
                 alt="Logo"
               />
               <CardActions sx={{ position: "absolute", top: 5, right: 5 }}>

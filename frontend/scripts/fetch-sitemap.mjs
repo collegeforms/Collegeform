@@ -2,7 +2,7 @@ import fs from "fs";
 import fetch from "node-fetch";
 
 // Backend ka sitemap URL
-const BACKEND_SITEMAP =  "http://localhost:5000";
+const BACKEND_SITEMAP =  "https://collegeforms.in";
 
 
 // Output file frontend ke public folder me

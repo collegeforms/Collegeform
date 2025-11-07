@@ -21,7 +21,7 @@ const ApplyNowModal = ({ open, handleClose, collegeName, collegeLocation }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/applications', formData);
+      const response = await axios.post('https://collegeforms.in/api/applications', formData);
       console.log('Form Submitted:', response.data);
       handleClose();
     } catch (error) {

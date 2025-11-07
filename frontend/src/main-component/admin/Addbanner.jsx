@@ -23,7 +23,7 @@ const AddBanner = () => {
   // Fetch banners from API
   const fetchBanners = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/banners");
+      const response = await axios.get("https://collegeforms.in/api/banners");
       console.log(response.data); // Log response to check the structure
       setBanners(response.data); // Assuming the response is an array of banner objects
     } catch (error) {
@@ -44,7 +44,7 @@ const AddBanner = () => {
     formData.append("image", selectedFile);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/banners", formData, {
+      const response = await axios.post("https://collegeforms.in/api/banners", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -62,7 +62,7 @@ const AddBanner = () => {
     if (!window.confirm("Are you sure you want to delete this banner?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/banners/${id}`);
+      await axios.delete(`https://collegeforms.in/api/banners/${id}`);
       setBanners(banners.filter((banner) => banner._id !== id)); // Remove deleted banner from UI
       alert("Banner deleted successfully!");
     } catch (error) {
@@ -99,7 +99,7 @@ const AddBanner = () => {
                 component="img"
                 height="250"
                 style={{ objectFit: "contain" }}
-                image={`http://localhost:5000${banner.image}`} // Adjust API path
+                image={`https://collegeforms.in${banner.image}`} // Adjust API path
                 alt="Banner"
               />
               <CardActions sx={{ position: "absolute", top: 5, right: 5 }}>

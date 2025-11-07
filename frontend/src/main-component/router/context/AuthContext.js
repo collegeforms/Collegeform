@@ -4,7 +4,8 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
- const API_URL = "https://collegeforms.in";
+  const API_URL = "https://collegeforms.in";
+  // const API_URL = 'https://collegeforms.in1';
   
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
@@ -12,6 +13,8 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [otpSent, setOtpSent] = useState(false);
   const [otpPhone, setOtpPhone] = useState("");
+  const [otpPurpose, setOtpPurpose] = useState(""); // 'login' or 'signup'
+  const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
     const userToken = localStorage.getItem("userToken");
@@ -27,12 +30,26 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Send OTP for login/registration
-  const sendOtp = async (phone) => {
+  // Start resend timer
+  const startResendTimer = () => {
+    setResendTimer(120);
+    const timerInterval = setInterval(() => {
+      setResendTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(timerInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Send OTP for login (only for existing users)
+  const sendLoginOtp = async (phone) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/auth/send-otp`, {
+      const response = await fetch(`${API_URL}/api/auth/send-login-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
@@ -46,7 +63,9 @@ export const AuthProvider = ({ children }) => {
 
       setOtpSent(true);
       setOtpPhone(phone);
-      return { success: true };
+      setOtpPurpose("login");
+      startResendTimer();
+      return { success: true, message: data.message };
     } catch (error) {
       setError(error.message);
       return { success: false, error: error.message };
@@ -55,21 +74,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Verify OTP and complete registration/login
-  const verifyOtp = async (formData, otp) => {
+  // Send OTP for signup (for new users)
+  const sendSignupOtp = async (phone) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/auth/verify-otp`, {
+      const response = await fetch(`${API_URL}/api/auth/send-signup-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send OTP");
+      }
+
+      setOtpSent(true);
+      setOtpPhone(phone);
+      setOtpPurpose("signup");
+      startResendTimer();
+      return { success: true, message: data.message };
+    } catch (error) {
+      setError(error.message);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify OTP for login
+  const verifyLoginOtp = async (otp) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/verify-login-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          phone: formData.phone || otpPhone,
-          otp: otp,
-          name: formData.name,
-          email: formData.email,
-          city: formData.city,
-          course: formData.course
+          phone: otpPhone,
+          otp: otp
         }),
       });
 
@@ -84,7 +129,47 @@ export const AuthProvider = ({ children }) => {
       setUser({ token: data.token, info: data.user });
       setOtpSent(false);
       setOtpPhone("");
-      return { success: true };
+      setOtpPurpose("");
+      setResendTimer(0);
+      return { success: true, user: data.user };
+    } catch (error) {
+      setError(error.message);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify OTP for signup and complete registration
+  const verifySignupOtp = async (formData, otp) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          phone: otpPhone,
+          otp: otp,
+          name: formData.name,
+          email: formData.email
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "OTP verification failed");
+      }
+
+      localStorage.setItem("userToken", data.token);
+      localStorage.setItem("userInfo", JSON.stringify(data.user));
+      setUser({ token: data.token, info: data.user });
+      setOtpSent(false);
+      setOtpPhone("");
+      setOtpPurpose("");
+      setResendTimer(0);
+      return { success: true, user: data.user };
     } catch (error) {
       setError(error.message);
       return { success: false, error: error.message };
@@ -95,10 +180,17 @@ export const AuthProvider = ({ children }) => {
 
   // Resend OTP
   const resendOtp = async () => {
+    if (resendTimer > 0) {
+      setError(`Please wait ${resendTimer} seconds before resending OTP`);
+      return { success: false, error: `Please wait ${resendTimer} seconds before resending OTP` };
+    }
+
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/auth/resend-otp`, {
+      const endpoint = otpPurpose === "login" ? "resend-login-otp" : "resend-signup-otp";
+      
+      const response = await fetch(`${API_URL}/api/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: otpPhone }),
@@ -110,7 +202,34 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || "Failed to resend OTP");
       }
 
+      startResendTimer();
       return { success: true };
+    } catch (error) {
+      setError(error.message);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Check if phone exists
+  const checkPhoneExists = async (phone) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/check-phone`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to check phone");
+      }
+
+      return { success: true, exists: data.exists, message: data.message };
     } catch (error) {
       setError(error.message);
       return { success: false, error: error.message };
@@ -140,7 +259,6 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || "Failed to update profile");
       }
 
-      // Update user info in state and localStorage
       localStorage.setItem("userInfo", JSON.stringify(data.user));
       setUser(prev => ({ ...prev, info: data.user }));
       
@@ -172,7 +290,6 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || "Failed to get user data");
       }
 
-      // Update user info in state and localStorage
       localStorage.setItem("userInfo", JSON.stringify(data.user));
       setUser(prev => ({ ...prev, info: data.user }));
       
@@ -185,7 +302,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Admin Login (keep this if you still need admin login with password)
+  // Admin Login
   const loginAdmin = async (username, password) => {
     setLoading(true);
     setError(null);
@@ -219,6 +336,8 @@ export const AuthProvider = ({ children }) => {
     setAdmin(null);
     setOtpSent(false);
     setOtpPhone("");
+    setOtpPurpose("");
+    setResendTimer(0);
   };
 
   return (
@@ -230,9 +349,14 @@ export const AuthProvider = ({ children }) => {
         error,
         otpSent,
         otpPhone,
-        sendOtp, 
-        verifyOtp,
+        otpPurpose,
+        resendTimer,
+        sendLoginOtp, 
+        sendSignupOtp,
+        verifyLoginOtp,
+        verifySignupOtp,
         resendOtp,
+        checkPhoneExists,
         editProfile,
         getUserData,
         loginAdmin, 
@@ -241,6 +365,8 @@ export const AuthProvider = ({ children }) => {
         resetOtpState: () => {
           setOtpSent(false);
           setOtpPhone("");
+          setOtpPurpose("");
+          setResendTimer(0);
         }
       }}
     >
@@ -249,7 +375,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

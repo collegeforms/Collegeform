@@ -18,6 +18,7 @@ import EducationBlocks from './EducationBlocks';
 import Commonform from '../router/components/Commonform';
 import PersonalisedSection from '../../components/PersonalisedSection/PersonalisedSection'
 import FaqSection from '../FaqPage/FAQ';
+import FAQ from '../FaqPage/FAQ';
 
 const HomePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -112,6 +113,7 @@ const HomePage = () => {
             <Commonform/>
             <Testimonial/>
             <ChooseSection/>
+            <FAQ/>
             <PersonalisedSection/>
             <Homeblogs/>
             <Footer/> 

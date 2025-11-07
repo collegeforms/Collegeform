@@ -12,52 +12,52 @@ const PrivacyPage = (props) => {
         { 
             name: "United States", 
             image: "https://images.unsplash.com/photo-1483721310020-03333e577078?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Home to Ivy League and top STEM programs"
+            description: "The United States offers high-quality universities, groundbreaking research and a wealth of cultural experiences. With programs that allow for flexibility and numerous scholarships available, the United States is a great destination for students interested in being cutting-edge and global in education."
         },
         { 
             name: "United Kingdom", 
             image: "https://images.unsplash.com/photo-1486299267070-83823f5448dd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Prestigious universities with rich history"
+            description: "Get a world-class degree, study at historic campuses and experience a variety of programs while abroad with the United Kingdom, where study programs are shorter than most places, the job market is more favorable, and international students are warmly welcomed."
         },
         { 
             name: "Canada", 
             image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Affordable education with PR opportunities"
+            description: "Canada provides students with a high-quality education, a supportive environment, and the opportunity for work during and after their education. Low tuition rates and multicultural cities make Canada an ideal destination for international students."
         },
         { 
             name: "Australia", 
             image: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "High quality of life and post-study work"
+            description: "Australia provides students a combination of reputable universities, a casual lifestyle, global recognition, and the opportunity for research, internships (informal and formal), and cosmopolitan cities and nightlife."
         },
         { 
             name: "Germany", 
             image: "https://images.unsplash.com/photo-1528728329032-2972f65dfb3f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Tuition-free education at public universities"
+            description: "Germany boasts universities that charge little or no money for tuition, excellent engineering and technology programs, and strong ties to industry, making it a great destination for students interested in studying at good institutions at a low cost."
         },
         { 
             name: "Singapore", 
             image: "https://images.unsplash.com/photo-1565967511849-76a60a516170?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Asian hub for business and technology"
+            description: "Singapore is home to some of the best schools in the world, some of the best business programs, and a safe modern city to study and live in. Being based in Asia opens doors for students to find employment opportunities everywhere."
         },
         { 
             name: "France", 
             image: "https://images.unsplash.com/photo-1431274172761-fca41d930114?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Cultural experience with affordable education"
+            description: "Studying in France gives you world-class arts and culture as well as a world-class culinary education. Low tuition and unique programs make it an attractive destination for students in search of educational cultural experiences."
         },
         { 
             name: "Dubai (UAE)", 
             image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Tax-free salaries and modern infrastructure"
+            description: "Dubai emerged rapidly as an important educational center, with international campuses, infrastructure to support learning, and employment opportunities in business, technology, and hospitality."
         },
         { 
             name: "Ireland", 
             image: "https://images.unsplash.com/photo-1549918864-48ac978761a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "English-speaking with strong tech industry"
+            description: "Ireland has a wealthy cultural history in combination with superb universities with cutting-edge research. The English-speaking courses and welcoming culture create a unique opportunity for international students."
         },
         { 
             name: "New Zealand", 
             image: "https://images.unsplash.com/photo-1507699622108-4be3abd695ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-            description: "Stunning landscapes and research opportunities"
+            description: "New Zealand is an academic pathway with leading programs, incredible landscapes, and student-friendly visas. It is ideal for a student looking for a balance of an active life, along with solid academic programs."
         }
     ];
 

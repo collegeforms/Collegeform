@@ -71,7 +71,7 @@ const StudentTests = () => {
   const [loading, setLoading] = useState(false);
   const [animate, setAnimate] = useState(false);
 
-  const API_URL = 'http://localhost:5000/api/tests';
+  const API_URL = 'https://collegeforms.in/api/tests';
   const authHeader = {
     headers: { Authorization: `Bearer ${localStorage.getItem('userToken')}` }
   };

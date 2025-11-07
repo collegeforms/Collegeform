@@ -1,0 +1,199 @@
+/* Terms.css */
+.clg-terms-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f8ff 0%, #ffffff 100%);
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.clg-terms-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.clg-terms-title {
+  color: #1e40af;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.clg-terms-update {
+  color: #3b82f6;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.clg-terms-intro-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(30, 64, 175, 0.1);
+  border: 1px solid #dbeafe;
+}
+
+.clg-terms-intro-text {
+  color: #374151;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  text-align: center;
+  font-weight: 500;
+}
+
+.clg-terms-sections-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.clg-terms-section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(30, 64, 175, 0.1);
+  border: 1px solid #dbeafe;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clg-terms-section-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(30, 64, 175, 0.15);
+}
+
+.clg-terms-header-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 15px;
+}
+
+.clg-terms-number-badge {
+  background: #1e40af;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 15px;
+}
+
+.clg-terms-title-heading {
+  color: #1e40af;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.clg-terms-content-wrapper {
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.clg-terms-content-wrapper p {
+  margin-bottom: 15px;
+}
+
+.clg-terms-bullet-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 20px 0;
+}
+
+.clg-terms-bullet-list li {
+  padding: 8px 0;
+  padding-left: 25px;
+  position: relative;
+}
+
+.clg-terms-bullet-list li::before {
+  content: "•";
+  color: #3b82f6;
+  font-weight: bold;
+  font-size: 1.2rem;
+  position: absolute;
+  left: 0;
+  top: 6px;
+}
+
+.clg-terms-contact-box {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  margin-top: 15px;
+}
+
+.clg-terms-contact-detail {
+  margin: 8px 0;
+  color: #374151;
+}
+
+.clg-terms-footer-note {
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px;
+  background: #1e40af;
+  color: white;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.clg-terms-footer-text {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .clg-terms-container {
+    padding: 20px 15px;
+  }
+  
+  .clg-terms-title {
+    font-size: 2rem;
+  }
+  
+  .clg-terms-intro-section,
+  .clg-terms-section-card {
+    padding: 20px;
+  }
+  
+  .clg-terms-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .clg-terms-number-badge {
+    margin-bottom: 10px;
+  }
+  
+  .clg-terms-title-heading {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .clg-terms-title {
+    font-size: 1.8rem;
+  }
+  
+  .clg-terms-update {
+    font-size: 1rem;
+  }
+  
+  .clg-terms-content-wrapper {
+    font-size: 0.95rem;
+  }
+  
+  .clg-terms-number-badge {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}

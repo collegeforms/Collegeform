@@ -1,0 +1,197 @@
+/* Privacy.css */
+.clg-privacy-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f8ff 0%, #ffffff 100%);
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.clg-privacy-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.clg-privacy-title {
+  color: #1e40af;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.clg-privacy-update {
+  color: #3b82f6;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.clg-privacy-intro-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(30, 64, 175, 0.1);
+  border: 1px solid #dbeafe;
+}
+
+.clg-privacy-intro-text {
+  color: #374151;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.clg-privacy-sections-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.clg-policy-section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(30, 64, 175, 0.1);
+  border: 1px solid #dbeafe;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clg-policy-section-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(30, 64, 175, 0.15);
+}
+
+.clg-section-header-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+}
+
+.clg-section-number-badge {
+  background: #1e40af;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 15px;
+}
+
+.clg-section-title-heading {
+  color: #1e40af;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.clg-section-content-wrapper {
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.clg-section-content-wrapper p {
+  margin-bottom: 15px;
+}
+
+.clg-bullet-point-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 20px 0;
+}
+
+.clg-bullet-point-list li {
+  padding: 8px 0;
+  padding-left: 25px;
+  position: relative;
+}
+
+.clg-bullet-point-list li::before {
+  content: "•";
+  color: #3b82f6;
+  font-weight: bold;
+  font-size: 1.2rem;
+  position: absolute;
+  left: 0;
+  top: 6px;
+}
+
+.clg-contact-info-box {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  margin-top: 15px;
+}
+
+.clg-contact-detail {
+  margin: 8px 0;
+  color: #374151;
+}
+
+.clg-privacy-footer-note {
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px;
+  background: #1e40af;
+  color: white;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.clg-footer-text {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .clg-privacy-container {
+    padding: 20px 15px;
+  }
+  
+  .clg-privacy-title {
+    font-size: 2rem;
+  }
+  
+  .clg-privacy-intro-section,
+  .clg-policy-section-card {
+    padding: 20px;
+  }
+  
+  .clg-section-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .clg-section-number-badge {
+    margin-bottom: 10px;
+  }
+  
+  .clg-section-title-heading {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .clg-privacy-title {
+    font-size: 1.8rem;
+  }
+  
+  .clg-privacy-update {
+    font-size: 1rem;
+  }
+  
+  .clg-section-content-wrapper {
+    font-size: 0.95rem;
+  }
+  
+  .clg-section-number-badge {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}

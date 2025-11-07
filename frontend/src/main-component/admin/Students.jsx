@@ -44,7 +44,7 @@ const Students = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/students/students');
+        const response = await axios.get('https://collegeforms.in/api/students/students');
         const formattedData = response.data.map((student, index) => ({ id: index + 1, ...student }));
         setStudents(formattedData);
       } catch (err) {

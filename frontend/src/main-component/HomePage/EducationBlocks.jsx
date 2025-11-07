@@ -81,6 +81,7 @@ const educationOptions = [
     frontDesc: 'Safe, affordable, and convenient stay options',
     backDesc: 'Find verified hostels, PGs, and rental accommodations near your institute',
     link: '/education/accommodation'
+    
   }
 ];
 

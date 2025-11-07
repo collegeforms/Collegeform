@@ -332,3 +332,9 @@
 .faq-card.active::before {
   height: 3px;
 }
+
+.main-div-faq{
+  height: 100%;
+  width: 100%;
+  /* background-color: #FAFBFE; */
+}

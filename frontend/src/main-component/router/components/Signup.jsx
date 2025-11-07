@@ -7,9 +7,22 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import LockIcon from "@mui/icons-material/Lock";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const Signup = () => {
-  const { sendOtp, verifyOtp, loading, error, otpSent, otpPhone, resendOtp } = useContext(AuthContext);
+  const { 
+    sendSignupOtp, 
+    verifySignupOtp, 
+    loading, 
+    error, 
+    otpSent, 
+    otpPhone, 
+    resendOtp,
+    clearError,
+    resetOtpState,
+    resendTimer
+  } = useContext(AuthContext);
+  
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -19,6 +32,7 @@ const Signup = () => {
   });
   const [otp, setOtp] = useState("");
   const [localError, setLocalError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({
@@ -30,7 +44,10 @@ const Signup = () => {
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setLocalError("");
+    setSuccessMessage("");
+    clearError();
     
+    // Validation
     if (!formData.name) {
       setLocalError("Name is required");
       return;
@@ -41,35 +58,74 @@ const Signup = () => {
       return;
     }
 
-    const result = await sendOtp(formData.phone);
-    if (!result.success) {
-      setLocalError(result.error);
+    if (!/^\d+$/.test(formData.phone)) {
+      setLocalError("Phone number should contain only digits");
+      return;
+    }
+
+    // Send OTP for signup
+    const result = await sendSignupOtp(formData.phone);
+    
+    if (result.success) {
+      setSuccessMessage(`OTP sent successfully to ${formData.phone}`);
+    } else {
+      setLocalError(result.error || "Failed to send OTP. Please try again.");
     }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setLocalError("");
+    setSuccessMessage("");
+    clearError();
     
     if (!otp || otp.length !== 6) {
       setLocalError("Please enter a valid 6-digit OTP");
       return;
     }
 
-    const result = await verifyOtp(formData, otp);
+    if (!/^\d+$/.test(otp)) {
+      setLocalError("OTP should contain only digits");
+      return;
+    }
+
+    const result = await verifySignupOtp(formData, otp);
+    
     if (result.success) {
-      navigate("/");
+      setSuccessMessage("Account created successfully! Redirecting...");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } else {
-      setLocalError(result.error);
+      setLocalError(result.error || "Invalid OTP. Please try again.");
     }
   };
 
   const handleResendOtp = async () => {
     setLocalError("");
+    setSuccessMessage("");
+    clearError();
+
     const result = await resendOtp();
-    if (!result.success) {
-      setLocalError(result.error);
+    
+    if (result.success) {
+      setSuccessMessage("OTP resent successfully!");
+    } else {
+      setLocalError(result.error || "Failed to resend OTP. Please try again.");
     }
+  };
+
+  const handleBack = () => {
+    resetOtpState();
+    setLocalError("");
+    setSuccessMessage("");
+    setOtp("");
+  };
+
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   return (
@@ -79,13 +135,56 @@ const Signup = () => {
           <img src="/img/college-logo-2.png" width={"200px"} alt="College Logo" />
         </Link>
         
-        <h1 className='text-start'>{otpSent ? "Verify OTP" : "Create Your Account"}</h1>
+        <h1 className='text-start'>
+          {otpSent ? (
+            <div className="d-flex align-items-center">
+              <button 
+                type="button" 
+                className="btn btn-link p-0 me-2 back-btn"
+                onClick={handleBack}
+                disabled={loading}
+              >
+                <ArrowBackIcon />
+              </button>
+              Verify OTP
+            </div>
+          ) : (
+            "Create Your Account"
+          )}
+        </h1>
         
-        {(error || localError) && <p className="error text-danger">{error || localError}</p>}
+        {/* Success Message */}
+        {successMessage && (
+          <div className="alert alert-success alert-dismissible fade show" role="alert">
+            <i className="fas fa-check-circle me-2"></i>
+            {successMessage}
+            <button 
+              type="button" 
+              className="btn-close" 
+              onClick={() => setSuccessMessage("")}
+            ></button>
+          </div>
+        )}
+        
+        {/* Error Messages */}
+        {(error || localError) && (
+          <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            <i className="fas fa-exclamation-triangle me-2"></i>
+            {error || localError}
+            <button 
+              type="button" 
+              className="btn-close" 
+              onClick={() => { clearError(); setLocalError(""); }}
+            ></button>
+          </div>
+        )}
         
         {!otpSent ? (
           <form onSubmit={handleSendOtp} className='attractive-form'>
             <div className="form-group">
+              <label htmlFor="name" className="form-label">
+                Full Name <span className="text-danger">*</span>
+              </label>
               <div className="input-container">
                 <PersonIcon className="input-icon" />
                 <input 
@@ -97,11 +196,15 @@ const Signup = () => {
                   onChange={handleChange}
                   required 
                   className="sleek-input"
+                  disabled={loading}
                 />
               </div>
             </div>
 
             <div className="form-group">
+              <label htmlFor="phone" className="form-label">
+                Phone Number <span className="text-danger">*</span>
+              </label>
               <div className="input-container">
                 <PhoneIcon className="input-icon" />
                 <input 
@@ -110,15 +213,25 @@ const Signup = () => {
                   name="phone" 
                   placeholder="Enter your 10-digit phone number" 
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                  onChange={(e) => setFormData({
+                    ...formData, 
+                    phone: e.target.value.replace(/\D/g, '').slice(0, 10)
+                  })}
                   required 
                   className="sleek-input"
                   maxLength="10"
+                  disabled={loading}
                 />
+              </div>
+              <div className="form-text">
+                We'll verify this number with OTP
               </div>
             </div>
 
             <div className="form-group">
+              <label htmlFor="email" className="form-label">
+                Email Address
+              </label>
               <div className="input-container">
                 <EmailIcon className="input-icon" />
                 <input 
@@ -129,20 +242,34 @@ const Signup = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="sleek-input"
+                  disabled={loading}
                 />
               </div>
             </div>
-
-          
-
             
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? "Sending OTP..." : "Send OTP"} <LockIcon className="ms-2" />
+            <button 
+              type="submit" 
+              className="submit-btn w-100" 
+              disabled={loading || !formData.name || !formData.phone || formData.phone.length !== 10}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Sending OTP...
+                </>
+              ) : (
+                <>
+                  Send OTP <LockIcon className="ms-2" />
+                </>
+              )}
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerifyOtp} className='attractive-form'>
             <div className="form-group">
+              <label htmlFor="otp" className="form-label">
+                OTP Verification <span className="text-danger">*</span>
+              </label>
               <div className="input-container">
                 <LockIcon className="input-icon" />
                 <input 
@@ -155,29 +282,68 @@ const Signup = () => {
                   required 
                   className="sleek-input"
                   maxLength="6"
+                  disabled={loading}
                 />
+              </div>
+              <div className="form-text">
+                Enter the OTP sent to your phone number
               </div>
             </div>
             
-            <p className='mt-2'>
-              OTP sent to {otpPhone}. 
-              <button 
-                type="button" 
-                className="btn btn-link p-0 ms-1" 
-                onClick={handleResendOtp}
-                disabled={loading}
-              >
-                Resend OTP
-              </button>
-            </p>
+            <div className="otp-info mb-3">
+              <p className="mb-1">
+                <small>OTP sent to: <strong>+91 {otpPhone}</strong></small>
+              </p>
+              <div className="d-flex justify-content-between align-items-center">
+                <small className="text-muted">
+                  Didn't receive OTP? 
+                </small>
+                <button 
+                  type="button" 
+                  className="btn btn-link p-0 text-primary resend-btn" 
+                  onClick={handleResendOtp}
+                  disabled={loading || resendTimer > 0}
+                >
+                  {resendTimer > 0 ? (
+                    `Resend in ${formatTimer(resendTimer)}`
+                  ) : (
+                    "Resend OTP"
+                  )}
+                </button>
+              </div>
+            </div>
 
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? "Creating Account..." : "Create Account"} <LockIcon className="ms-2" />
+            <button 
+              type="submit" 
+              className="submit-btn w-100" 
+              disabled={loading || !otp || otp.length !== 6}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  Verify & Create Account <LockIcon className="ms-2" />
+                </>
+              )}
             </button>
           </form>
         )}
 
-        <p className='mt-4'>Already have an account? <Link to={"/user/login"}>Login</Link></p>
+        <div className="text-center mt-4">
+          <p className="mb-0">
+            Already have an account?{' '}
+            <Link 
+              to="/user/login" 
+              className="text-primary fw-bold"
+              onClick={() => resetOtpState()}
+            >
+              Login
+            </Link>
+          </p>
+        </div>
       </div>
       <div className="image-section"></div>
     </div>

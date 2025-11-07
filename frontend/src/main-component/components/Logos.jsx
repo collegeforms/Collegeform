@@ -24,7 +24,7 @@ console.log(logos);
     // Fetch logos from the API
     const fetchLogos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/logos');
+        const response = await axios.get('https://collegeforms.in/api/logos');
         const logos = response.data;
 
         // Set all the logos in a single array
@@ -92,7 +92,7 @@ console.log(logos);
           >
             {logos.map((logos, i) => (
               <SwiperSlide key={i}>
-                  <img src={`http://localhost:5000${logos.image}`} alt={`Client ${i + 1}`} />
+                  <img src={`https://collegeforms.in${logos.image}`} alt={`Client ${i + 1}`} />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -132,7 +132,7 @@ console.log(logos);
           >
             {logos.map((logos, i) => (
               <SwiperSlide key={i}>
-                  <img src={`http://localhost:5000${logos.image}`} className='w-100' style={{width:"300px"}} height={"300px"} alt={`Client ${i + 7}`} />
+                  <img src={`https://collegeforms.in${logos.image}`} className='w-100' style={{width:"300px"}} height={"300px"} alt={`Client ${i + 7}`} />
               </SwiperSlide>
             ))}
           </Swiper>

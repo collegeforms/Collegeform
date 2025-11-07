@@ -30,7 +30,7 @@ const AdminInquiry = () => {
 
   const fetchApplications = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/applications");
+      const response = await axios.get("https://collegeforms.in/api/applications");
       setApplications(response.data);
 
       const completedState = {};
@@ -47,7 +47,7 @@ const AdminInquiry = () => {
 
   const handleCheckboxChange = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/applications/${id}/complete`);
+      await axios.put(`https://collegeforms.in/api/applications/${id}/complete`);
       setCompletedApps((prev) => ({ ...prev, [id]: !prev[id] }));
     } catch (error) {
       console.error("Error updating application status:", error);
@@ -69,7 +69,7 @@ const AdminInquiry = () => {
     if (note.trim()) {
       try {
         // Save the note to the backend
-        await axios.put(`http://localhost:5000/api/applications/${currentAppId}/add-note`, { note });
+        await axios.put(`https://collegeforms.in/api/applications/${currentAppId}/add-note`, { note });
         // Optionally, update the applications state with the new note (not necessary if note is only stored on the server)
         setApplications(prevApps =>
           prevApps.map(app => 
