@@ -771,7 +771,7 @@ hr {
 
 
 
-.Explore-clg-3 a {
+.Explore-clg-3 button {
   --bg: #0092FB; /* Button color */
   --text: #fff;
   --glow: rgba(0, 123, 255, 0.5);
@@ -790,13 +790,13 @@ hr {
 }
 
 /* Hover pop + glow */
-.Explore-clg-3 a:hover {
+.Explore-clg-3 button:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(0, 123, 255, 0.4);
 }
 
 /* Shining animation overlay */
-.Explore-clg-3 a::before {
+.Explore-clg-3 button::before {
   content: "";
   position: absolute;
   top: -50%;

@@ -43,7 +43,7 @@ import TeamPage from '../TeamPage/TeamPage.js';
 import BlogPageFullwidth from '../BlogPageFullwidth/BlogPageFullwidth.js';
 import BlogPage from '../BlogPage/BlogPage.js';
 import BlogDetails from '../BlogDetails/BlogDetails.js';
-import OverseasEducation from '../HomePage/OverseasEducation.jsx';
+import StudyAbroad from '../HomePage/StudyAbroad.jsx';
 import OtherColleges from './admin/OtherColleges.jsx';
 import MyAccount from './components/Myaccount.jsx';
 import SliderManager from './admin/SliderManager.jsx';
@@ -64,6 +64,9 @@ import Terms from './components/Terms.jsx';
 import Educationloan from './components/Educationloan.jsx';
 import Accommodation from './components/Accommodation.jsx';
 import Requestcallback from './admin/Requestcallback.jsx';
+import OverseasEducation from '../HomePage/OverseasEducation.jsx';
+import CompetitiveExams from './components/CompetitiveExams.jsx';
+import Admincourseexams from './admin/Admincourseexams.js';
 
 const AllRoute = () => {
   const theme = createTheme();
@@ -100,6 +103,8 @@ const AllRoute = () => {
                       <Route path="users" element={<Adminusers />} />
                       <Route path="specialization" element={<AdminSpecialization />} />
                       <Route path="exams" element={<AdminExams />} />
+                      <Route path="manage-exams" element={<Admincourseexams />} />
+
                       <Route path="tests" element={<AdminTests />} />
                       <Route path="verifydocs" element={<Admindocs />} />
                       <Route path="students" element={<Students />} />
@@ -124,6 +129,7 @@ const AllRoute = () => {
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/education/education-loan" element={<Educationloan />} />
             <Route path="/education/accommodation" element={<Accommodation />} />
+            <Route path="/CompetitiveExams" element={<CompetitiveExams />} />
 
             <Route path="/cart" element={<CartPage />} />
             <Route path="/studyabroad" element={<PrivacyPage />} />

@@ -701,7 +701,7 @@ const EditCollege = () => {
   const categories = [
     "Default",
     "OnlineEducation",
-    "OverseasEducation",
+    "StudyAbroad",
     "vocational-institutes",
     "ScholarshipBasedEducation",
     "government-colleges"

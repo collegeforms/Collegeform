@@ -47,10 +47,10 @@ const OverseasEducation = (props) => {
     const path = window.location.pathname;
     
     const seoConfigs = {
-      '/education/OverseasEducation': {
-        title: 'Study Abroad – Top Colleges & Guidance for Overseas Education | CollegeForms',
-        description: 'Dreaming of overseas education? Explore top international universities, MBA programs, scholarships, and expert admission help. Begin your global journey with CollegeForms.in.',
-        keywords: 'overseas education guide, study abroad colleges, international MBA programs, global admission support, scholarships to study abroad, best countries for education',
+      'OverseasEducationStudyAbroad': {
+        title: 'Study Abroad – Top Colleges & Guidance for Study Abroad | CollegeForms',
+        description: 'Dreaming of Study Abroad? Explore top international universities, MBA programs, scholarships, and expert admission help. Begin your global journey with CollegeForms.in.',
+        keywords: 'Study Abroad guide, study abroad colleges, international MBA programs, global admission support, scholarships to study abroad, best countries for education',
         ogTitle: 'Study Abroad Programs – Scholarships & Admissions | CollegeForms',
         ogDescription: 'Looking to study abroad? Explore top international colleges, scholarships on tuition, and MBA programs. Get expert college guidance and application help with CollegeForms.in.',
         heroTitle: 'Discover Top Study Abroad Programs'
@@ -115,7 +115,9 @@ const OverseasEducation = (props) => {
     if (userToken) {
       navigate("/step", { state: { college } });
     } else {
-      navigate("/user/signup");
+        navigate('/user/login', { 
+      state: { from: location } // This preserves the current URL
+    });
     }
   };
 
@@ -1020,4 +1022,4 @@ const OverseasEducation = (props) => {
   );
 };
 
-export default OverseasEducation;
+export default OverseasEducation

@@ -32,7 +32,7 @@ const OtherColleges = () => {  const API_URL = "https://collegeforms.in";
     "government-colleges",
 
     "OnlineEducation",
-    "OverseasEducation",
+    "StudyAbroad",
     "ScholarshipBasedEducation",
     "vocational-institutes"
   ];
@@ -257,7 +257,7 @@ const OtherColleges = () => {  const API_URL = "https://collegeforms.in";
         handleClose={handleClose}
         handleAddCollege={handleAddOrUpdateCollege}
         editCollege={editCollege}
-        categories={categories.filter(cat => cat !== "Overseas Education")}
+        categories={categories.filter(cat => cat !== "Study Abroad")}
       /> */}
     </Box>
   );

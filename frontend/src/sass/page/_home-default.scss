@@ -932,7 +932,7 @@
                     h3 {
                         font-style: normal;
                         font-weight: 450;
-                        font-size: 25px;
+                        font-size: 20px !important;
                         line-height: 32px;
 
                         @media(max-width:991px) {
@@ -1362,7 +1362,7 @@
         }
 
         .grid {
-            width: 50%;
+            width: 25%;
             float: left;
             position: relative;
             text-align: left;
@@ -1414,7 +1414,7 @@
             }
 
             h3 {
-                font-size: 25px;
+                font-size: 18px !important;
                 font-style: normal;
                 font-weight: 700;
                 line-height: 40px;

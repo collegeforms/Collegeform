@@ -10,11 +10,11 @@ const BannerSchema = new mongoose.Schema({
     enum: [
       "Default",
       "OnlineEducation",
-      "OverseasEducation",
+      "StudyAbroad",
       "vocational-institutes",
       "ScholarshipBasedEducation",
       "government-colleges",
-      "career-assessments",
+      "Top-B-Schools",
       "education-loan",
       "accommodation"
     ],

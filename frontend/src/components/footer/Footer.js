@@ -72,7 +72,7 @@ const Footer = (props) => {
                                     <li><Link onClick={ClickHandler} to="/step"> Universal Form</Link></li>
                                     <li><Link onClick={ClickHandler} to="/colleges"> On-Campus Education</Link></li>
                                     <li><Link onClick={ClickHandler} to="/colleges/OnlineEducation">Online Education</Link></li>
-                                    <li><Link onClick={ClickHandler} to="/education/OverseasEducation">Overseas Education</Link></li>
+                                    <li><Link onClick={ClickHandler} to="/StudyAbroad">Study Abroad</Link></li>
                                     <li><Link onClick={ClickHandler} to="/education/vocational-institutes">Vocational Education</Link></li>
                                
                                 </ul>
@@ -84,11 +84,11 @@ const Footer = (props) => {
                                     <h4 className='d-lg-block d-none' style={{color:"#211E30"}}>Explore Categories</h4>
                                 </div>
                                 <ul>
-                                    <li><Link onClick={ClickHandler} to="/education/coaching-institutes">Coaching Institutes</Link></li>
+                                    <li><Link onClick={ClickHandler} to="/CompetitiveExams">Competitive Exams</Link></li>
                                     <li><Link onClick={ClickHandler} to="/education/government-colleges">Government Colleges</Link></li>
-                                    <li><Link onClick={ClickHandler} to="/education/career-assessments">Career Assesments</Link></li>
+                                    <li><Link onClick={ClickHandler} to="/education/Top-B-Schools">Career Assesments</Link></li>
                                     <li><Link onClick={ClickHandler} to="/education/education-loan">Education Loan</Link></li>
-                                    <li><Link onClick={ClickHandler} to="/education/ScholarshipBasedEducation">Scholarships</Link></li>
+                                    <li><Link onClick={ClickHandler} to="/education/students/tests">Test Series</Link></li>
                                
                                 </ul>
                             </div>

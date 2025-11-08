@@ -1,7 +1,7 @@
 // components/Signup.js
 import React, { useState, useContext } from 'react';
 import './Signup.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // ← Added useLocation
 import AuthContext from '../context/AuthContext';
 import PhoneIcon from "@mui/icons-material/Phone";
 import LockIcon from "@mui/icons-material/Lock";
@@ -24,6 +24,7 @@ const Signup = () => {
   } = useContext(AuthContext);
   
   const navigate = useNavigate();
+  const location = useLocation(); // ← Added useLocation
   
   const [formData, setFormData] = useState({
     name: "",
@@ -33,6 +34,9 @@ const Signup = () => {
   const [otp, setOtp] = useState("");
   const [localError, setLocalError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Get the intended destination from login or default to home
+  const from = location.state?.from?.pathname || "/"; // ← Added destination logic
 
   const handleChange = (e) => {
     setFormData({
@@ -94,7 +98,8 @@ const Signup = () => {
     if (result.success) {
       setSuccessMessage("Account created successfully! Redirecting...");
       setTimeout(() => {
-        navigate("/");
+        // Redirect to the intended destination instead of always "/" ← KEY FIX
+        navigate(from, { replace: true });
       }, 1000);
     } else {
       setLocalError(result.error || "Invalid OTP. Please try again.");
@@ -339,6 +344,7 @@ const Signup = () => {
               to="/user/login" 
               className="text-primary fw-bold"
               onClick={() => resetOtpState()}
+              state={{ from: location.state?.from || { pathname: "/" } }} // ← KEY FIX: Pass state back to login
             >
               Login
             </Link>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import PageTitle from '../../components/pagetitle/PageTitle';
 import Footer from '../../components/footer/Footer';
@@ -6,7 +6,20 @@ import Scrollbar from '../../components/scrollbar/scrollbar';
 import { Helmet } from "react-helmet-async";
 import './StudyAbroad.css'; // Create this CSS file
 
-const PrivacyPage = (props) => {
+const Privacypage = (props) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState('');
+
+    const handleOpenModal = (countryName) => {
+        setSelectedCountry(countryName);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedCountry('');
+    };
+
     // Country data with images
     const countries = [
         { 
@@ -117,33 +130,145 @@ const PrivacyPage = (props) => {
         }
     ];
 
+    // Study Abroad Inquiry Modal Component
+    const StudyAbroadInquiryModal = ({ open, handleClose, country }) => {
+        const [formData, setFormData] = useState({
+            name: '',
+            phone: '',
+            email: '',
+            message: ''
+        });
+        const [isLoading, setIsLoading] = useState(false);
+        const [success, setSuccess] = useState(false);
+
+        const handleChange = (e) => {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        };
+
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+            setIsLoading(true);
+
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            setSuccess(true);
+            setIsLoading(false);
+            
+            setTimeout(() => {
+                handleClose();
+                setSuccess(false);
+                setFormData({ name: '', phone: '', email: '', message: '' });
+            }, 2000);
+        };
+
+        if (!open) return null;
+
+        return (
+            <div className="study-abroad-modal-overlay" onClick={handleClose}>
+                <div className="study-abroad-modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="study-abroad-modal-header">
+                        <h3 className='text-light'>Study Abroad Inquiry - {country}</h3>
+                        <button className="study-abroad-modal-close" onClick={handleClose}>×</button>
+                    </div>
+                    
+                    <div className="study-abroad-modal-body">
+                        {success ? (
+                            <div className="study-abroad-modal-success">
+                                <div className="study-abroad-modal-success-icon">✓</div>
+                                <h4>Thank You!</h4>
+                                <p>Your inquiry has been submitted successfully. We'll get back to you soon.</p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit} className="study-abroad-modal-form">
+                                <div className="study-abroad-form-group">
+                                    <label>Full Name *</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Enter your full name"
+                                        className="study-abroad-form-input"
+                                    />
+                                </div>
+                                
+                                <div className="study-abroad-form-group">
+                                    <label>Phone Number *</label>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Enter your phone number"
+                                        className="study-abroad-form-input"
+                                    />
+                                </div>
+                                
+                                <div className="study-abroad-form-group">
+                                    <label>Email Address *</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Enter your email address"
+                                        className="study-abroad-form-input"
+                                    />
+                                </div>
+                                
+                                <div className="study-abroad-form-group">
+                                    <label>Message</label>
+                                    <textarea
+                                        name="message"
+                                        value={formData.message}
+                                        onChange={handleChange}
+                                        placeholder={`I'm interested in studying in ${country}. Please provide more information.`}
+                                        rows="3"
+                                        className="study-abroad-form-textarea"
+                                    />
+                                </div>
+                                
+                                <button type="submit" className="study-abroad-submit-btn" disabled={isLoading}>
+                                    {isLoading ? 'Submitting...' : 'Submit Inquiry'}
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="study-abroad-page">
-   <Helmet>
-  <title>Study Abroad Programs – Scholarships & Admissions | CollegeForms</title>
-  <meta name="description" content="Looking to study abroad? Explore top international colleges, scholarships on tuition, and MBA programs. Get expert college guidance and application help with CollegeForms.in." />
-  <meta name="keywords" content="study abroad programs, international colleges, MBA abroad options, tuition fee scholarships, overseas admission help, best global colleges, IELTS EXAMs, SAT Exam, GRE/GMAT Exam" />
-  
-  {/* Open Graph / Facebook */}
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.collegeforms.in/studyabroad" />
-  <meta property="og:title" content="Study Abroad Programs – Scholarships & Admissions | CollegeForms" />
-  <meta property="og:description" content="Explore international colleges with tuition scholarships. Get expert guidance for MBA abroad, IELTS, SAT, GRE/GMAT exams at CollegeForms.in" />
-  <meta property="og:image" content="https://www.collegeforms.in/images/study-abroad-og.jpg" />
-  
-  {/* Twitter */}
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://www.collegeforms.in/studyabroad" />
-  <meta name="twitter:title" content="Study Abroad Programs – Scholarships & Admissions | CollegeForms" />
-  <meta name="twitter:description" content="Get admission help for top global colleges with scholarship opportunities. Expert guidance for MBA abroad, IELTS, SAT, GRE/GMAT exams." />
-  <meta name="twitter:image" content="https://www.collegeforms.in/images/study-abroad-twitter.jpg" />
-  
-  {/* Canonical URL */}
-  <link rel="canonical" href="https://www.collegeforms.in/studyabroad" />
-</Helmet>
+            <Helmet>
+                <title>Study Abroad Programs – Scholarships & Admissions | CollegeForms</title>
+                <meta name="description" content="Looking to study abroad? Explore top international colleges, scholarships on tuition, and MBA programs. Get expert college guidance and application help with CollegeForms.in." />
+                <meta name="keywords" content="study abroad programs, international colleges, MBA abroad options, tuition fee scholarships, overseas admission help, best global colleges, IELTS EXAMs, SAT Exam, GRE/GMAT Exam" />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://www.collegeforms.in/studyabroad" />
+                <meta property="og:title" content="Study Abroad Programs – Scholarships & Admissions | CollegeForms" />
+                <meta property="og:description" content="Explore international colleges with tuition scholarships. Get expert guidance for MBA abroad, IELTS, SAT, GRE/GMAT exams at CollegeForms.in" />
+                <meta property="og:image" content="https://www.collegeforms.in/images/study-abroad-og.jpg" />
+                
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:url" content="https://www.collegeforms.in/studyabroad" />
+                <meta name="twitter:title" content="Study Abroad Programs – Scholarships & Admissions | CollegeForms" />
+                <meta name="twitter:description" content="Get admission help for top global colleges with scholarship opportunities. Expert guidance for MBA abroad, IELTS, SAT, GRE/GMAT exams." />
+                <meta name="twitter:image" content="https://www.collegeforms.in/images/study-abroad-twitter.jpg" />
+                
+                {/* Canonical URL */}
+                <link rel="canonical" href="https://www.collegeforms.in/studyabroad" />
+            </Helmet>
             
             <Navbar />
-            {/* <PageTitle pageTitle={'Study Abroad'} pagesub={'Your Gateway to Global Education'} /> */}
             
             <section className="hero-section-1">
                 <div className="container">
@@ -168,6 +293,12 @@ const PrivacyPage = (props) => {
                                     </div>
                                 </div>
                                 <p>{country.description}</p>
+                                <button 
+                                    className="study-abroad-inquiry-btn"
+                                    onClick={() => handleOpenModal(country.name)}
+                                >
+                                    Get More Information
+                                </button>
                             </div>
                         ))}
                     </div>
@@ -212,21 +343,18 @@ const PrivacyPage = (props) => {
                     </div>
                 </div>
             </section>
-            <section className="cta-section">
-                
-                {/* <div className="container">
-                    <div className="cta-content">
-                        <h2>Your Global Education Journey Starts Here!</h2>
-                        <p>Let our experts guide you through every step of your study abroad journey</p>
-                        <a href='https://thecounselingcafe.in/' className="cta-button">Get Free Consultation</a>
-                    </div>
-                </div> */}
-            </section>
 
             <Footer />
             <Scrollbar />
+
+            {/* Study Abroad Inquiry Modal */}
+            <StudyAbroadInquiryModal 
+                open={isModalOpen}
+                handleClose={handleCloseModal}
+                country={selectedCountry}
+            />
         </div>
     )
 }
 
-export default PrivacyPage;
+export default Privacypage;

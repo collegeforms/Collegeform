@@ -67,6 +67,7 @@ const Collegespage = () => {
   
   const courseFilter = searchParams.get('course');
   const specializationFilter = searchParams.get('specialization');
+  const currentCityFilter = searchParams.get('currentCity'); // FIXED: Added currentCity
   const preferredCityFilter = searchParams.get('preferredCity');
   const examFilter = searchParams.get('exam');
   const levelFilter = searchParams.get('level');
@@ -222,6 +223,7 @@ const Collegespage = () => {
     }));
   };
 
+  // FIXED: Improved filtering functions
   const filterByExam = (colleges) => {
     if (!examFilter) return colleges;
     
@@ -229,14 +231,8 @@ const Collegespage = () => {
       if (!college.examsAccepted) return false;
       
       const exams = college.examsAccepted.split(',').map(e => e.trim().toLowerCase());
-      const examMap = {
-        'jee': 'jee',
-        'neet': 'neet',
-        'cat': 'cat',
-        'other': 'other'
-      };
+      const searchExam = examFilter.toLowerCase();
       
-      const searchExam = examMap[examFilter.toLowerCase()] || examFilter.toLowerCase();
       return exams.some(e => e.includes(searchExam));
     });
   };
@@ -245,6 +241,7 @@ const Collegespage = () => {
     if (!levelFilter && !levelTypeFilter) return colleges;
     
     const levelToFilter = levelTypeFilter || levelFilter;
+    if (!levelToFilter) return colleges;
     
     return colleges.filter(college => {
       if (!college.collegeType) return false;
@@ -257,15 +254,19 @@ const Collegespage = () => {
     });
   };
 
-  const filterByPreferredCity = (colleges) => {
-    if (!preferredCityFilter) return colleges;
+  // FIXED: Improved city filtering to handle both currentCity and preferredCity
+  const filterByCity = (colleges) => {
+    // Use currentCity if available, otherwise use preferredCity
+    const cityToFilter = currentCityFilter || preferredCityFilter;
+    if (!cityToFilter) return colleges;
     
     return colleges.filter(college => {
       if (!college.location) return false;
       
       const collegeLocation = college.location.toLowerCase();
-      const searchLocation = preferredCityFilter.toLowerCase();
+      const searchLocation = cityToFilter.toLowerCase();
       
+      // FIXED: Use includes instead of exact match for better filtering
       return collegeLocation.includes(searchLocation);
     });
   };
@@ -281,7 +282,7 @@ const Collegespage = () => {
         ]);
 
         let collegesData = collegesRes.data;
-        console.log(collegesData);
+        console.log("All colleges:", collegesData);
         
         let coursesData = coursesRes.data;
 
@@ -301,7 +302,9 @@ const Collegespage = () => {
           );
         }
 
+        // FIXED: Better URL parameter handling
         if (courseFilter) {
+          console.log("Course filter from URL:", courseFilter);
           setFilters(prev => ({
             ...prev,
             courses: courseFilter
@@ -315,10 +318,13 @@ const Collegespage = () => {
           }));
         }
 
-        if (preferredCityFilter) {
+        // FIXED: Handle both currentCity and preferredCity
+        const cityFilter = currentCityFilter || preferredCityFilter;
+        if (cityFilter) {
+          console.log("City filter from URL:", cityFilter);
           setFilters(prev => ({
             ...prev,
-            locations: [preferredCityFilter]
+            locations: [cityFilter]
           }));
         }
 
@@ -376,14 +382,29 @@ const Collegespage = () => {
     };
 
     fetchData();
-  }, [collegeType, city, courseFilter, specializationFilter, preferredCityFilter, examFilter, levelFilter, levelTypeFilter]);
+  }, [collegeType, city, courseFilter, specializationFilter, currentCityFilter, preferredCityFilter, examFilter, levelFilter, levelTypeFilter]);
 
   useEffect(() => {
     let results = [...colleges];
 
+    console.log("Initial results count:", results.length);
+    console.log("URL Parameters:", {
+      courseFilter,
+      currentCityFilter,
+      preferredCityFilter,
+      examFilter,
+      levelFilter,
+      levelTypeFilter
+    });
+
     results = filterByExam(results);
+    console.log("After exam filter:", results.length);
+
     results = filterByLevel(results);
-    results = filterByPreferredCity(results);
+    console.log("After level filter:", results.length);
+
+    results = filterByCity(results);
+    console.log("After city filter:", results.length);
 
     if (searchTerm) {
       const searchTermLower = searchTerm.toLowerCase();
@@ -391,21 +412,32 @@ const Collegespage = () => {
         const collegeNameMatch = college.name?.toLowerCase().includes(searchTermLower);
         return collegeNameMatch;
       });
+      console.log("After search term filter:", results.length);
     }
 
-    // Updated course filtering for single selection
+    // FIXED: Improved course filtering - case insensitive and partial matching
     if (filters.courses) {
-      results = results.filter(college =>
-        college.courses?.some(course => course === filters.courses)
-      );
+      const courseFilterLower = filters.courses.toLowerCase();
+      results = results.filter(college => {
+        if (!college.courses || !Array.isArray(college.courses)) return false;
+        
+        return college.courses.some(course => {
+          const courseName = course?.toLowerCase();
+          return courseName && courseName.includes(courseFilterLower);
+        });
+      });
+      console.log("After course filter:", results.length, "for course:", filters.courses);
     }
 
     if (filters.locations.length > 0) {
       results = results.filter(college =>
-        filters.locations.some(loc => 
-          college.location?.toLowerCase().includes(loc.toLowerCase())
-        )
+        filters.locations.some(loc => {
+          const collegeLocation = college.location?.toLowerCase();
+          const filterLocation = loc.toLowerCase();
+          return collegeLocation && collegeLocation.includes(filterLocation);
+        })
       );
+      console.log("After location filter:", results.length, "for locations:", filters.locations);
     }
 
     if (filters.specialization.length > 0) {
@@ -434,8 +466,9 @@ const Collegespage = () => {
       return collegeFee >= priceRange[0] && collegeFee <= priceRange[1];
     });
 
+    console.log("Final filtered results:", results.length);
     setFilteredColleges(results);
-  }, [filters, colleges, priceRange, searchTerm, examFilter, levelFilter, levelTypeFilter, preferredCityFilter]);
+  }, [filters, colleges, priceRange, searchTerm, examFilter, levelFilter, levelTypeFilter, currentCityFilter, preferredCityFilter]);
 
   const renderCheckboxes = (type) => {
     let items = [];
@@ -564,7 +597,7 @@ const Collegespage = () => {
             <Typography variant="h5" component="h1" className="mb-2">
               {collegeType ? `${collegeType.toUpperCase()} Colleges` : "All Colleges"}
               {city && city !== "all" && ` in ${city.charAt(0).toUpperCase() + city.slice(1)}`}
-              {preferredCityFilter && ` near ${preferredCityFilter}`}
+              {(currentCityFilter || preferredCityFilter) && ` near ${currentCityFilter || preferredCityFilter}`}
               {levelFilter && ` (${levelFilter.toUpperCase()})`}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">

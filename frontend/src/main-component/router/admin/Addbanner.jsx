@@ -49,11 +49,11 @@ const AddBanner = () => {
   const categoryLabels = {
     "Default": "Default",
     "OnlineEducation": "Online Education",
-    "OverseasEducation": "Overseas Education",
+    "StudyAbroad": "Study Abroad",
     "vocational-institutes": "Vocational Institutes",
     "ScholarshipBasedEducation": "Scholarship Based Education",
     "government-colleges": "Government Colleges",
-    "career-assessments": "Career Assessments",
+    "Top-B-Schools": "Top B Schools",
     "education-loan": "Education Loan",
     "accommodation": "Accommodation"
   };

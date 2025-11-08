@@ -421,6 +421,14 @@ const StepForm = () => {
     }
   };
 
+
+    const onsendClick = () => {
+        navigate('/user/login', { 
+      state: { from: location } // This preserves the current URL
+    });
+  };
+
+
   if (!userToken) {
     return (
       <Container maxWidth="md" sx={{ mt: 5 }}>
@@ -428,8 +436,8 @@ const StepForm = () => {
           You need to be logged in to access this form.
         </Alert>
 
-        <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate('/user/login')}>
-         <Link className='text-light' to={'/user/login'}>
+        <Button variant="contained" sx={{ mt: 2 }} onClick={onsendClick}>
+         <Link className='text-light' >
           Go to Login
          </Link>
        

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import chatbot from "./side-img-1.gif";
 import axios from "axios";
 import logo from "./collegeLogo.png";
+import ApplyNowModal from "./ApplyNowModal";
 import {
   RiGraduationCapLine,
   RiBookOpenLine,
@@ -193,6 +194,8 @@ const LoginPopup = ({ isOpen, onClose, onLogin }) => {
 };
 
 const MerittoLogin = () => {
+      const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const [authToken, setAuthToken] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -222,7 +225,7 @@ const API_URL = "https://collegeforms.in";
     educationModes: [
       "On-Campus Education",
       "Online Education",
-      "Overseas Education",
+      "Study Abroad",
       "Vocational Education",
       "Government Colleges",
     ],
@@ -523,6 +526,14 @@ const API_URL = "https://collegeforms.in";
     setShowLoginPopup(false);
   };
 
+
+  const modelopened =()=>{
+                setIsModalOpen(true);
+
+  }
+
+
+
   return (
     <div className="meritto-container">
       {/* Login Popup */}
@@ -547,7 +558,7 @@ const API_URL = "https://collegeforms.in";
         </p>
         <div className="container justify-content-center text-center d-flex">
           <div className="Explore-clg-3">
-            <Link to={"/step"}>Start Your Application</Link>
+            <button onClick={modelopened}>Start Your Application</button>
           </div>
         </div>
       </div>
@@ -571,6 +582,13 @@ const API_URL = "https://collegeforms.in";
           </div>
         </div>
       </div>
+
+        <ApplyNowModal
+                open={isModalOpen}
+                handleClose={() => setIsModalOpen(false)}
+                collegeName="Direct Inquiry"
+                collegeLocation="Direct Inquiry"
+            />
     </div>
   );
 };

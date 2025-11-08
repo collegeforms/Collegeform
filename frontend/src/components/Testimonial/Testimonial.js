@@ -150,7 +150,7 @@ const Testimonial = (props) => {
     };
 
     return (
-        <section className={`wpo-testimonial-section section-padding ${props.tsClass}`}>
+        <section className={`wpo-testimonial-section py-4 ${props.tsClass}`}>
             <div className="container">
                 <div className="wpo-section-title-s2">
                     <small>Testimonials</small>

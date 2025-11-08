@@ -47,7 +47,7 @@ import {
 const collegeCategories = [
   "Default",
   "OnlineEducation",
-  "OverseasEducation",
+  "StudyAbroad",
   "vocational-institutes",
   "ScholarshipBasedEducation",
   "government-colleges"

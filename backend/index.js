@@ -31,6 +31,7 @@ import faqRoutes from "./routes/faq.js";
 import upload from "./routes/upload.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import callbackRoutes from "./routes/callbackRoutes.js";
+import managexams from "./routes/managexams.js";
 
 import { startCleanupService } from './services/cleanupService.js';
 
@@ -169,6 +170,7 @@ app.use('/api/students', studentrouter);
 app.use("/api/search", searchHistoryRoutes);
 app.use("/api/faqs", faqRoutes);
 app.use("/api/callbacks", callbackRoutes);
+app.use("/api/managexams", managexams);
 
 // ✅ FIXED: Move sitemap route HERE (before catch-all handler)
 app.use('/', sitemapRouter);

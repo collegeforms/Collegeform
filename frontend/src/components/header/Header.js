@@ -38,7 +38,7 @@ const Header = (props) => {
     {
       key: "overseas-education",
       label: "Study Abroad",
-      path: "/education/OverseasEducation",
+      path: "/StudyAbroad",
     },
     {
       key: "vocational-institutes",
@@ -46,9 +46,9 @@ const Header = (props) => {
       path: "/education/vocational-institutes",
     },
     {
-      key: "coaching-institutes",
-      label: "Coaching Institutes",
-      path: "/education/coaching-institutes",
+      key: "CompetitiveExams",
+      label: "Competitive Exams",
+      path: "/CompetitiveExams",
     },
     {
       key: "government-colleges",
@@ -246,11 +246,9 @@ const Header = (props) => {
                 </div>
               </div>
 
-              {/* Navigation Menu - Hidden on mobile */}
-              <div className="col-lg-6 d-none d-lg-block">
+              <div className="col-lg-5 d-none d-lg-block">
                 <div className="collapse navbar-collapse navigation-holder">
                   <ul className="nav navbar-nav mb-2 mb-lg-0">
-                    {/* Courses Mega Menu */}
 
 
 
@@ -358,19 +356,19 @@ const Header = (props) => {
                     </li>
                  
                 
-                    <li>
+                    {/* <li>
                       <Link to="/studyabroad">Study Abroad</Link>
-                    </li>
+                    </li> */}
 
-                       <li>
+                       {/* <li>
                       <Link to="/students/tests">Test Series</Link>
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
               </div>
 
               {/* Right Section */}
-              <div className="col-lg-4 col-md-8 col-auto">
+              <div className="col-lg-5 col-md-8 col-auto">
                 <div className="header-right-section">
                   {/* Desktop Search - Hidden on mobile */}
                   <div className="desktop-search-container d-none d-lg-block">
@@ -393,7 +391,7 @@ const Header = (props) => {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="search-field-input"
-                          placeholder="Search college or course..."
+                          placeholder="Search colleges"
                         />
                         <button type="submit" className="search-submit-button">
                           <SearchIcon />

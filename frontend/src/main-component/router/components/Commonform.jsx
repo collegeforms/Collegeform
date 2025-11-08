@@ -6,7 +6,7 @@ const Commonform = () => {
     <div className="common-form-container">
       <div className="application-hero-2">
         <div className="hero-content-2">
-          <h1>Apply to 2000+ Colleges with One Form</h1>
+          <h1>Apply to 500+ Colleges with One Form</h1>
           <p className="hero-subtitle">
             Streamline your college application process with our unified platform. 
             Apply to thousands of partner institutions in just 5 minutes.
@@ -28,7 +28,7 @@ const Commonform = () => {
             <div className="benefit-item">
               <div className="benefit-icon">🎯</div>
               <h3>Wide Acceptance</h3>
-              <p>2000+ partner institutions</p>
+              <p>500+ partner institutions</p>
             </div>
           </div>
           

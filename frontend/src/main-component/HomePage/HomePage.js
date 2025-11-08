@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Navbar from '../../components/Navbar/Navbar';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ApplyNowModal from '../router/components/ApplyNowModal';
 import TextSlider from './TextSlider';
 import Applycompo from './Applycompo';
@@ -21,19 +21,6 @@ import FaqSection from '../FaqPage/FAQ';
 import FAQ from '../FaqPage/FAQ';
 
 const HomePage = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-// useEffect(() => {
-//   const token = localStorage.getItem("userToken"); // 👈 check token
-
-//   if (!token) {
-//     const timer = setTimeout(() => {
-//       setIsModalOpen(true);
-//     }, 1000);
-
-//     return () => clearTimeout(timer);
-//   }
-// }, []);
-
 
     const pageTitle = "India's most preferred and trusted online platform for discounted College Applications";
     const pageDescription = "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.";
@@ -47,7 +34,7 @@ const HomePage = () => {
                 <meta name="description" content={pageDescription} />
                 <meta name="keywords" content="best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees" />
                 
-    <meta name="prerender-site-verification" content="VR7GmlHSBjoVcv51pp5k"/>
+                <meta name="prerender-site-verification" content="VR7GmlHSBjoVcv51pp5k"/>
                 {/* Canonical URL */}
                 <link rel="canonical" href={pageUrl} />
                 
@@ -118,13 +105,8 @@ const HomePage = () => {
             <Homeblogs/>
             <Footer/> 
             <Scrollbar/>
-{/* 
-            <ApplyNowModal
-                open={isModalOpen}
-                handleClose={() => setIsModalOpen(false)}
-                collegeName="Direct Inquiry"
-                collegeLocation="Direct Inquiry"
-            /> */}
+
+     
         </Fragment>
     )
 };

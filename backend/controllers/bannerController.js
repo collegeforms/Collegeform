@@ -15,11 +15,11 @@ export const addBanner = async (req, res) => {
     const validCategories = [
       "Default",
       "OnlineEducation",
-      "OverseasEducation",
+      "StudyAbroad",
       "vocational-institutes",
       "ScholarshipBasedEducation",
       "government-colleges",
-      "career-assessments",
+      "Top-B-Schools",
       "education-loan",
       "accommodation"
     ];
@@ -96,11 +96,11 @@ export const getCategories = async (req, res) => {
     const categories = [
       "Default",
       "OnlineEducation",
-      "OverseasEducation",
+      "StudyAbroad",
       "vocational-institutes",
       "ScholarshipBasedEducation",
       "government-colleges",
-      "career-assessments",
+      "Top-B-Schools",
       "education-loan",
       "accommodation"
     ];

@@ -5,7 +5,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import Scrollbar from '../../components/scrollbar/scrollbar';
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/footer/Footer';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation  } from "react-router-dom";
 import { 
   FiCheckCircle, 
   FiAward, 
@@ -34,6 +34,8 @@ const CollegeSinglePage = (props) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+      const location = useLocation();
+
 const API_URL = "https://collegeforms.in";
 
     const authToken = localStorage.getItem('userToken');
@@ -130,7 +132,9 @@ const API_URL = "https://collegeforms.in";
         if (authToken) {
             navigate("/step", { state: { college } });
         } else {
-            navigate("/user/signup");
+              navigate('/user/login', { 
+      state: { from: location } // This preserves the current URL
+    });
         }
     };
 

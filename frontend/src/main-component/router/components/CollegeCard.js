@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link , useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CheckIcon from "@mui/icons-material/Check";
@@ -7,6 +7,8 @@ import { Snackbar, Alert } from "@mui/material";
 
 const CollegeCard = ({ college, onApplyClick, selectedCourse }) => {
   const navigate = useNavigate();
+    const location = useLocation();
+
   const { addToCart, isItemInCart, cartCount } = useCart();
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
@@ -19,7 +21,9 @@ const CollegeCard = ({ college, onApplyClick, selectedCourse }) => {
     if (userToken) {
       navigate("/step", { state: { college } });
     } else {
-      navigate("/user/signup");
+        navigate('/user/login', { 
+      state: { from: location } // This preserves the current URL
+    });
     }
   };
 
@@ -43,7 +47,9 @@ const CollegeCard = ({ college, onApplyClick, selectedCourse }) => {
     } catch (error) {
       if (error.message.includes("login")) {
         showSnackbar("Please login to add items to cart", "warning");
-        setTimeout(() => navigate("/user/signup"), 1500);
+        setTimeout(() =>   navigate('/user/login', { 
+      state: { from: location } // This preserves the current URL
+    }), 1500);
       } else if (error.message.includes("already in cart")) {
         showSnackbar("This course is already in your cart", "info");
       } else {

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './EducationBlocks.css';
 import { RiGovernmentLine, RiHome4Line, RiMedalLine, RiPlaneLine, RiToolsLine, RiComputerLine,
   
-  RiLightbulbLine,    // for Career Assessments
+  RiLightbulbLine,    // for Top B Schools
   RiBankLine,         // for Education Loan
   RiHotelLine         // for Accommodation
  } from 'react-icons/ri';
@@ -28,11 +28,11 @@ const educationOptions = [
   },
   { 
     id: 3, 
-    title: 'Overseas Education', 
+    title: 'Study Abroad', 
     icon: <RiPlaneLine />,
     frontDesc: 'Global learning opportunities',
     backDesc: 'Study abroad with cultural immersion and international recognition',
-    link: '/education/OverseasEducation'
+    link: '/StudyAbroad'
   },
   { 
     id: 4, 
@@ -44,11 +44,11 @@ const educationOptions = [
   },
   { 
     id: 5, 
-    title: 'Coaching Institutes', 
+    title: 'Competitive Exams', 
     icon: <RiMedalLine />,
     frontDesc: 'Focused preparation for competitive exams',
     backDesc: 'Expert guidance and structured programs for success in entrance tests',
-    link: '/education/coaching-institutes'
+    link: '/CompetitiveExams'
   },
   { 
     id: 6, 
@@ -60,11 +60,11 @@ const educationOptions = [
   },
   { 
     id: 7, 
-    title: 'Career Assessments', 
+    title: 'Top B Schools', 
     icon: <RiLightbulbLine />,
     frontDesc: 'Insightful tools to discover your strengths',
     backDesc: 'Evaluate your interests, skills, and goals to choose the right career path',
-    link: '/education/career-assessments'
+    link: '/education/Top-B-Schools'
   },
   { 
     id: 8, 
