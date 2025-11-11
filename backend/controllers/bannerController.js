@@ -21,7 +21,8 @@ export const addBanner = async (req, res) => {
       "government-colleges",
       "Top-B-Schools",
       "education-loan",
-      "accommodation"
+      "accommodation",
+      "home-page"
     ];
 
     if (!validCategories.includes(category)) {

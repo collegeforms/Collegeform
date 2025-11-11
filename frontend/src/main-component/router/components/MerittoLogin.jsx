@@ -21,11 +21,10 @@ import LockIcon from "@mui/icons-material/Lock";
 // TypingText Component for animated typing effect
 const TypingText = () => {
   const texts = [
+    " College Applications Simplified with our UFO Universal Form",
     "Explore Discounts, Cashbacks & Scholarships on College Applications & Fees",
-    "Save Big on College Forms",
     "Unlock Personalized Coupons based on your Profile",
     "Apply to 100+ Colleges with One Universal Form",
-    "Complete Universal Form & Enjoy Big Discounts"
   ];
   
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -194,13 +193,17 @@ const LoginPopup = ({ isOpen, onClose, onLogin }) => {
 };
 
 const MerittoLogin = () => {
-      const [isModalOpen, setIsModalOpen] = useState(false);
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [authToken, setAuthToken] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [bannerData, setBannerData] = useState(null);
+  const [bannerLoading, setBannerLoading] = useState(true);
+  const [bannerError, setBannerError] = useState(null);
+  
   const navigate = useNavigate();
-const API_URL = "https://collegeforms.in";
+  const API_URL = "https://collegeforms.in";
+
   // State for filters and dropdown options
   const [filters, setFilters] = useState({
     course: "",
@@ -252,7 +255,28 @@ const API_URL = "https://collegeforms.in";
     const token = localStorage.getItem("userToken");
     setAuthToken(token);
     fetchDropdownData();
+    fetchBannerData();
   }, []);
+
+  // Fetch banner data for home-page category
+  const fetchBannerData = async () => {
+    try {
+      setBannerLoading(true);
+      const response = await axios.get(`${API_URL}/api/banners/category/home-page`);
+      
+      if (response.data && response.data.length > 0) {
+        // Get the first banner for home-page category
+        setBannerData(response.data[0]);
+      } else {
+        setBannerError("No banner found for home-page category");
+      }
+    } catch (error) {
+      console.error("Error fetching banner data:", error);
+      setBannerError("Failed to load banner");
+    } finally {
+      setBannerLoading(false);
+    }
+  };
 
   const fetchDropdownData = async () => {
     try {
@@ -526,13 +550,9 @@ const API_URL = "https://collegeforms.in";
     setShowLoginPopup(false);
   };
 
-
-  const modelopened =()=>{
-                setIsModalOpen(true);
-
-  }
-
-
+  const modelopened = () => {
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="meritto-container">
@@ -544,14 +564,13 @@ const API_URL = "https://collegeforms.in";
       />
 
       {/* Welcome Message */}
-  
 
       {/* Left Section */}
       <div className="meritto-left">
         <img src={chatbot} alt="College Finder AI" className="mio-image" />
-        <h2 className="fw-bolder">
-          College Applications Simplified with our UFO <br /> (Universal Form){" "}
-        </h2>
+
+        <TypingText />
+
         <p>
           Fill out One Universal Application Form. Instantly get matched with
           the colleges that fit your profile and preferences.{" "}
@@ -563,34 +582,45 @@ const API_URL = "https://collegeforms.in";
         </div>
       </div>
 
-      {/* Right Section with Typography Effects */}
+      {/* Right Section with Banner */}
       <div className="meritto-right">
-        <div className="typography-section">
-          {/* Logo on top */}
-          <div className="logo-container">
-            <img src={logo} alt="College Logo" className="top-logo" />
+        {bannerLoading ? (
+          <div className="banner-loading">Loading banner...</div>
+        ) : bannerError ? (
+          <div className="banner-error">
+            {bannerError}
+            {/* Fallback image */}
+            <img 
+              src="https://coreldrawdesign.com/resources/previews/preview-new-admission-open-banner-school-college-institute-and-social-media-post-image-1708504386.webp" 
+              alt="Admission Open Banner" 
+            />
           </div>
-
-          {/* Main Typography Text */}
-          <div className="main-typography">
-          
-            
-            <TypingText />
-            
-  
-
-          </div>
-        </div>
+        ) : bannerData ? (
+          <img 
+            src={bannerData.imageUrl || bannerData.image} 
+            alt={bannerData.title || "Home Page Banner"} 
+            onError={(e) => {
+              // Fallback if banner image fails to load
+              e.target.src = "https://coreldrawdesign.com/resources/previews/preview-new-admission-open-banner-school-college-institute-and-social-media-post-image-1708504386.webp";
+            }}
+          />
+        ) : (
+          // Default banner if no data
+          <img 
+            src="https://coreldrawdesign.com/resources/previews/preview-new-admission-open-banner-school-college-institute-and-social-media-post-image-1708504386.webp" 
+            alt="Admission Open Banner" 
+          />
+        )}
       </div>
 
-        <ApplyNowModal
-                open={isModalOpen}
-                handleClose={() => setIsModalOpen(false)}
-                collegeName="Direct Inquiry"
-                collegeLocation="Direct Inquiry"
-            />
+      <ApplyNowModal
+        open={isModalOpen}
+        handleClose={() => setIsModalOpen(false)}
+        collegeName="Direct Inquiry"
+        collegeLocation="Direct Inquiry"
+      />
     </div>
   );
 };
 
-export default MerittoLogin;
+export default MerittoLogin;  

@@ -8,11 +8,19 @@ import accommodationChecklist from './new-assets/Accommodations-3.jpg';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/footer/Footer';
 import PersonalisedSection from '../../../components/PersonalisedSection/PersonalisedSection';
+import BannerRow from './SimpleBannerRow';
 
 const Accommodation = () => {
+
+
+  const category = "accommodation"
+
   return (
     <>
       <Navbar/>
+
+<BannerRow category={category} />
+
       <div className="acco-container">
         
         {/* Hero Section */}

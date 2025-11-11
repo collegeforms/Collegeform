@@ -9,11 +9,19 @@ import loanSupport from './new-assets/education-4.jpg';
 import Navbar from '../../../components/Navbar/Navbar';
 import Footer from '../../../components/footer/Footer';
 import PersonalisedSection from '../../../components/PersonalisedSection/PersonalisedSection';
+import BannerRow from './SimpleBannerRow';
 
 const Educationloan = () => {
+
+
+  const category= "education-loan"
+
   return (
     <>
     <Navbar/>
+      <BannerRow category={category} />
+      
+      
       <div className="edu-loan-container">
         
         {/* Hero Section */}

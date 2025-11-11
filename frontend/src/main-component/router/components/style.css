@@ -11,6 +11,7 @@ html {
   position: relative;
   background-color: #f6f6f8;
   transition: top 0.9s ease;
+  padding: 20px 0 !important;
 }
 /* Hide navbar on scroll down */
 .navbar-hidden {
@@ -21,6 +22,7 @@ html {
   position: sticky;
   width: 100%;
   z-index: 1030;
+  padding: 20px 0 !important;
 }
 
 /* Shining button effect */

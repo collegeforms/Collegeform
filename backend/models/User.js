@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    // Remove password field completely
     city: {
         type: String,
         required: false
@@ -63,6 +62,14 @@ const userSchema = new mongoose.Schema({
         default: null
     }
 }, { timestamps: true });
+
+// Add partial unique index for email to allow multiple null values
+userSchema.index({ email: 1 }, { 
+    unique: true, 
+    partialFilterExpression: { 
+        email: { $exists: true, $ne: null } 
+    } 
+});
 
 const User = mongoose.model('User', userSchema);
 

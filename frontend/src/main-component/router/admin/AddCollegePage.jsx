@@ -50,7 +50,9 @@ const collegeCategories = [
   "StudyAbroad",
   "vocational-institutes",
   "ScholarshipBasedEducation",
-  "government-colleges"
+  "government-colleges",
+    "Top-B-Schools"
+
 ];
 
 const collegeTypes = ["UG", "PG", "Certification/Diploma"];

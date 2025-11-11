@@ -55,7 +55,9 @@ const AddBanner = () => {
     "government-colleges": "Government Colleges",
     "Top-B-Schools": "Top B Schools",
     "education-loan": "Education Loan",
-    "accommodation": "Accommodation"
+    "accommodation": "Accommodation",
+    "home-page": "Home page"
+
   };
 
   useEffect(() => {

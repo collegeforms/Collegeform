@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const courseSchema = new mongoose.Schema({
+const manageSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -15,6 +15,6 @@ const courseSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Course = mongoose.model('Manage', courseSchema);
+const Manageexams = mongoose.model('Manage', manageSchema);
 
-export default Course;
+export default Manageexams;

@@ -16,7 +16,8 @@ const BannerSchema = new mongoose.Schema({
       "government-colleges",
       "Top-B-Schools",
       "education-loan",
-      "accommodation"
+      "accommodation",
+      "home-page"
     ],
     default: "Default"
   },

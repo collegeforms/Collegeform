@@ -34,7 +34,8 @@ const OtherColleges = () => {  const API_URL = "https://collegeforms.in";
     "OnlineEducation",
     "StudyAbroad",
     "ScholarshipBasedEducation",
-    "vocational-institutes"
+    "vocational-institutes",
+    "Top-B-Schools"
   ];
 
   useEffect(() => {

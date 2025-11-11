@@ -40,6 +40,7 @@ router.post("/check-phone", async (req, res) => {
 router.post("/send-login-otp", async (req, res) => {
   try {
     const { phone } = req.body;
+console.log(phone);
 
     if (!phone) {
       return res.status(400).json({ message: "Phone number is required" });
@@ -101,6 +102,7 @@ router.post("/send-login-otp", async (req, res) => {
 router.post("/send-signup-otp", async (req, res) => {
   try {
     const { phone } = req.body;
+console.log(phone);
 
     if (!phone) {
       return res.status(400).json({ message: "Phone number is required" });

@@ -76,7 +76,7 @@ const HomePage = () => {
             </Helmet>
             
             <Navbar hclass={'wpo-header-style-4'}/>
-            <div className='mobile-slider mt-3'>
+            <div className='mobile-slider '>
                 <TextSlider />
             </div>
 

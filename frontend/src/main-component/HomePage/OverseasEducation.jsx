@@ -420,11 +420,16 @@ const OverseasEducation = (props) => {
                   >
                     <div className="college-card card border border-1 h-100 border-0 shadow-sm">
                       <div className="card-img-top position-relative overflow-hidden">
+                        <Link 
+                        
+                            to={`/college/${college.slug}`}>
                         <img 
                           src={college.image || "https://via.placeholder.com/300x200"} 
                           className="img-fluid w-100 h-100 object-cover" 
                           alt={college.name}
                         />
+                        </Link>
+
                         <div className="rating-badge">
                           <span className="badge bg-warning text-dark d-flex align-items-center">
                             {college.rating} <FiStar className="ms-1" size={14} />
@@ -432,8 +437,18 @@ const OverseasEducation = (props) => {
                         </div>
                       </div>
                       <div className="card-body d-flex flex-column">
-                        <h5 className="card-title fw-bold mb-2 text-truncate" title={college.name}>
+                        <h5 className="card-title fw-bold mb-2 text-truncate" title={college.name}
+                      >
+
+<Link  
+className="
+text-dark"
+                            to={`/college/${college.slug}`}>
+
+
                           {college.name}
+</Link>
+
                         </h5>
                         <p className="text-muted small mb-1 d-flex align-items-center">
                           <i className="fa-solid fa-location-dot"></i>
@@ -498,22 +513,7 @@ const OverseasEducation = (props) => {
                         >
                           Apply Now
                         </motion.button>
-                        <motion.div
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                        >
-                          <Link 
-                            to={`/college/${college.slug}`}
-                            className="btn btn-sm rounded-pill px-3 d-flex align-items-center justify-content-center flex-grow-1"
-                            style={{ 
-                              borderColor: '#002147', 
-                              color: '#002147',
-                              boxShadow: '0 4px 6px rgba(0, 33, 71, 0.1)'
-                            }}
-                          >
-                            More Info <FiChevronRight className="ms-1" size={16} />
-                          </Link>
-                        </motion.div>
+                 
                       </div>
                     </div>
                   </motion.div>
