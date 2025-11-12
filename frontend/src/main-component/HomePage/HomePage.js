@@ -19,6 +19,7 @@ import Commonform from '../router/components/Commonform';
 import PersonalisedSection from '../../components/PersonalisedSection/PersonalisedSection'
 import FaqSection from '../FaqPage/FAQ';
 import FAQ from '../FaqPage/FAQ';
+import Banner from './Banner';
 
 const HomePage = () => {
 
@@ -88,6 +89,9 @@ const HomePage = () => {
                 <div className="applycompo-mobile">
                     <Applycompo/>
                 </div>
+
+
+                {/* <Banner/ */}
                 <MerittoLogin/>
             </div>
 

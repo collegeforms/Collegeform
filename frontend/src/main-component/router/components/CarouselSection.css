@@ -1,0 +1,248 @@
+/* Framer Motion Carousel Styles */
+.fm-carousel-container {
+  position: relative;
+  overflow: hidden;
+  height: 650px !important;
+  width: 100%;
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.fm-fade-overlay {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  border-radius: 20px;
+}
+
+/* White Fade Overlays */
+.fm-fade-overlay::before,
+.fm-fade-overlay::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.fm-fade-overlay::before {
+  top: 0;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.fm-fade-overlay::after {
+  bottom: 0;
+  background: linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.fm-columns-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  height: 100%;
+  padding: 60px 40px;
+}
+
+.fm-column {
+  flex: 0 0 auto;
+  height: 100%;
+  overflow: hidden;
+}
+
+.fm-left-column {
+  transform: translateY(0px) !important;
+}
+
+.fm-right-column {
+  transform: translateY(0px) !important;
+}
+
+.fm-scroll-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.fm-image-item {
+  flex-shrink: 0;
+}
+
+.fm-image-frame {
+  background: white;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.fm-image-frame:hover {
+  transform: translateY(-5px);
+}
+
+.fm-carousel-image {
+  width: 280px;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+/* Control Button */
+.fm-pause-button {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.fm-pause-button:hover {
+  background: rgba(0, 0, 0, 1);
+  transform: scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .fm-carousel-container {
+    height: 440px !important;
+    border-radius: 16px;
+  }
+  
+  .fm-columns-wrapper {
+    gap: 25px;
+    padding: 0px 20px;
+  }
+  
+  .fm-carousel-image {
+    width: 150px;
+    height: 180px;
+  }
+  
+  .fm-left-column {
+    transform: translateY(-40px);
+  }
+  
+  .fm-image-frame {
+    padding: 0px;
+    border-radius: 12px;
+  }
+  
+  .fm-scroll-container {
+    gap: 20px;
+  }
+  
+  .fm-pause-button {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .fm-fade-overlay::before,
+  .fm-fade-overlay::after {
+    height: 80px;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .fm-carousel-container {
+    height: 600px;
+  }
+  
+  .fm-columns-wrapper {
+    gap: 35px;
+    padding: 50px 30px;
+  }
+  
+  .fm-carousel-image {
+    width: 220px;
+    height: 275px;
+  }
+  
+  .fm-left-column {
+    transform: translateY(-50px);
+  }
+  
+  .fm-scroll-container {
+    gap: 25px;
+  }
+}
+
+/* Large Desktop Styles */
+@media (min-width: 1200px) {
+  .fm-carousel-container {
+    height: 800px;
+  }
+  
+  .fm-carousel-image {
+    width: 300px;
+    height: 375px;
+  }
+  
+  .fm-columns-wrapper {
+    gap: 50px;
+    padding: 0px 50px;
+  }
+  
+  .fm-left-column {
+    transform: translateY(-70px);
+  }
+}
+
+/* Enhanced white fade effect */
+.fm-fade-overlay::before {
+  background: linear-gradient(180deg, 
+    #ffffff 0%, 
+    rgba(255, 255, 255, 0.95) 15%,
+    rgba(255, 255, 255, 0.7) 30%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.fm-fade-overlay::after {
+  background: linear-gradient(0deg, 
+    #ffffff 0%, 
+    rgba(255, 255, 255, 0.95) 15%,
+    rgba(255, 255, 255, 0.7) 30%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* Image hover effects */
+.fm-image-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.fm-image-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
+  z-index: 0;
+}
+
+.fm-image-frame:hover::before {
+  opacity: 1;
+}

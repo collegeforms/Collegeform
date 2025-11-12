@@ -17,6 +17,7 @@ import {
 } from "react-icons/ri";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import CarouselSection from "./CarouselSection";
 
 // TypingText Component for animated typing effect
 const TypingText = () => {
@@ -584,33 +585,7 @@ const MerittoLogin = () => {
 
       {/* Right Section with Banner */}
       <div className="meritto-right">
-        {bannerLoading ? (
-          <div className="banner-loading">Loading banner...</div>
-        ) : bannerError ? (
-          <div className="banner-error">
-            {bannerError}
-            {/* Fallback image */}
-            <img 
-              src="https://coreldrawdesign.com/resources/previews/preview-new-admission-open-banner-school-college-institute-and-social-media-post-image-1708504386.webp" 
-              alt="Admission Open Banner" 
-            />
-          </div>
-        ) : bannerData ? (
-          <img 
-            src={bannerData.imageUrl || bannerData.image} 
-            alt={bannerData.title || "Home Page Banner"} 
-            onError={(e) => {
-              // Fallback if banner image fails to load
-              e.target.src = "https://coreldrawdesign.com/resources/previews/preview-new-admission-open-banner-school-college-institute-and-social-media-post-image-1708504386.webp";
-            }}
-          />
-        ) : (
-          // Default banner if no data
-          <img 
-            src="https://coreldrawdesign.com/resources/previews/preview-new-admission-open-banner-school-college-institute-and-social-media-post-image-1708504386.webp" 
-            alt="Admission Open Banner" 
-          />
-        )}
+   <CarouselSection/>
       </div>
 
       <ApplyNowModal

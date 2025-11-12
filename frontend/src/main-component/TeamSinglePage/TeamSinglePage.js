@@ -5,23 +5,25 @@ import Navbar from '../../components/Navbar/Navbar';
 import Scrollbar from '../../components/scrollbar/scrollbar';
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/footer/Footer';
-import { useNavigate,useLocation  } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   FiCheckCircle, 
   FiAward, 
   FiBook, 
   FiMapPin, 
   FiFileText,
-  FiDollarSign,
   FiBarChart2,
-  FiCalendar,
   FiChevronLeft,
   FiChevronRight,
   FiStar,
   FiClock,
   FiUsers,
   FiGlobe,
-  FiPlay
+  FiPlay,
+  FiX,
+  FiPhone,
+  FiUser,
+  FiMessageCircle
 } from 'react-icons/fi';
 import "./collegeSingle.css";
 
@@ -33,18 +35,29 @@ const CollegeSinglePage = (props) => {
     const [activeTab, setActiveTab] = useState('overview');
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCallbackModalOpen, setIsCallbackModalOpen] = useState(false);
+    const [callbackForm, setCallbackForm] = useState({
+        name: '',
+        phone: '',
+        courseInterest: ''
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState('');
     const navigate = useNavigate();
-      const location = useLocation();
+    const location = useLocation();
 
-const API_URL = "https://collegeforms.in";
-
+    const API_URL = "https://collegeforms.in";
     const authToken = localStorage.getItem('userToken');
+
+    // Check if callback is enabled
+    const isCallbackEnabled = college?.requestCallback || true;
 
     useEffect(() => {
         const fetchCollege = async () => {
             try {
                 const response = await axios.get(`${API_URL}/api/colleges/${id}`);
                 const coursesResponse = await axios.get(`${API_URL}/api/courses`);
+                console.log(response.data.college);
                 
                 setCollege(response.data.college || response.data);
                 setAllCourses(coursesResponse.data);
@@ -97,16 +110,78 @@ const API_URL = "https://collegeforms.in";
         setIsModalOpen(false);
     };
 
+    // Callback modal functions
+    const openCallbackModal = () => {
+        setIsCallbackModalOpen(true);
+        setSubmitStatus('');
+        setCallbackForm({
+            name: '',
+            phone: '',
+            courseInterest: ''
+        });
+    };
+
+    const closeCallbackModal = () => {
+        setIsCallbackModalOpen(false);
+        setSubmitStatus('');
+    };
+
+    const handleCallbackInputChange = (e) => {
+        const { name, value } = e.target;
+        setCallbackForm(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleCallbackSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setSubmitStatus('');
+
+        try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Actual API call would go here
+            // await axios.post(`${API_URL}/api/callback-requests`, {
+            //     ...callbackForm,
+            //     collegeId: id,
+            //     collegeName: college?.name
+            // });
+
+            setSubmitStatus('success');
+            setTimeout(() => {
+                closeCallbackModal();
+            }, 2000);
+        } catch (error) {
+            setSubmitStatus('error');
+            console.error('Error submitting callback request:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     // Auto slide functionality
     useEffect(() => {
         if (images.length > 1) {
             const interval = setInterval(() => {
                 nextImage();
-            }, 5000); // Change image every 5 seconds
+            }, 5000);
 
             return () => clearInterval(interval);
         }
     }, [images.length, currentImageIndex]);
+
+    const handleApplyClick = () => {
+        if (authToken) {
+            navigate("/step", { state: { college } });
+        } else {
+            navigate('/user/login', { 
+                state: { from: location }
+            });
+        }
+    };
 
     if (loading) {
         return (
@@ -127,16 +202,6 @@ const API_URL = "https://collegeforms.in";
             </div>
         );
     }
-
-    const handleApplyClick = () => {
-        if (authToken) {
-            navigate("/step", { state: { college } });
-        } else {
-              navigate('/user/login', { 
-      state: { from: location } // This preserves the current URL
-    });
-        }
-    };
 
     // Animation variants
     const fadeIn = {
@@ -171,8 +236,6 @@ const API_URL = "https://collegeforms.in";
                             animate="visible"
                             className="college-header-card"
                         >
-                            {/* <div className="college-badge">TOP RATED</div> */}
-
                             <div className='row' >
                                 <div className='col-md-5 order-md-1 order-2'>
                                     <h1 className="college-main-title">{college.name || 'College Name Not Available'}</h1>
@@ -209,15 +272,32 @@ const API_URL = "https://collegeforms.in";
                                     )}
 
                                     <div className="cta-section-2">
-                                        <motion.button
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            onClick={handleApplyClick}
-                                            className="apply-cta-btn"
-                                        >
-                                            Apply Now
-                                        </motion.button>
-                                        <p className="cta-note">Secure your seat for the upcoming academic year</p>
+                                        {isCallbackEnabled ? (
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={openCallbackModal}
+                                                className="callback-cta-btn-3"
+                                            >
+                                                <FiPhone className="callback-btn-icon-3" />
+                                                Request Callback
+                                            </motion.button>
+                                        ) : (
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={handleApplyClick}
+                                                className="apply-cta-btn"
+                                            >
+                                                Apply Now
+                                            </motion.button>
+                                        )}
+                                        <p className="cta-note">
+                                            {isCallbackEnabled 
+                                                ? "Get personalized guidance from our experts" 
+                                                : "Secure your seat for the upcoming academic year"
+                                            }
+                                        </p>
                                     </div>
                                 </div>
 
@@ -247,7 +327,6 @@ const API_URL = "https://collegeforms.in";
                                                     {currentImageIndex + 1} / {images.length}
                                                 </div>
 
-                                                {/* Auto-slide indicator dots */}
                                                 <div className="auto-slide-dots">
                                                     {images.map((_, index) => (
                                                         <div 
@@ -493,42 +572,6 @@ const API_URL = "https://collegeforms.in";
                                             </div>
                                         )}
 
-                                        {/* Important Dates */}
-                                        {/* <div className="college-section">
-                                            <h3 className="section-title-2">Important Dates</h3>
-                                            {(college.importantDates && college.importantDates.length > 0) || college.applicationDeadline ? (
-                                                <div className="dates-container">
-                                                    {college.applicationDeadline && (
-                                                        <div className="date-card-new primary">
-                                                            <FiCalendar className="date-card-icon" />
-                                                            <div className="date-card-content">
-                                                                <div className="date-title">Application Deadline</div>
-                                                                <div className="date-value">
-                                                                    {new Date(college.applicationDeadline).toLocaleDateString()}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {college.importantDates?.map((date, index) => (
-                                                        <div key={index} className="date-card-new">
-                                                            <FiCalendar className="date-card-icon" />
-                                                            <div className="date-card-content">
-                                                                <div className="date-title">{date.title || `Important Date ${index + 1}`}</div>
-                                                                <div className="date-value">
-                                                                    {new Date(date.date).toLocaleDateString()}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="no-data-state">
-                                                    <FiCalendar className="no-data-icon" />
-                                                    <p>No important dates available</p>
-                                                </div>
-                                            )}
-                                        </div> */}
-
                                         {/* Required Documents */}
                                         {college.requiredDocuments && college.requiredDocuments.length > 0 && (
                                             <div className="college-section">
@@ -633,6 +676,138 @@ const API_URL = "https://collegeforms.in";
                     </div>
                 </div>
             </motion.div>
+
+            {/* Callback Modal 3 - Sleek and Compact */}
+            <AnimatePresence>
+                {isCallbackModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="callback-modal-overlay-3"
+                        onClick={closeCallbackModal}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="callback-modal-content-3"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="callback-modal-header-3">
+                                <div className="callback-modal-icon-wrapper-3">
+                                    <FiPhone className="callback-modal-main-icon-3" />
+                                </div>
+                                <button 
+                                    className="callback-modal-close-btn-3"
+                                    onClick={closeCallbackModal}
+                                >
+                                    <FiX size={18} />
+                                </button>
+                            </div>
+
+                            {/* Body */}
+                            <div className="callback-modal-body-3">
+                                <h3 className="callback-modal-title-3">Request a Callback</h3>
+                                <p className="callback-modal-subtitle-3">
+                                    Share your details and we'll call you back within 30 minutes
+                                </p>
+
+                                {submitStatus === 'success' ? (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="callback-success-message-3"
+                                    >
+                                        <FiCheckCircle className="success-icon-3" />
+                                        <h4>Thank You!</h4>
+                                        <p>We'll call you shortly</p>
+                                    </motion.div>
+                                ) : (
+                                    <form onSubmit={handleCallbackSubmit} className="callback-form-3">
+                                        <div className="callback-input-group-3">
+                                            <FiUser className="callback-input-icon-3" />
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={callbackForm.name}
+                                                onChange={handleCallbackInputChange}
+                                                className="callback-form-input-3"
+                                                required
+                                                placeholder="Your Name"
+                                            />
+                                        </div>
+
+                                        <div className="callback-input-group-3">
+                                            <FiPhone className="callback-input-icon-3" />
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={callbackForm.phone}
+                                                onChange={handleCallbackInputChange}
+                                                className="callback-form-input-3"
+                                                required
+                                                placeholder="Phone Number"
+                                            />
+                                        </div>
+
+                                        <div className="callback-input-group-3">
+                                            <FiBook className="callback-input-icon-3" />
+                                            <select
+                                                name="courseInterest"
+                                                value={callbackForm.courseInterest}
+                                                onChange={handleCallbackInputChange}
+                                                className="callback-form-input-3"
+                                            >
+                                                <option value="">Select Course Interest</option>
+                                                {college.courses && college.courses.map((course, index) => (
+                                                    <option key={index} value={course}>{course}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {submitStatus === 'error' && (
+                                            <div className="callback-error-message-3">
+                                                Failed to submit. Please try again.
+                                            </div>
+                                        )}
+
+                                        <motion.button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="callback-submit-btn-3"
+                                        >
+                                            {isSubmitting ? (
+                                                <>
+                                                    <div className="callback-submit-spinner-3"></div>
+                                                    Processing...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FiMessageCircle className="submit-btn-icon-3" />
+                                                    Request Callback
+                                                </>
+                                            )}
+                                        </motion.button>
+                                    </form>
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className="callback-modal-footer-3">
+                                <p className="callback-modal-assurance-3">
+                                    <FiCheckCircle className="assurance-icon-3" />
+                                    Your information is secure and confidential
+                                </p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <Footer />
             <Scrollbar />
         </Fragment>
