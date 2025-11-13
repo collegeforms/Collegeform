@@ -900,7 +900,7 @@
 }
 
 .apply-cta-btn {
-    width: 30%;
+    min-width: 40%;
     background: linear-gradient(135deg, #387DF3, #105de3);
     color: white;
     border: none;

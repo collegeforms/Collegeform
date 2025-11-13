@@ -49,9 +49,6 @@ const CollegeSinglePage = (props) => {
     const API_URL = "https://collegeforms.in";
     const authToken = localStorage.getItem('userToken');
 
-    // Check if callback is enabled
-    const isCallbackEnabled = college?.requestCallback || true;
-
     useEffect(() => {
         const fetchCollege = async () => {
             try {
@@ -71,6 +68,11 @@ const CollegeSinglePage = (props) => {
 
         fetchCollege();
     }, [id]);
+
+    console.log(college?.isRequestcallback);
+
+    // Check if callback is enabled - FIXED: using correct field name
+    const isCallbackEnabled = college?.isRequestcallback || false;
 
     // Get all images including main image and additional images
     const getAllImages = () => {
@@ -277,9 +279,9 @@ const CollegeSinglePage = (props) => {
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
                                                 onClick={openCallbackModal}
-                                                className="callback-cta-btn-3"
+                                                className="apply-cta-btn"
                                             >
-                                                <FiPhone className="callback-btn-icon-3" />
+                                                <FiPhone className="callback-btn-icon-3 me-2" />
                                                 Request Callback
                                             </motion.button>
                                         ) : (
