@@ -7,11 +7,21 @@ import {
   Alert, 
   Button, 
   useTheme, 
-  useMediaQuery 
+  useMediaQuery,
+  TextField,
+  Typography,
+  Paper,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Fade,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material';
-import { Close, NavigateBefore, NavigateNext, Refresh } from '@mui/icons-material';
+import { Close, NavigateBefore, NavigateNext, Refresh, Person, Phone, Description, Category, CheckCircle } from '@mui/icons-material';
 
-const BannerRow = ({category}) => {
+const BannerRow = ({ category }) => {
 
   console.log(category);
   
@@ -20,10 +30,26 @@ const BannerRow = ({category}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    number: '',
+    inquiry: '',
+    category: category || '', // Set category from props
+    agreeToContact: false
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const API_URL = "https://collegeforms.in";
+
+  // Primary color from props
+  const primaryColor = '#002244';
+  const lightColor = '#334d66';
+  const gradient = `linear-gradient(45deg, ${primaryColor} 30%, ${lightColor} 90%)`;
+  const hoverGradient = `linear-gradient(45deg, #001933 30%, #2d4466 90%)`;
 
   // Fetch banners from API
   const fetchBanners = async () => {
@@ -60,7 +86,7 @@ const BannerRow = ({category}) => {
 
   useEffect(() => {
     fetchBanners();
-  }, []);
+  }, [category]); // Added category dependency
 
   const handleBannerClick = (banner, index) => {
     setSelectedBanner(banner);
@@ -84,6 +110,62 @@ const BannerRow = ({category}) => {
     setSelectedBanner(banners[newIndex]);
   };
 
+  const handleVisitWebsite = () => {
+    setInquiryOpen(true);
+    setShowThankYou(false);
+  };
+
+  const handleInquiryClose = () => {
+    setInquiryOpen(false);
+    setFormData({
+      name: '',
+      number: '',
+      inquiry: '',
+      category: category || '', // Reset to prop category
+      agreeToContact: false
+    });
+    setShowThankYou(false);
+    setSubmitting(false);
+  };
+
+  const handleFormChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmitInquiry = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.agreeToContact) {
+      alert('Please agree to be contacted regarding your inquiry');
+      return;
+    }
+
+    setSubmitting(true);
+    
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log('Form submitted:', formData);
+      
+      // Show thank you message
+      setShowThankYou(true);
+      
+      // Close modal after 3 seconds
+      setTimeout(() => {
+        handleInquiryClose();
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Show loading state
   if (loading) {
     return (
@@ -97,7 +179,7 @@ const BannerRow = ({category}) => {
           backgroundColor: '#f5f5f5'
         }}
       >
-        <CircularProgress />
+        <CircularProgress sx={{ color: primaryColor }} />
       </Box>
     );
   }
@@ -125,6 +207,7 @@ const BannerRow = ({category}) => {
           onClick={fetchBanners}
           variant="outlined"
           size="small"
+          sx={{ color: primaryColor, borderColor: primaryColor }}
         >
           Retry
         </Button>
@@ -218,7 +301,6 @@ const BannerRow = ({category}) => {
             />
             
             {/* Overlay Text - Only show if banner has link */}
-            {banner.link && (
               <Box
                 sx={{
                   position: 'absolute',
@@ -244,7 +326,6 @@ const BannerRow = ({category}) => {
                   Click to visit website
                 </p>
               </Box>
-            )}
           </Box>
         ))}
       </Box>
@@ -355,11 +436,16 @@ const BannerRow = ({category}) => {
                 }}>
                   <Button 
                     variant="contained" 
-                    color="primary"
-                    onClick={() => window.open(selectedBanner.link, '_blank')}
+                    onClick={handleVisitWebsite}
                     sx={{ 
                       mt: 1,
-                      minWidth: '140px'
+                      minWidth: '140px',
+                      background: gradient,
+                      boxShadow: `0 3px 5px 2px ${lightColor}50`,
+                      '&:hover': {
+                        background: hoverGradient,
+                        boxShadow: `0 5px 10px 2px ${lightColor}70`,
+                      }
                     }}
                     size="medium"
                   >
@@ -370,6 +456,291 @@ const BannerRow = ({category}) => {
             </Box>
           )}
         </Box>
+      </Modal>
+
+      {/* Inquiry Form Modal */}
+      <Modal
+        open={inquiryOpen}
+        onClose={handleInquiryClose}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2
+        }}
+      >
+        <Fade in={inquiryOpen}>
+          <Paper
+            sx={{
+              maxWidth: 500,
+              width: '100%',
+              p: 4,
+              borderRadius: 3,
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: gradient
+              }
+            }}
+          >
+            <IconButton
+              onClick={handleInquiryClose}
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                color: '#666'
+              }}
+            >
+              <Close />
+            </IconButton>
+
+            {showThankYou ? (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <CheckCircle 
+                  sx={{ 
+                    fontSize: 64, 
+                    color: '#4CAF50',
+                    mb: 2
+                  }} 
+                />
+                <Typography 
+                  variant="h4" 
+                  component="h2" 
+                  sx={{ 
+                    fontWeight: 600,
+                    color: primaryColor,
+                    mb: 2
+                  }}
+                >
+                  Thank You!
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    color: 'text.secondary',
+                    mb: 1
+                  }}
+                >
+                  Your inquiry has been submitted successfully.
+                </Typography>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    color: 'text.secondary'
+                  }}
+                >
+                  We will contact you soon.
+                </Typography>
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    color: 'text.secondary',
+                    display: 'block',
+                    mt: 2
+                  }}
+                >
+                  Closing automatically...
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                <Box sx={{ textAlign: 'center', mb: 3 }}>
+                  <Typography 
+                    variant="h5" 
+                    component="h2" 
+                    sx={{ 
+                      fontWeight: 600,
+                      color: primaryColor,
+                      mb: 1
+                    }}
+                  >
+                    Get More Information
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Please share your details and we'll help you get started
+                  </Typography>
+                </Box>
+
+                <Box component="form" onSubmit={handleSubmitInquiry} sx={{ mt: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="Full Name"
+                    value={formData.name}
+                    onChange={(e) => handleFormChange('name', e.target.value)}
+                    required
+                    margin="normal"
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: <Person sx={{ color: 'action.active', mr: 1 }} />
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '&:hover fieldset': {
+                          borderColor: primaryColor,
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: primaryColor,
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: primaryColor,
+                      }
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Phone Number"
+                    type="tel"
+                    value={formData.number}
+                    onChange={(e) => handleFormChange('number', e.target.value)}
+                    required
+                    margin="normal"
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: <Phone sx={{ color: 'action.active', mr: 1 }} />
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '&:hover fieldset': {
+                          borderColor: primaryColor,
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: primaryColor,
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: primaryColor,
+                      }
+                    }}
+                  />
+
+                  <FormControl fullWidth margin="normal" variant="outlined">
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      value={formData.category}
+                      onChange={(e) => handleFormChange('category', e.target.value)}
+                      label="Category"
+                      required
+                      startAdornment={<Category sx={{ color: 'action.active', mr: 1 }} />}
+                      sx={{
+                        borderRadius: 2,
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: primaryColor,
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: primaryColor,
+                        }
+                      }}
+                    >
+                      <MenuItem value={category}>{category}</MenuItem>
+                      <MenuItem value="Online Education">Online Education</MenuItem>
+                      <MenuItem value="Study Abroad">Study Abroad</MenuItem>
+                      <MenuItem value="Vocational Institutes">Vocational Institutes</MenuItem>
+                      <MenuItem value="Scholarship Based Education">Scholarship Based Education</MenuItem>
+                      <MenuItem value="Government Colleges">Government Colleges</MenuItem>
+                      <MenuItem value="Top B Schools">Top B Schools</MenuItem>
+                      <MenuItem value="Education Loan">Education Loan</MenuItem>
+                      <MenuItem value="Accommodation">Accommodation</MenuItem>
+                      <MenuItem value="Competitive Exams">Competitive Exams</MenuItem>
+                      <MenuItem value="other">Other</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <TextField
+                    fullWidth
+                    label="Your Inquiry"
+                    multiline
+                    rows={3}
+                    value={formData.inquiry}
+                    onChange={(e) => handleFormChange('inquiry', e.target.value)}
+                    required
+                    margin="normal"
+                    variant="outlined"
+                    placeholder="Please describe what information you're looking for..."
+                    InputProps={{
+                      startAdornment: <Description sx={{ color: 'action.active', mr: 1, mt: 1, alignSelf: 'flex-start' }} />
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '&:hover fieldset': {
+                          borderColor: primaryColor,
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: primaryColor,
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: primaryColor,
+                      }
+                    }}
+                  />
+
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.agreeToContact}
+                        onChange={(e) => handleFormChange('agreeToContact', e.target.checked)}
+                        sx={{
+                          color: primaryColor,
+                          '&.Mui-checked': {
+                            color: primaryColor,
+                          },
+                        }}
+                      />
+                    }
+                    label="I agree to be contacted regarding my inquiry"
+                    sx={{ mt: 2 }}
+                  />
+
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    disabled={submitting}
+                    sx={{
+                      mt: 3,
+                      mb: 2,
+                      py: 1.5,
+                      borderRadius: 2,
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      background: submitting ? '#ccc' : gradient,
+                      boxShadow: submitting ? 'none' : `0 3px 5px 2px ${lightColor}50`,
+                      '&:hover': {
+                        background: submitting ? '#ccc' : hoverGradient,
+                        boxShadow: submitting ? 'none' : `0 5px 10px 2px ${lightColor}70`,
+                        transform: submitting ? 'none' : 'translateY(-1px)'
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    {submitting ? (
+                      <>
+                        <CircularProgress size={20} sx={{ color: 'white', mr: 1 }} />
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit Inquiry'
+                    )}
+                  </Button>
+                </Box>
+              </>
+            )}
+          </Paper>
+        </Fade>
       </Modal>
     </>
   );

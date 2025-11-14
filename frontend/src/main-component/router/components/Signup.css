@@ -162,11 +162,11 @@ body {
 
 .image-section {
   flex: 1;
-  background: #000;
-  background: url('https://i.ibb.co/RTz0kVbC/front-view-male-student-wearing-black-backpack-holding-clocks-light-blue-wall-1.jpg') no-repeat right center fixed;
   background-size: contain;
 }
-
+.form-label{
+  margin-bottom: -1px !important;
+}
 /* Responsive Design */
 @media only screen and (max-width: 900px) {
   .image-section {

@@ -8,6 +8,8 @@ import LockIcon from "@mui/icons-material/Lock";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CarouselSection from './CarouselSection';
+
 
 const Signup = () => {
   const { 
@@ -228,9 +230,9 @@ const Signup = () => {
                   disabled={loading}
                 />
               </div>
-              <div className="form-text">
+              {/* <div className="form-text">
                 We'll verify this number with OTP
-              </div>
+              </div> */}
             </div>
 
             <div className="form-group">
@@ -351,7 +353,9 @@ const Signup = () => {
           </p>
         </div>
       </div>
-      <div className="image-section"></div>
+      <div className="image-section">
+        <CarouselSection/>
+      </div>
     </div>
   );
 };

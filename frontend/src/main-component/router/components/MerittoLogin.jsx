@@ -578,7 +578,7 @@ const MerittoLogin = () => {
         </p>
         <div className="container justify-content-center text-center d-flex">
           <div className="Explore-clg-3">
-            <button onClick={modelopened}>Start Your Application</button>
+            <button onClick={modelopened}>Explore Offers</button>
           </div>
         </div>
       </div>

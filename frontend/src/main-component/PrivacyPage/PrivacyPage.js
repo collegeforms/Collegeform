@@ -5,6 +5,7 @@ import Footer from '../../components/footer/Footer';
 import Scrollbar from '../../components/scrollbar/scrollbar';
 import { Helmet } from "react-helmet-async";
 import './StudyAbroad.css'; // Create this CSS file
+import BannerRow from '../router/components/SimpleBannerRow';
 
 const Privacypage = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -270,14 +271,7 @@ const Privacypage = (props) => {
             
             <Navbar />
             
-            <section className="hero-section-1">
-                <div className="container">
-                    <div className="hero-content-1">
-                        <h1>Unlock Your Global Education Potential</h1>
-                        <p>Discover world-class universities and programs tailored to your aspirations</p>
-                    </div>
-                </div>
-            </section>
+      <BannerRow category={'StudyAbroad'} />
 
             <section className="destinations-section">
                 <div className="container">

@@ -33,7 +33,7 @@ const Commonform = () => {
           </div>
           
           <Link to="/step" className="cta-button-2">
-            Start Your Application
+            Explore Offers
           </Link>
           
        

@@ -56,9 +56,9 @@ const AddBanner = () => {
     "Top-B-Schools": "Top B Schools",
     "education-loan": "Education Loan",
     "accommodation": "Accommodation",
-    "home-page": "Home page"
-
-  };
+    "home-page": "Home page",
+    "CompetitiveExams": "Competitive Exams"
+};
 
   useEffect(() => {
     fetchBanners();

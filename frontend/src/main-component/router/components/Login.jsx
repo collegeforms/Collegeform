@@ -6,6 +6,7 @@ import AuthContext from '../context/AuthContext';
 import PhoneIcon from "@mui/icons-material/Phone";
 import LockIcon from "@mui/icons-material/Lock";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CarouselSection from './CarouselSection';
 
 const Login = () => {
   const { 
@@ -304,7 +305,9 @@ const Login = () => {
           </p>
         </div>
       </div>
-      <div className="image-section"></div>
+      <div>
+        <CarouselSection/>
+      </div>
     </div>
   );
 };
