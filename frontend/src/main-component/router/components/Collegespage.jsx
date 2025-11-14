@@ -63,7 +63,10 @@ const Collegespage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
+  console.log(searchParams);
+  
   const searchTerm = searchParams.get('search');
+  console.log(searchTerm);
   
   const courseFilter = searchParams.get('course');
   const specializationFilter = searchParams.get('specialization');
@@ -282,7 +285,7 @@ const Collegespage = () => {
         ]);
 
         let collegesData = collegesRes.data;
-        console.log("All colleges:", collegesData);
+        console.log(collegesData);
         
         let coursesData = coursesRes.data;
 
@@ -304,7 +307,6 @@ const Collegespage = () => {
 
         // FIXED: Better URL parameter handling
         if (courseFilter) {
-          console.log("Course filter from URL:", courseFilter);
           setFilters(prev => ({
             ...prev,
             courses: courseFilter
@@ -321,7 +323,6 @@ const Collegespage = () => {
         // FIXED: Handle both currentCity and preferredCity
         const cityFilter = currentCityFilter || preferredCityFilter;
         if (cityFilter) {
-          console.log("City filter from URL:", cityFilter);
           setFilters(prev => ({
             ...prev,
             locations: [cityFilter]
@@ -387,24 +388,13 @@ const Collegespage = () => {
   useEffect(() => {
     let results = [...colleges];
 
-    console.log("Initial results count:", results.length);
-    console.log("URL Parameters:", {
-      courseFilter,
-      currentCityFilter,
-      preferredCityFilter,
-      examFilter,
-      levelFilter,
-      levelTypeFilter
-    });
+ 
 
     results = filterByExam(results);
-    console.log("After exam filter:", results.length);
 
     results = filterByLevel(results);
-    console.log("After level filter:", results.length);
 
     results = filterByCity(results);
-    console.log("After city filter:", results.length);
 
     if (searchTerm) {
       const searchTermLower = searchTerm.toLowerCase();
@@ -426,7 +416,6 @@ const Collegespage = () => {
           return courseName && courseName.includes(courseFilterLower);
         });
       });
-      console.log("After course filter:", results.length, "for course:", filters.courses);
     }
 
     if (filters.locations.length > 0) {
@@ -437,7 +426,6 @@ const Collegespage = () => {
           return collegeLocation && collegeLocation.includes(filterLocation);
         })
       );
-      console.log("After location filter:", results.length, "for locations:", filters.locations);
     }
 
     if (filters.specialization.length > 0) {
@@ -466,7 +454,6 @@ const Collegespage = () => {
       return collegeFee >= priceRange[0] && collegeFee <= priceRange[1];
     });
 
-    console.log("Final filtered results:", results.length);
     setFilteredColleges(results);
   }, [filters, colleges, priceRange, searchTerm, examFilter, levelFilter, levelTypeFilter, currentCityFilter, preferredCityFilter]);
 
