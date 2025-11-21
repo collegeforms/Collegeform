@@ -181,6 +181,7 @@ body {
 @media only screen and (max-width: 600px) {
   .containerss {
     height: auto;
+    flex-direction: column;
     min-height: 100vh;
   }
   
@@ -307,7 +308,7 @@ body {
   content: "";
   position: absolute;
   border-radius: 50%;
-  background: #1F4795;
+  background: #1f469549;
   animation: floatCircles 10s linear infinite;
   z-index: -1;
 }

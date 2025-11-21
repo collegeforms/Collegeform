@@ -1,3 +1,5 @@
+
+
 import React, { Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +8,8 @@ import Scrollbar from '../../components/scrollbar/scrollbar';
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/footer/Footer';
 import { useNavigate, useLocation } from "react-router-dom";
+// import { useCart } from '../../context/CartContext';
+import { useCart } from '../router/context/CartContext';
 import { 
   FiCheckCircle, 
   FiAward, 
@@ -23,7 +27,9 @@ import {
   FiX,
   FiPhone,
   FiUser,
-  FiMessageCircle
+  FiMessageCircle,
+  FiShoppingCart,
+  FiCheck
 } from 'react-icons/fi';
 import "./collegeSingle.css";
 
@@ -43,8 +49,12 @@ const CollegeSinglePage = (props) => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState('');
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Use cart context
+    const { addToCart, isItemInCart, cartItems } = useCart();
 
     const API_URL = "https://collegeforms.in";
     const authToken = localStorage.getItem('userToken');
@@ -68,6 +78,10 @@ const CollegeSinglePage = (props) => {
 
         fetchCollege();
     }, [id]);
+
+    const showSnackbar = (message, severity = "success") => {
+        setSnackbar({ open: true, message, severity });
+    };
 
     console.log(college?.isRequestcallback);
 
@@ -161,6 +175,48 @@ const CollegeSinglePage = (props) => {
             console.error('Error submitting callback request:', error);
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    // Add to cart function
+    const handleAddToCart = async (course, coursePricing) => {
+        if (!authToken) {
+            showSnackbar("Please login to add items to cart", "warning");
+            setTimeout(() => {
+                navigate('/user/login', { 
+                    state: { from: location }
+                });
+            }, 1500);
+            return;
+        }
+
+        const cartItemData = {
+            collegeId: college.id || college._id,
+            collegeName: college.name,
+            collegeLocation: college.location,
+            collegeImage: college.image,
+            courseName: course,
+            originalFees: coursePricing?.originalFees || 0,
+            discountedFees: coursePricing?.discountedFees || coursePricing?.originalFees || 0,
+            slug: college.slug
+        };
+
+        try {
+            await addToCart(cartItemData);
+            showSnackbar("Course added to cart successfully!");
+        } catch (error) {
+            if (error.message.includes("login")) {
+                showSnackbar("Please login to add items to cart", "warning");
+                setTimeout(() => {
+                    navigate('/user/login', { 
+                        state: { from: location }
+                    });
+                }, 1500);
+            } else if (error.message.includes("already in cart")) {
+                showSnackbar("This course is already in your cart", "info");
+            } else {
+                showSnackbar("Failed to add course to cart", "error");
+            }
         }
     };
 
@@ -485,6 +541,7 @@ const CollegeSinglePage = (props) => {
                                                     const coursePricing = college.coursePricing?.find(cp => 
                                                         cp.courseName === course
                                                     );
+                                                    const isCourseInCart = isItemInCart(college.id || college._id, course);
                                                     
                                                     return (
                                                         <motion.div 
@@ -528,6 +585,70 @@ const CollegeSinglePage = (props) => {
                                                                         <FiUsers className="seats-icon" />
                                                                         {coursePricing.seatsAvailable} seats available
                                                                     </div>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            {/* Add to Cart Button with inline styling */}
+                                                            <div style={{ 
+                                                                padding: '16px', 
+                                                                borderTop: '1px solid #f0f0f0', 
+                                                                marginTop: '12px' 
+                                                            }}>
+                                                                {isCourseInCart ? (
+                                                                    <motion.button
+                                                                        initial={{ scale: 0.8 }}
+                                                                        animate={{ scale: 1 }}
+                                                                        style={{
+                                                                            width: '50%',
+                                                                            padding: '12px 24px',
+                                                                            backgroundColor: '#10b981',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '8px',
+                                                                            fontWeight: '600',
+                                                                            fontSize: '14px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            gap: '8px',
+                                                                            cursor: 'not-allowed',
+                                                                            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                                                                        }}
+                                                                        disabled
+                                                                    >
+                                                                        <FiCheck style={{ fontSize: '16px' }} />
+                                                                        Added to Cart
+                                                                    </motion.button>
+                                                                ) : (
+                                                                    <motion.button
+                                                                        whileHover={{ 
+                                                                            scale: 1.02,
+                                                                            backgroundColor: '#002244',
+                                                                            boxShadow: '0 4px 12px rgba(0, 51, 102, 0.4)'
+                                                                        }}
+                                                                        whileTap={{ scale: 0.98 }}
+                                                                        onClick={() => handleAddToCart(course, coursePricing)}
+                                                                        style={{
+                                                                            width: '50%',
+                                                                            padding: '12px 24px',
+                                                                            backgroundColor: '#003366',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '8px',
+                                                                            fontWeight: '600',
+                                                                            fontSize: '14px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            gap: '8px',
+                                                                            cursor: 'pointer',
+                                                                            transition: 'all 0.3s ease',
+                                                                            boxShadow: '0 2px 8px rgba(0, 51, 102, 0.3)'
+                                                                        }}
+                                                                    >
+                                                                        <FiShoppingCart style={{ fontSize: '16px' }} />
+                                                                        Add to Cart
+                                                                    </motion.button>
                                                                 )}
                                                             </div>
                                                         </motion.div>
@@ -809,6 +930,54 @@ const CollegeSinglePage = (props) => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Custom Snackbar with inline styling */}
+            {snackbar.open && (
+                <motion.div
+                    initial={{ opacity: 0, x: -100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    style={{
+                        position: 'fixed',
+                        bottom: '20px',
+                        left: '20px',
+                        zIndex: 9999,
+                        padding: '16px 24px',
+                        borderRadius: '8px',
+                        color: 'white',
+                        fontWeight: '600',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        backgroundColor: 
+                            snackbar.severity === 'success' ? '#10b981' :
+                            snackbar.severity === 'error' ? '#ef4444' :
+                            snackbar.severity === 'warning' ? '#f59e0b' :
+                            snackbar.severity === 'info' ? '#3b82f6' : '#003366',
+                        minWidth: '300px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}
+                >
+                    {snackbar.severity === 'success' && <FiCheckCircle style={{ fontSize: '18px' }} />}
+                    {snackbar.severity === 'error' && <FiX style={{ fontSize: '18px' }} />}
+                    {snackbar.severity === 'warning' && <FiCheckCircle style={{ fontSize: '18px' }} />}
+                    {snackbar.severity === 'info' && <FiCheckCircle style={{ fontSize: '18px' }} />}
+                    {snackbar.message}
+                    <button 
+                        onClick={() => setSnackbar({ ...snackbar, open: false })}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            marginLeft: 'auto',
+                            cursor: 'pointer',
+                            fontSize: '16px'
+                        }}
+                    >
+                        <FiX />
+                    </button>
+                </motion.div>
+            )}
 
             <Footer />
             <Scrollbar />
