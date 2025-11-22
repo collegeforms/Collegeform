@@ -22,7 +22,6 @@ import {
 import { Close, NavigateBefore, NavigateNext, Refresh, Person, Phone, Description, Category, CheckCircle } from '@mui/icons-material';
 
 const BannerRow = ({ category }) => {
-
   console.log(category);
   
   const [banners, setBanners] = useState([]);
@@ -33,10 +32,10 @@ const BannerRow = ({ category }) => {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    number: '',
+    phone: '',
     inquiry: '',
-    category: category || '', // Set category from props
-    agreeToContact: false
+    category: category || '',
+    email: '' // Added email field
   });
   const [submitting, setSubmitting] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
@@ -86,7 +85,7 @@ const BannerRow = ({ category }) => {
 
   useEffect(() => {
     fetchBanners();
-  }, [category]); // Added category dependency
+  }, [category]);
 
   const handleBannerClick = (banner, index) => {
     setSelectedBanner(banner);
@@ -119,10 +118,10 @@ const BannerRow = ({ category }) => {
     setInquiryOpen(false);
     setFormData({
       name: '',
-      number: '',
+      phone: '',
       inquiry: '',
-      category: category || '', // Reset to prop category
-      agreeToContact: false
+      category: category || '',
+      email: ''
     });
     setShowThankYou(false);
     setSubmitting(false);
@@ -138,18 +137,31 @@ const BannerRow = ({ category }) => {
   const handleSubmitInquiry = async (e) => {
     e.preventDefault();
     
-    if (!formData.agreeToContact) {
-      alert('Please agree to be contacted regarding your inquiry');
-      return;
-    }
-
     setSubmitting(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Form submitted:', formData);
+      // Real API call to save enquiry
+      const response = await fetch(`${API_URL}/api/banner-enquiries`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name || null,
+          phone: formData.phone || null,
+          email: formData.email || null,
+          inquiry: formData.inquiry || null,
+          category: formData.category || null
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit enquiry');
+      }
+
+      console.log('Enquiry submitted successfully:', result);
       
       // Show thank you message
       setShowThankYou(true);
@@ -160,7 +172,8 @@ const BannerRow = ({ category }) => {
       }, 3000);
       
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error submitting enquiry:', error);
+      alert('Failed to submit enquiry. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -172,7 +185,7 @@ const BannerRow = ({ category }) => {
       <Box 
         sx={{
           width: '100%',
-          height: isMobile ? '450px' : '150px',
+          height: isMobile ? '450px' : 'auto',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -190,7 +203,7 @@ const BannerRow = ({ category }) => {
       <Box 
         sx={{
           width: '100%',
-          height: isMobile ? '450px' : '150px',
+          height: isMobile ? '450px' : 'auto',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -221,7 +234,7 @@ const BannerRow = ({ category }) => {
       <Box 
         sx={{
           width: '100%',
-          height: isMobile ? '450px' : '150px',
+          height: isMobile ? '450px' : 'auto',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -243,7 +256,7 @@ const BannerRow = ({ category }) => {
       <Box 
         sx={{
           width: '100%',
-          height: isMobile ? 'auto' : '150px',
+          height: isMobile ? 'auto' : 'auto',
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           overflow: 'hidden',
@@ -256,7 +269,7 @@ const BannerRow = ({ category }) => {
             onClick={() => handleBannerClick(banner, index)}
             sx={{
               flex: isMobile ? '1 1 auto' : '1 1 33.333%',
-              height: isMobile ? '150px' : '100%',
+              height: isMobile ? 'auto' : '100%',
               position: 'relative',
               overflow: 'hidden',
               cursor: 'pointer',
@@ -323,7 +336,7 @@ const BannerRow = ({ category }) => {
                   textAlign: 'center',
                   fontWeight: 500
                 }}>
-                  Click to visit website
+                  Click to explore offers
                 </p>
               </Box>
           </Box>
@@ -449,7 +462,7 @@ const BannerRow = ({ category }) => {
                     }}
                     size="medium"
                   >
-                    Visit Website
+                    Explore offers
                   </Button>
                 </Box>
               )}
@@ -530,7 +543,7 @@ const BannerRow = ({ category }) => {
                     mb: 1
                   }}
                 >
-                  Your inquiry has been submitted successfully.
+                  Your enquiry has been submitted successfully.
                 </Typography>
                 <Typography 
                   variant="body1" 
@@ -576,7 +589,6 @@ const BannerRow = ({ category }) => {
                     label="Full Name"
                     value={formData.name}
                     onChange={(e) => handleFormChange('name', e.target.value)}
-                    required
                     margin="normal"
                     variant="outlined"
                     InputProps={{
@@ -602,14 +614,37 @@ const BannerRow = ({ category }) => {
                     fullWidth
                     label="Phone Number"
                     type="tel"
-                    value={formData.number}
-                    onChange={(e) => handleFormChange('number', e.target.value)}
-                    required
+                    value={formData.phone}
+                    onChange={(e) => handleFormChange('phone', e.target.value)}
                     margin="normal"
                     variant="outlined"
                     InputProps={{
                       startAdornment: <Phone sx={{ color: 'action.active', mr: 1 }} />
                     }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '&:hover fieldset': {
+                          borderColor: primaryColor,
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: primaryColor,
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: primaryColor,
+                      }
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Email Address"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleFormChange('email', e.target.value)}
+                    margin="normal"
+                    variant="outlined"
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 2,
@@ -632,7 +667,6 @@ const BannerRow = ({ category }) => {
                       value={formData.category}
                       onChange={(e) => handleFormChange('category', e.target.value)}
                       label="Category"
-                      required
                       startAdornment={<Category sx={{ color: 'action.active', mr: 1 }} />}
                       sx={{
                         borderRadius: 2,
@@ -665,7 +699,6 @@ const BannerRow = ({ category }) => {
                     rows={3}
                     value={formData.inquiry}
                     onChange={(e) => handleFormChange('inquiry', e.target.value)}
-                    required
                     margin="normal"
                     variant="outlined"
                     placeholder="Please describe what information you're looking for..."
@@ -686,23 +719,6 @@ const BannerRow = ({ category }) => {
                         color: primaryColor,
                       }
                     }}
-                  />
-
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.agreeToContact}
-                        onChange={(e) => handleFormChange('agreeToContact', e.target.checked)}
-                        sx={{
-                          color: primaryColor,
-                          '&.Mui-checked': {
-                            color: primaryColor,
-                          },
-                        }}
-                      />
-                    }
-                    label="I agree to be contacted regarding my inquiry"
-                    sx={{ mt: 2 }}
                   />
 
                   <Button
@@ -733,7 +749,7 @@ const BannerRow = ({ category }) => {
                         Submitting...
                       </>
                     ) : (
-                      'Submit Inquiry'
+                      'Submit Enquiry'
                     )}
                   </Button>
                 </Box>

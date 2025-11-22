@@ -5,23 +5,31 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        trim: true
     },
     email: {
         type: String,
-        required: false, // Make email optional
+        sparse: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
+        default: null // Explicitly set default to null
     },
     phone: {
         type: String,
         required: true,
         unique: true,
+        trim: true
     },
     city: {
         type: String,
-        required: false
+        required: false,
+        trim: true
     },
     course: {
         type: String,
-        required: false
+        required: false,
+        trim: true
     },
     dob: {
         type: Date,
@@ -29,11 +37,13 @@ const userSchema = new mongoose.Schema({
     },
     address: {
         type: String,
-        required: false
+        required: false,
+        trim: true
     },
     education: {
         type: String,
-        required: false
+        required: false,
+        trim: true
     },
     status: {
         type: String,
@@ -61,14 +71,17 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     }
-}, { timestamps: true });
+}, { 
+    timestamps: true 
+});
 
-// Add partial unique index for email to allow multiple null values
-userSchema.index({ email: 1 }, { 
-    unique: true, 
-    partialFilterExpression: { 
-        email: { $exists: true, $ne: null } 
-    } 
+// The partial index is already defined in schema, but let's ensure it's created
+userSchema.on('index', function(err) {
+    if (err) {
+        console.error('User index error:', err);
+    } else {
+        console.log('User indexes created successfully');
+    }
 });
 
 const User = mongoose.model('User', userSchema);

@@ -40,35 +40,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Get all banner enquiries with optional filtering
+// Get all banner enquiries
 router.get("/", async (req, res) => {
   try {
-    const { status, category, search } = req.query;
-    
-    let filter = {};
-    
-    // Add status filter if provided
-    if (status && status !== 'all') {
-      filter.status = status;
-    }
-    
-    // Add category filter if provided
-    if (category && category !== 'all') {
-      filter.category = category;
-    }
-    
-    // Add search filter if provided
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } },
-        { inquiry: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    const enquiries = await BannerEnquiry.find(filter).sort({ createdAt: -1 });
+    const enquiries = await BannerEnquiry.find().sort({ createdAt: -1 });
     
     res.json({
       success: true,
@@ -113,13 +88,6 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { status } = req.body;
-
-    if (!["pending", "contacted", "completed"].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid status value"
-      });
-    }
 
     const enquiry = await BannerEnquiry.findByIdAndUpdate(
       req.params.id,
@@ -169,32 +137,6 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error while deleting enquiry"
-    });
-  }
-});
-
-// Get enquiry statistics
-router.get("/stats/summary", async (req, res) => {
-  try {
-    const total = await BannerEnquiry.countDocuments();
-    const pending = await BannerEnquiry.countDocuments({ status: 'pending' });
-    const contacted = await BannerEnquiry.countDocuments({ status: 'contacted' });
-    const completed = await BannerEnquiry.countDocuments({ status: 'completed' });
-    
-    res.json({
-      success: true,
-      data: {
-        total,
-        pending,
-        contacted,
-        completed
-      }
-    });
-  } catch (error) {
-    console.error("Error fetching enquiry statistics:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching statistics"
     });
   }
 });

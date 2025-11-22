@@ -1,5 +1,3 @@
-
-
 import React, { Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,7 +6,6 @@ import Scrollbar from '../../components/scrollbar/scrollbar';
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/footer/Footer';
 import { useNavigate, useLocation } from "react-router-dom";
-// import { useCart } from '../../context/CartContext';
 import { useCart } from '../router/context/CartContext';
 import { 
   FiCheckCircle, 
@@ -83,9 +80,7 @@ const CollegeSinglePage = (props) => {
         setSnackbar({ open: true, message, severity });
     };
 
-    console.log(college?.isRequestcallback);
-
-    // Check if callback is enabled - FIXED: using correct field name
+    // Check if callback is enabled - using correct field name
     const isCallbackEnabled = college?.isRequestcallback || false;
 
     // Get all images including main image and additional images
@@ -126,7 +121,7 @@ const CollegeSinglePage = (props) => {
         setIsModalOpen(false);
     };
 
-    // Callback modal functions
+    // Callback modal functions - UPDATED WITH REAL API CALL
     const openCallbackModal = () => {
         setIsCallbackModalOpen(true);
         setSubmitStatus('');
@@ -156,23 +151,26 @@ const CollegeSinglePage = (props) => {
         setSubmitStatus('');
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Actual API call would go here
-            // await axios.post(`${API_URL}/api/callback-requests`, {
-            //     ...callbackForm,
-            //     collegeId: id,
-            //     collegeName: college?.name
-            // });
+            // REAL API CALL - all fields are optional
+            await axios.post(`${API_URL}/api/callbacks`, {
+                name: callbackForm.name || null,
+                mobile: callbackForm.phone || null,
+                email: null, // You can add email field if needed
+                course: callbackForm.courseInterest || null,
+                collegeName: college?.name || null,
+                collegeId: id || null
+            });
 
             setSubmitStatus('success');
+            showSnackbar("Callback request submitted successfully!");
+            
             setTimeout(() => {
                 closeCallbackModal();
             }, 2000);
         } catch (error) {
-            setSubmitStatus('error');
             console.error('Error submitting callback request:', error);
+            setSubmitStatus('error');
+            showSnackbar("Failed to submit callback request. Please try again.", "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -361,40 +359,49 @@ const CollegeSinglePage = (props) => {
 
                                 <div className='col-md-7  order-md-2 order-1'>
                                     <div className="main-gallery">
-                                        <motion.img 
-                                            key={currentImageIndex}
-                                            src={images[currentImageIndex]}
-                                            alt={`${college.name} - Image ${currentImageIndex + 1}`}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ duration: 0.5 }}
-                                            className="gallery-main-image"
-                                            onClick={() => openModal(currentImageIndex)}
-                                        />
-                                        
-                                        {images.length > 1 && (
+                                        {images.length > 0 ? (
                                             <>
-                                                <button className="gallery-nav-btn prev-btn" onClick={prevImage}>
-                                                    <FiChevronLeft />
-                                                </button>
-                                                <button className="gallery-nav-btn next-btn" onClick={nextImage}>
-                                                    <FiChevronRight />
-                                                </button>
+                                                <motion.img 
+                                                    key={currentImageIndex}
+                                                    src={images[currentImageIndex]}
+                                                    alt={`${college.name} - Image ${currentImageIndex + 1}`}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ duration: 0.5 }}
+                                                    className="gallery-main-image"
+                                                    onClick={() => openModal(currentImageIndex)}
+                                                />
                                                 
-                                                <div className="gallery-counter">
-                                                    {currentImageIndex + 1} / {images.length}
-                                                </div>
+                                                {images.length > 1 && (
+                                                    <>
+                                                        <button className="gallery-nav-btn prev-btn" onClick={prevImage}>
+                                                            <FiChevronLeft />
+                                                        </button>
+                                                        <button className="gallery-nav-btn next-btn" onClick={nextImage}>
+                                                            <FiChevronRight />
+                                                        </button>
+                                                        
+                                                        <div className="gallery-counter">
+                                                            {currentImageIndex + 1} / {images.length}
+                                                        </div>
 
-                                                <div className="auto-slide-dots">
-                                                    {images.map((_, index) => (
-                                                        <div 
-                                                            key={index}
-                                                            className={`auto-slide-dot ${index === currentImageIndex ? 'active' : ''}`}
-                                                            onClick={() => goToImage(index)}
-                                                        />
-                                                    ))}
-                                                </div>
+                                                        <div className="auto-slide-dots">
+                                                            {images.map((_, index) => (
+                                                                <div 
+                                                                    key={index}
+                                                                    className={`auto-slide-dot ${index === currentImageIndex ? 'active' : ''}`}
+                                                                    onClick={() => goToImage(index)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </>
+                                                )}
                                             </>
+                                        ) : (
+                                            <div className="no-image-placeholder">
+                                                <FiBook className="no-image-icon" />
+                                                <p>No image available</p>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -415,7 +422,9 @@ const CollegeSinglePage = (props) => {
                                     </div>
                                     <div className="stat-content">
                                         <div className="stat-label">Fees Range</div>
-                                        <div className="stat-value">₹{college.minFees || 'N/A'} - ₹{college.maxFees || 'N/A'} L</div>
+                                        <div className="stat-value">
+                                            ₹{college.minFees || 'N/A'} - ₹{college.maxFees || 'N/A'} {college.minFees || college.maxFees ? 'L' : ''}
+                                        </div>
                                     </div>
                                 </motion.div>
                             )}
@@ -502,8 +511,8 @@ const CollegeSinglePage = (props) => {
                                                         <div key={index} className="highlight-card">
                                                             <FiCheckCircle className="highlight-icon" />
                                                             <div className="highlight-content">
-                                                                <div className="highlight-title">{highlight.title}</div>
-                                                                <div className="highlight-desc">{highlight.description}</div>
+                                                                <div className="highlight-title">{highlight.title || `Highlight ${index + 1}`}</div>
+                                                                <div className="highlight-desc">{highlight.description || 'No description available'}</div>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -567,7 +576,7 @@ const CollegeSinglePage = (props) => {
                                                                 {coursePricing && (
                                                                     <div className="course-pricing-section">
                                                                         <div className="pricing-main">
-                                                                            <span className="original-price">₹{coursePricing.originalFees}</span>
+                                                                            <span className="original-price">₹{coursePricing.originalFees || 'N/A'}</span>
                                                                             {coursePricing.discountedFees && (
                                                                                 <span className="discounted-price">₹{coursePricing.discountedFees}</span>
                                                                             )}
@@ -588,7 +597,7 @@ const CollegeSinglePage = (props) => {
                                                                 )}
                                                             </div>
                                                             
-                                                            {/* Add to Cart Button with inline styling */}
+                                                            {/* Add to Cart Button */}
                                                             <div style={{ 
                                                                 padding: '16px', 
                                                                 borderTop: '1px solid #f0f0f0', 
@@ -680,14 +689,14 @@ const CollegeSinglePage = (props) => {
                                                     {college.admissionProcess.map((step, index) => (
                                                         <div key={index} className="process-step-new">
                                                             <div className="step-indicator">
-                                                                <div className="step-number">{step.step}</div>
+                                                                <div className="step-number">{step.step || index + 1}</div>
                                                                 {index < college.admissionProcess.length - 1 && (
                                                                     <div className="step-connector"></div>
                                                                 )}
                                                             </div>
                                                             <div className="step-details">
-                                                                <h4 className="step-title">{step.title}</h4>
-                                                                <p className="step-description">{step.description}</p>
+                                                                <h4 className="step-title">{step.title || `Step ${index + 1}`}</h4>
+                                                                <p className="step-description">{step.description || 'No description available'}</p>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -703,8 +712,8 @@ const CollegeSinglePage = (props) => {
                                                     {college.requiredDocuments.map((doc, index) => (
                                                         <div key={index} className="document-item-new">
                                                             <FiFileText className="doc-item-icon" />
-                                                            <span className="doc-name">{doc.name}</span>
-                                                            {!doc.isRequired && (
+                                                            <span className="doc-name">{doc.name || `Document ${index + 1}`}</span>
+                                                            {doc.isRequired === false && (
                                                                 <span className="optional-tag">Optional</span>
                                                             )}
                                                         </div>
@@ -749,10 +758,10 @@ const CollegeSinglePage = (props) => {
                                                     {college.placementCompanies.map((company, index) => (
                                                         <div key={index} className="company-card-new">
                                                             <div className="company-logo-placeholder">
-                                                                {company.name.charAt(0)}
+                                                                {company.name ? company.name.charAt(0) : 'C'}
                                                             </div>
                                                             <div className="company-info">
-                                                                <div className="company-name">{company.name}</div>
+                                                                <div className="company-name">{company.name || `Company ${index + 1}`}</div>
                                                                 {company.avgPackage && (
                                                                     <div className="company-package-new">₹{company.avgPackage}L</div>
                                                                 )}
@@ -800,7 +809,7 @@ const CollegeSinglePage = (props) => {
                 </div>
             </motion.div>
 
-            {/* Callback Modal 3 - Sleek and Compact */}
+            {/* Callback Modal */}
             <AnimatePresence>
                 {isCallbackModalOpen && (
                     <motion.div
@@ -857,8 +866,7 @@ const CollegeSinglePage = (props) => {
                                                 value={callbackForm.name}
                                                 onChange={handleCallbackInputChange}
                                                 className="callback-form-input-3"
-                                                required
-                                                placeholder="Your Name"
+                                                placeholder="Your Name (Optional)"
                                             />
                                         </div>
 
@@ -871,7 +879,7 @@ const CollegeSinglePage = (props) => {
                                                 onChange={handleCallbackInputChange}
                                                 className="callback-form-input-3"
                                                 required
-                                                placeholder="Phone Number"
+                                                placeholder="Phone Number *"
                                             />
                                         </div>
 
@@ -883,7 +891,7 @@ const CollegeSinglePage = (props) => {
                                                 onChange={handleCallbackInputChange}
                                                 className="callback-form-input-3"
                                             >
-                                                <option value="">Select Course Interest</option>
+                                                <option value="">Select Course Interest (Optional)</option>
                                                 {college.courses && college.courses.map((course, index) => (
                                                     <option key={index} value={course}>{course}</option>
                                                 ))}
@@ -931,7 +939,7 @@ const CollegeSinglePage = (props) => {
                 )}
             </AnimatePresence>
 
-            {/* Custom Snackbar with inline styling */}
+            {/* Custom Snackbar */}
             {snackbar.open && (
                 <motion.div
                     initial={{ opacity: 0, x: -100 }}

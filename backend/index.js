@@ -33,6 +33,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import callbackRoutes from "./routes/callbackRoutes.js";
 import managexams from "./routes/managexams.js";
 
+import bannerEnquiryRoutes from './routes/bannerEnquiries.js';
 import { startCleanupService } from './services/cleanupService.js';
 
 // 👉 FIX: Import prerender-node correctly for ES modules
@@ -172,6 +173,7 @@ app.use("/api/faqs", faqRoutes);
 app.use("/api/callbacks", callbackRoutes);
 app.use("/api/managexams", managexams);
 
+app.use('/api/banner-enquiries', bannerEnquiryRoutes);
 // ✅ FIXED: Move sitemap route HERE (before catch-all handler)
 app.use('/', sitemapRouter);
 

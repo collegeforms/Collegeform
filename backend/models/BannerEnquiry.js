@@ -1,41 +1,36 @@
-// models/Callback.js
+// models/BannerEnquiry.js
 import mongoose from "mongoose";
 
-const callbackSchema = new mongoose.Schema({
+const bannerEnquirySchema = new mongoose.Schema({
   name: {
     type: String,
-    required: false, // Changed to false
+    required: false,
     trim: true,
     default: null
   },
-  mobile: {
+  phone: {
     type: String,
-    required: false, // Changed to false
+    required: false,
     trim: true,
     default: null
   },
   email: {
     type: String,
-    required: false, // Changed to false
+    required: false,
     trim: true,
     lowercase: true,
     default: null
   },
-  course: {
+  inquiry: {
     type: String,
-    required: false, // Changed to false
+    required: false,
     trim: true,
     default: null
   },
-  collegeName: {
+  category: {
     type: String,
-    required: false, // Changed to false
+    required: false,
     trim: true,
-    default: null
-  },
-  collegeId: {
-    type: String,
-    required: false, // Changed to false
     default: null
   },
   status: {
@@ -47,6 +42,10 @@ const callbackSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Callback = mongoose.model("Callback", callbackSchema);
+// Index for better query performance
+bannerEnquirySchema.index({ createdAt: -1 });
+bannerEnquirySchema.index({ status: 1 });
 
-export default Callback;
+const BannerEnquiry = mongoose.model("BannerEnquiry", bannerEnquirySchema);
+
+export default BannerEnquiry;

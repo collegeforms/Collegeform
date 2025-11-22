@@ -117,16 +117,6 @@ console.log(phone);
     }
 
     // Check if OTP was sent recently (prevent spam)
-    const recentOtpUser = await User.findOne({ 
-      phone, 
-      lastOtpSent: { $gt: new Date(Date.now() - 2 * 60 * 1000) } // 2 minutes cooldown
-    });
-
-    if (recentOtpUser) {
-      return res.status(429).json({ 
-        message: "Please wait before requesting another OTP" 
-      });
-    }
 
     // Generate OTP
     const otp = generateOtp();

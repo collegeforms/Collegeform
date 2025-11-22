@@ -170,57 +170,73 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Verify OTP for signup with all user data
-  const verifySignupOtp = async (formData, otp) => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("Verifying OTP for signup:", { phone: otpPhone, otp, formData });
-      
-      const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          phone: otpPhone,
-          otp: otp,
-          name: formData.name,
-          email: formData.email,
-          levelOfEducation: formData.levelOfEducation,
-          coursePreferred: formData.coursePreferred,
-          citiesPreferred: formData.citiesPreferred,
-          collegeName: formData.collegeName,
-          location: formData.location
-        }),
-      });
+  // In your AuthContext.js - Update the verifySignupOtp function
+const verifySignupOtp = async (formData, otp) => {
+  setLoading(true);
+  setError(null);
+  try {
+    console.log("Verifying OTP for signup:", { phone: otpPhone, otp, formData });
+    
+    // Clean up form data - convert empty/whitespace email to null
+    const cleanedFormData = {
+      ...formData,
+      email: formData.email?.trim() || null // Convert empty string to null
+    };
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "OTP verification failed");
-      }
+    // Prepare the request payload
+    const payload = {
+      phone: otpPhone,
+      otp: otp,
+      name: cleanedFormData.name,
+      levelOfEducation: cleanedFormData.levelOfEducation,
+      coursePreferred: cleanedFormData.coursePreferred,
+      citiesPreferred: cleanedFormData.citiesPreferred,
+      collegeName: cleanedFormData.collegeName,
+      location: cleanedFormData.location
+    };
 
-      // Save user data to localStorage
-      localStorage.setItem("userToken", data.token);
-      localStorage.setItem("userInfo", JSON.stringify(data.user));
-      
-      // Update state
-      setUser({ token: data.token, info: data.user });
-      setOtpSent(false);
-      setOtpPhone("");
-      setOtpPurpose("");
-      setResendTimer(0);
-      
-      console.log("OTP verified successfully, user logged in:", data.user);
-      return { success: true, user: data.user };
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
+    // Only add email to payload if it's not null
+    if (cleanedFormData.email) {
+      payload.email = cleanedFormData.email;
     }
-  };
+
+    console.log("Sending signup payload:", payload);
+    
+    const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || "OTP verification failed");
+    }
+
+    // Save user data to localStorage
+    localStorage.setItem("userToken", data.token);
+    localStorage.setItem("userInfo", JSON.stringify(data.user));
+    
+    // Update state
+    setUser({ token: data.token, info: data.user });
+    setOtpSent(false);
+    setOtpPhone("");
+    setOtpPurpose("");
+    setResendTimer(0);
+    
+    console.log("OTP verified successfully, user logged in:", data.user);
+    return { success: true, user: data.user };
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    setError(error.message);
+    return { success: false, error: error.message };
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Resend OTP
   const resendOtp = async () => {
