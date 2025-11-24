@@ -25,6 +25,7 @@ const menuItems = [
   { text: "Tests", icon: <FaUsers />, path: "/admin/tests", section: "uploads" },
   { text: "Manage exams", icon: <FaUsers />, path: "/admin/manage-exams", section: "uploads" },
   { text: "Banner Inquiry", icon: <FaUsers />, path: "/admin/bannerinq", section: "uploads" },
+  { text: "Exam Inquiry", icon: <FaUsers />, path: "/admin/examinq", section: "uploads" },
 
   { text: "Logos", icon: <FaUsers />, path: "/admin/addlogo", section: "uploads" },
   { text: "Users", icon: <FaUsers />, path: "/admin/users", section: "user-management" },

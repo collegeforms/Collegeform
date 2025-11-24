@@ -68,6 +68,7 @@ import OverseasEducation from '../HomePage/OverseasEducation.jsx';
 import CompetitiveExams from './components/CompetitiveExams.jsx';
 import Admincourseexams from './admin/Admincourseexams.js';
 import BannerInquiry from './admin/BannerInquiry.jsx';
+import ExamEnquiries from './admin/ExamEnquiries.jsx';
 
 const AllRoute = () => {
   const theme = createTheme();
@@ -92,6 +93,7 @@ const AllRoute = () => {
                       <Route path="settings" element={<AdminSettings />} />
                       <Route path="colleges" element={<AdminColleges />} />
                       <Route path="bannerinq" element={<BannerInquiry />} />
+                      <Route path="examinq" element={<ExamEnquiries />} />
 
                       <Route path="other-colleges" element={<OtherColleges />} />
                       <Route path="addfaq" element={<Addfaq />} />

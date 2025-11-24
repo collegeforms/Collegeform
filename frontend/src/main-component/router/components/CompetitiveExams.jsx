@@ -130,39 +130,43 @@ const CompetitiveExams = () => {
   };
 
   const handleSubmitEnquiry = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.agreeToContact) {
-      alert('Please agree to be contacted regarding your inquiry');
-      return;
-    }
+  e.preventDefault();
+  
+  if (!formData.agreeToContact) {
+    alert('Please agree to be contacted regarding your inquiry');
+    return;
+  }
 
-    setSubmitting(true);
+  setSubmitting(true);
+  
+  try {
+    const response = await axios.post(`${API_URL}/api/examenquiry`, {
+      ...formData,
+      examName: selectedExam?.name,
+      courseName: selectedExam?.courseName
+    });
+
+    // Show thank you message
+    setShowThankYou(true);
     
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Enquiry submitted:', {
-        ...formData,
-        exam: selectedExam?.name,
-        course: selectedExam?.courseName
-      });
-      
-      // Show thank you message
-      setShowThankYou(true);
-      
-      // Close modal after 3 seconds
-      setTimeout(() => {
-        handleEnquiryClose();
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Error submitting enquiry:', error);
-    } finally {
-      setSubmitting(false);
+    // Close modal after 3 seconds
+    setTimeout(() => {
+      handleEnquiryClose();
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Error submitting exam enquiry:', error);
+    
+    if (error.response && error.response.data) {
+      const errorMsg = error.response.data.message || 'Failed to submit enquiry. Please try again.';
+      alert(errorMsg);
+    } else {
+      alert('Failed to submit enquiry. Please try again.');
     }
-  };
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   if (loading) {
     return (
@@ -445,7 +449,7 @@ const CompetitiveExams = () => {
                     mb: 2
                   }}
                 >
-                  <CheckCircle sx={{ fontSize: 48, color: 'white' }} />
+                  {/* <CheckCircle sx={{ fontSize: 48, color: 'white' }} /> */}
                 </Box>
                 <Typography 
                   variant="h4" 
