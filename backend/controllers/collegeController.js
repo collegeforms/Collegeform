@@ -26,6 +26,27 @@ const parseBooleanField = (field, defaultValue = false) => {
   return defaultValue;
 };
 
+// Helper function to generate slug from name and location
+const generateSlug = (name, location) => {
+  if (!name || !location) return '';
+  
+  const nameSlug = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  const locationSlug = location
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  return `${nameSlug}-${locationSlug}`;
+};
+
 // Add new college
 export const addCollege = async (req, res) => {
   try {
@@ -41,11 +62,23 @@ export const addCollege = async (req, res) => {
     }
 
     const {
-      name, location, description, shortDescription, minFees, maxFees, avgPackage,
-      exams, courses, specializations, collegeType, category, rating, isTopCollege,isRequestcallback,
+      name, slug, location, description, shortDescription, minFees, maxFees, avgPackage,
+      exams, courses, specializations, collegeType, category, rating, isTopCollege, isRequestcallback,
       coursePricing, admissionProcess, importantDates, applicationDeadline,
       entranceExams, placementCompanies, placementHighlights, keyHighlights, requiredDocuments
     } = req.body;
+
+    // Generate slug if not provided
+    const finalSlug = slug?.trim() || generateSlug(name, location);
+    
+    // Check if slug already exists
+    const existingCollege = await College.findOne({ slug: finalSlug });
+    if (existingCollege) {
+      return res.status(400).json({
+        success: false,
+        message: "A college with this slug already exists. Please choose a different name or location."
+      });
+    }
 
     // Upload main image
     const imageUrl = req.files.image[0].path;
@@ -63,6 +96,7 @@ export const addCollege = async (req, res) => {
     // Parse all fields safely
     const collegeData = {
       name: name?.trim(),
+      slug: finalSlug,
       location: location?.trim(),
       description: description?.trim(),
       shortDescription: shortDescription?.trim(),
@@ -118,7 +152,7 @@ export const addCollege = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: "A college with this name already exists"
+        message: "A college with this slug already exists"
       });
     }
     
@@ -146,11 +180,39 @@ export const editCollege = async (req, res) => {
     }
 
     const {
-      name, location, description, shortDescription, minFees, maxFees, avgPackage,
-      exams, courses, specializations, collegeType, category, rating, isTopCollege,isRequestcallback,
+      name, slug, location, description, shortDescription, minFees, maxFees, avgPackage,
+      exams, courses, specializations, collegeType, category, rating, isTopCollege, isRequestcallback,
       coursePricing, admissionProcess, importantDates, applicationDeadline,
       entranceExams, placementCompanies, placementHighlights, keyHighlights, requiredDocuments
     } = req.body;
+
+    // Handle slug update
+    let finalSlug = slug?.trim();
+    const nameChanged = name?.trim() !== college.name;
+    const locationChanged = location?.trim() !== college.location;
+    
+    // If slug is not provided and name or location changed, generate new slug
+    if (!finalSlug && (nameChanged || locationChanged)) {
+      finalSlug = generateSlug(name || college.name, location || college.location);
+    } else if (!finalSlug) {
+      finalSlug = college.slug; // Keep existing slug if no changes
+    }
+
+    // Check if slug is being changed and validate uniqueness
+    if (finalSlug !== college.slug) {
+      const existingCollegeWithSlug = await College.findOne({ 
+        slug: finalSlug, 
+        _id: { $ne: id } 
+      });
+      
+      if (existingCollegeWithSlug) {
+        return res.status(400).json({
+          success: false,
+          message: "Slug already exists. Please choose a different one."
+        });
+      }
+      college.slug = finalSlug;
+    }
 
     // Update basic fields
     college.name = name?.trim() || college.name;
@@ -235,9 +297,7 @@ export const editCollege = async (req, res) => {
 export const getColleges = async (req, res) => {
   try {
     const colleges = await College.find().sort({ createdAt: -1 });
-    res.json(
-      colleges 
-    );
+    res.json(colleges);
   } catch (error) {
     console.error('Error fetching colleges:', error);
     res.status(500).json({ 
@@ -260,9 +320,7 @@ export const getCollegeById = async (req, res) => {
       });
     }
     
-    res.json(
-      college
-    );
+    res.json(college);
   } catch (error) {
     console.error('Error fetching college:', error);
     res.status(500).json({ 

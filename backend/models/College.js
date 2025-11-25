@@ -30,7 +30,7 @@ const placementCompanySchema = new mongoose.Schema({
 });
 
 const requiredDocumentSchema = new mongoose.Schema({
-  name: { type: String, },
+  name: { type: String },
   isRequired: { type: Boolean },
   description: { type: String }
 });
@@ -53,7 +53,7 @@ const collegeSchema = new mongoose.Schema(
     slug: { type: String, unique: true, sparse: true },
     location: { type: String, required: true },
     description: { type: String, required: true },
-    shortDescription: { type: String, required: true },
+    shortDescription: { type: String, required: false },
     minFees: { type: Number, required: true },
     maxFees: { type: Number, required: true },
     avgPackage: { type: Number },
@@ -89,6 +89,42 @@ const collegeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Generate slug from name and location
+collegeSchema.pre("save", function (next) {
+  if ((this.name && this.location) && !this.slug) {
+    this.slug = this.generateSlug();
+  }
+  next();
+});
+
+// Instance method to generate slug
+collegeSchema.methods.generateSlug = function() {
+  const nameSlug = this.name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  const locationSlug = this.location
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  return `${nameSlug}-${locationSlug}`;
+};
+
+// Handle duplicate slug errors
+collegeSchema.post("save", function (error, doc, next) {
+  if (error.name === "MongoError" && error.code === 11000) {
+    next(new Error("Slug must be unique"));
+  } else {
+    next(error);
+  }
+});
+
 // Default required documents
 collegeSchema.pre("save", function (next) {
   if (this.isNew && (!this.requiredDocuments || this.requiredDocuments.length === 0)) {
@@ -105,26 +141,6 @@ collegeSchema.pre("save", function (next) {
     ];
   }
   next();
-});
-
-// Generate slug before saving
-collegeSchema.pre("save", function (next) {
-  if (this.name && !this.slug) {
-    this.slug = this.name
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9 ]/g, "")
-      .replace(/\s+/g, "-");
-  }
-  next();
-});
-
-// Handle duplicate slug errors
-collegeSchema.post("save", function (error, doc, next) {
-  if (error.name === "MongoError" && error.code === 11000) {
-    next(new Error("Slug must be unique"));
-  } else {
-    next(error);
-  }
 });
 
 export default mongoose.model("College", collegeSchema);
