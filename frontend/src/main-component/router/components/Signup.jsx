@@ -1,7 +1,7 @@
 // components/Signup.js
 import React, { useState, useContext } from 'react';
 import './Signup.css';
-import { Link, useNavigate, useLocation } from 'react-router-dom'; // ← Added useLocation
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import PhoneIcon from "@mui/icons-material/Phone";
 import LockIcon from "@mui/icons-material/Lock";
@@ -9,7 +9,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CarouselSection from './CarouselSection';
-
 
 const Signup = () => {
   const { 
@@ -26,7 +25,7 @@ const Signup = () => {
   } = useContext(AuthContext);
   
   const navigate = useNavigate();
-  const location = useLocation(); // ← Added useLocation
+  const location = useLocation();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -37,8 +36,7 @@ const Signup = () => {
   const [localError, setLocalError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Get the intended destination from login or default to home
-  const from = location.state?.from?.pathname || "/"; // ← Added destination logic
+  const from = location.state?.from?.pathname || "/";
 
   const handleChange = (e) => {
     setFormData({
@@ -66,6 +64,17 @@ const Signup = () => {
 
     if (!/^\d+$/.test(formData.phone)) {
       setLocalError("Phone number should contain only digits");
+      return;
+    }
+
+    // Email validation - NEW
+    if (!formData.email) {
+      setLocalError("Email address is required");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setLocalError("Please enter a valid email address");
       return;
     }
 
@@ -100,7 +109,6 @@ const Signup = () => {
     if (result.success) {
       setSuccessMessage("Account created successfully! Redirecting...");
       setTimeout(() => {
-        // Redirect to the intended destination instead of always "/" ← KEY FIX
         navigate(from, { replace: true });
       }, 1000);
     } else {
@@ -134,6 +142,12 @@ const Signup = () => {
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
+
+  // Check if form is valid for submission
+  const isFormValid = formData.name && 
+                     formData.phone.length === 10 && 
+                     formData.email && 
+                     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
 
   return (
     <div className="containerss">
@@ -230,14 +244,11 @@ const Signup = () => {
                   disabled={loading}
                 />
               </div>
-              {/* <div className="form-text">
-                We'll verify this number with OTP
-              </div> */}
             </div>
 
             <div className="form-group">
               <label htmlFor="email" className="form-label">
-                Email Address
+                Email Address <span className="text-danger">*</span> {/* Added asterisk */}
               </label>
               <div className="input-container">
                 <EmailIcon className="input-icon" />
@@ -245,19 +256,23 @@ const Signup = () => {
                   type="email" 
                   id="email" 
                   name="email" 
-                  placeholder="Enter your email (optional)" 
+                  placeholder="Enter your email address"  
                   value={formData.email}
                   onChange={handleChange}
                   className="sleek-input"
+                  required  
                   disabled={loading}
                 />
+              </div>
+              <div className="form-text">
+                We'll send important updates to this email
               </div>
             </div>
             
             <button 
               type="submit" 
               className="submit-btn w-100" 
-              disabled={loading || !formData.name || !formData.phone || formData.phone.length !== 10}
+              disabled={loading || !isFormValid}  
             >
               {loading ? (
                 <>
@@ -346,7 +361,7 @@ const Signup = () => {
               to="/user/login" 
               className="text-primary fw-bold"
               onClick={() => resetOtpState()}
-              state={{ from: location.state?.from || { pathname: "/" } }} // ← KEY FIX: Pass state back to login
+              state={{ from: location.state?.from || { pathname: "/" } }}
             >
               Login
             </Link>
