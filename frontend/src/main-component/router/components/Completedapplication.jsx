@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './CompletedApplication.css';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-
+import LOGO_URL from "./college-logo-2.png"
 const CompletedApplication = () => {
-   const API_URL = "https://collegeforms.in";
+  const API_URL = "https://collegeforms.in";
+  const PRIMARY_COLOR = "#002244";
 
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -115,6 +116,24 @@ const CompletedApplication = () => {
     return result !== undefined && result !== null ? result : defaultValue;
   };
 
+  // Function to load image and return as base64
+  const loadImageAsBase64 = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  };
+
   // Function to generate PDF from application data
   const generatePDF = async (application) => {
     try {
@@ -152,15 +171,21 @@ const CompletedApplication = () => {
           }).join('')
         : '<div>No colleges selected</div>';
 
-      // Add application content to the temporary div
+      // Add application content to the temporary div with logo and color scheme
       content.innerHTML = `
-        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #4285f4; padding-bottom: 10px;">
-          <h1 style="color: #4285f4; margin-bottom: 5px;">Application Details</h1>
-          <p>ID: ${appId} | Submitted: ${formatDate(getSafeValue(application, 'createdAt'))}</p>
+        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid ${PRIMARY_COLOR}; padding-bottom: 10px;">
+          <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+            <img src="${LOGO_URL}" alt="College Logo" style="height: 60px; margin-right: 15px;" />
+            <div style="text-align: left;">
+              <h1 style="color: ${PRIMARY_COLOR}; margin: 0; font-size: 24px;">College Admission Form</h1>
+              <p style="color: #666; margin: 0; font-size: 14px;">Application Details</p>
+            </div>
+          </div>
+          <p style="color: #666; margin: 5px 0;">Application ID: ${appId} | Submitted: ${formatDate(getSafeValue(application, 'createdAt'))}</p>
         </div>
         
         <div style="margin-bottom: 15px;">
-          <div style="font-weight: bold; color: #4285f4; margin-bottom: 8px; font-size: 16px;">Personal Information</div>
+          <div style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px; border-left: 4px solid ${PRIMARY_COLOR}; padding-left: 8px;">Personal Information</div>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
             <div><strong>Name:</strong> ${appName}</div>
             <div><strong>Email:</strong> ${appEmail}</div>
@@ -173,12 +198,12 @@ const CompletedApplication = () => {
         </div>
         
         <div style="margin-bottom: 15px;">
-          <div style="font-weight: bold; color: #4285f4; margin-bottom: 8px; font-size: 16px;">Selected Colleges</div>
+          <div style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px; border-left: 4px solid ${PRIMARY_COLOR}; padding-left: 8px;">Selected Colleges</div>
           ${collegesHTML}
         </div>
         
         <div style="margin-bottom: 15px;">
-          <div style="font-weight: bold; color: #4285f4; margin-bottom: 8px; font-size: 16px;">Parent Information</div>
+          <div style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px; border-left: 4px solid ${PRIMARY_COLOR}; padding-left: 8px;">Parent Information</div>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
             <div><strong>Father's Name:</strong> ${getSafeValue(application, 'fatherName')}</div>
             <div><strong>Father's Number:</strong> ${getSafeValue(application, 'fatherNumber')}</div>
@@ -189,7 +214,7 @@ const CompletedApplication = () => {
         </div>
         
         <div style="margin-bottom: 15px;">
-          <div style="font-weight: bold; color: #4285f4; margin-bottom: 8px; font-size: 16px;">Educational Background</div>
+          <div style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px; border-left: 4px solid ${PRIMARY_COLOR}; padding-left: 8px;">Educational Background</div>
           <div style="margin-bottom: 10px;">
             <div><strong>10th Grade</strong></div>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
@@ -225,17 +250,26 @@ const CompletedApplication = () => {
         
         ${getSafeValue(application, 'remarks') ? `
         <div style="margin-bottom: 15px;">
-          <div style="font-weight: bold; color: #4285f4; margin-bottom: 8px; font-size: 16px;">Remarks</div>
+          <div style="font-weight: bold; color: ${PRIMARY_COLOR}; margin-bottom: 8px; font-size: 16px; border-left: 4px solid ${PRIMARY_COLOR}; padding-left: 8px;">Remarks</div>
           <p>${getSafeValue(application, 'remarks')}</p>
         </div>
         ` : ''}
+        
+        <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
+          <p>Generated on ${new Date().toLocaleDateString()} - College Form Portal</p>
+        </div>
       `;
 
       // Append the content to the body temporarily
       document.body.appendChild(content);
 
       // Create PDF from the content
-      const canvas = await html2canvas(content);
+      const canvas = await html2canvas(content, {
+        scale: 2, // Higher quality
+        useCORS: true, // Allow cross-origin images
+        logging: false
+      });
+      
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgWidth = 210; // A4 width in mm
@@ -277,28 +311,122 @@ const CompletedApplication = () => {
         <head>
           <title>Application ${appId}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-            .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #4285f4; padding-bottom: 10px; }
-            .section { margin-bottom: 15px; }
-            .section-title { font-weight: bold; color: #4285f4; margin-bottom: 8px; font-size: 16px; }
-            .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
-            .info-item { margin-bottom: 5px; }
-            .label { font-weight: bold; }
-            .college-item { padding: 8px; border: 1px solid #ddd; margin-bottom: 8px; border-radius: 4px; }
-            .status { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 12px; margin-top: 5px; }
-            .status.pending { background-color: #ffeaa7; color: #d35400; }
-            .status.approved { background-color: #a3e4d7; color: #1d8348; }
-            .status.rejected { background-color: #f5b7b1; color: #c0392b; }
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 20px; 
+              color: #333; 
+              margin: 0;
+            }
+            .header { 
+              text-align: center; 
+              margin-bottom: 20px; 
+              border-bottom: 2px solid ${PRIMARY_COLOR}; 
+              padding-bottom: 10px; 
+            }
+            .logo-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-bottom: 10px;
+            }
+            .logo {
+              height: 60px;
+              margin-right: 15px;
+            }
+            .header-text {
+              text-align: left;
+            }
+            .main-title {
+              color: ${PRIMARY_COLOR}; 
+              margin: 0; 
+              font-size: 24px;
+            }
+            .subtitle {
+              color: #666; 
+              margin: 0; 
+              font-size: 14px;
+            }
+            .section { 
+              margin-bottom: 15px; 
+              page-break-inside: avoid;
+            }
+            .section-title { 
+              font-weight: bold; 
+              color: ${PRIMARY_COLOR}; 
+              margin-bottom: 8px; 
+              font-size: 16px; 
+              border-left: 4px solid ${PRIMARY_COLOR}; 
+              padding-left: 8px;
+            }
+            .info-grid { 
+              display: grid; 
+              grid-template-columns: repeat(2, 1fr); 
+              gap: 10px; 
+              margin-bottom: 10px; 
+            }
+            .info-item { 
+              margin-bottom: 5px; 
+            }
+            .label { 
+              font-weight: bold; 
+            }
+            .college-item { 
+              padding: 8px; 
+              border: 1px solid #ddd; 
+              margin-bottom: 8px; 
+              border-radius: 4px; 
+            }
+            .status { 
+              display: inline-block; 
+              padding: 3px 8px; 
+              border-radius: 12px; 
+              font-size: 12px; 
+              margin-top: 5px; 
+            }
+            .status.pending { 
+              background-color: #ffeaa7; 
+              color: #d35400; 
+            }
+            .status.approved { 
+              background-color: #a3e4d7; 
+              color: #1d8348; 
+            }
+            .status.rejected { 
+              background-color: #f5b7b1; 
+              color: #c0392b; 
+            }
+            .footer {
+              margin-top: 30px;
+              padding-top: 15px;
+              border-top: 1px solid #ddd;
+              text-align: center;
+              color: #666;
+              font-size: 12px;
+            }
             @media print { 
-              body { padding: 0; margin: 0; }
-              .header { margin-top: 0; }
+              body { 
+                padding: 15px; 
+                margin: 0; 
+              }
+              .header { 
+                margin-top: 0; 
+              }
+              .section {
+                page-break-inside: avoid;
+              }
             }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>Application Details</h1>
-            <p>ID: ${appId} | Submitted: ${formatDate(getSafeValue(application, 'createdAt'))}</p>
+            <div class="logo-container">
+              <img src="${LOGO_URL}" alt="College Logo" class="logo" />
+              <div class="header-text">
+                <h1 class="main-title">College Admission Form</h1>
+                <p class="subtitle">Application Details</p>
+              </div>
+            </div>
+            <p>Application ID: ${appId} | Submitted: ${formatDate(getSafeValue(application, 'createdAt'))}</p>
           </div>
           
           <div class="section">
@@ -384,6 +512,10 @@ const CompletedApplication = () => {
             <p>${getSafeValue(application, 'remarks')}</p>
           </div>
           ` : ''}
+          
+          <div class="footer">
+            <p>Generated on ${new Date().toLocaleDateString()} - College Form Portal</p>
+          </div>
         </body>
       </html>
     `;
