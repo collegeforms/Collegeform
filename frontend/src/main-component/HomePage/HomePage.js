@@ -35,7 +35,7 @@ const HomePage = () => {
                 <meta name="description" content={pageDescription} />
                 <meta name="keywords" content="best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees" />
                 
-                <meta name="prerender-site-verification" content="VR7GmlHSBjoVcv51pp5k"/>
+                <meta name="prerender-site-verification" content="UCGdsjfpoe18GbkVxeRa"/>
                 {/* Canonical URL */}
                 <link rel="canonical" href={pageUrl} />
                 

@@ -1,3 +1,4 @@
+// /var/www/collegeform/backend/server.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -7,6 +8,7 @@ import collegeRoutes from "./routes/collegeRoutes.js";
 import bannerRoutes from "./routes/bannerRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import path from "path";
+import { fileURLToPath } from 'url';
 import LogoRoutes from "./routes/LogoRoutes.js"; 
 import courseRoutes from './routes/courses.js';
 import userauth from './routes/userauth.js';
@@ -32,12 +34,12 @@ import upload from "./routes/upload.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import callbackRoutes from "./routes/callbackRoutes.js";
 import managexams from "./routes/managexams.js";
-import  examEnquiryRoutes  from "./routes/examenquiry.js"
+import examEnquiryRoutes  from "./routes/examenquiry.js";
 import bannerEnquiryRoutes from './routes/bannerEnquiries.js';
 import { startCleanupService } from './services/cleanupService.js';
 
-// 👉 FIX: Import prerender-node correctly for ES modules
-import prerender from "prerender-node";
+// ✅ IMPORTANT: Import your SEO middleware
+import { seoMiddleware } from './middleware/seoMiddleware.js';
 
 // Load environment variables
 dotenv.config();
@@ -46,36 +48,11 @@ dotenv.config();
 connectDB();
 startCleanupService();
 
+// Fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-
-// ✅ FIXED: Simple prerender configuration
-prerender.set("prerenderToken", "VR7GmlHSBjoVcv51pp5k");
-prerender.set("host", "https://collegeforms.in");
-prerender.set("protocol", "https");
-
-// Add blacklisted and whitelisted routes separately
-[
-  "/api", 
-  "/uploads", 
-  "/static", 
-  "/.well-known",
-  "/admin",
-  "/sitemap.xml"
-].forEach(route => prerender.blacklisted(route));
-
-[
-  "/", 
-  "/colleges", 
-  "/studyabroad",
-  "/courses",
-  "/exams",
-  "/blogs",
-  "/about",
-  "/contact"
-].forEach(route => prerender.whitelisted(route));
-
-// Apply prerender middleware
-app.use(prerender);
 
 // Enhanced CORS configuration
 const allowedOrigins = [
@@ -138,11 +115,11 @@ app.use(bodyParser.urlencoded({
   parameterLimit: 100000
 }));
 
-// Serve static files
-app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
+// Serve static files from uploads
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Serve React build files
-app.use(express.static(path.join(path.resolve(), "build")));
+// ✅ CRITICAL: Serve React build files BEFORE SEO middleware
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // API Routes
 app.use("/api/colleges", collegeRoutes);
@@ -172,13 +149,13 @@ app.use("/api/search", searchHistoryRoutes);
 app.use("/api/faqs", faqRoutes);
 app.use("/api/callbacks", callbackRoutes);
 app.use("/api/managexams", managexams);
-
 app.use('/api', examEnquiryRoutes);
 app.use('/api/banner-enquiries', bannerEnquiryRoutes);
-// ✅ FIXED: Move sitemap route HERE (before catch-all handler)
+
+// ✅ Sitemap route
 app.use('/', sitemapRouter);
 
-// Health check
+// Health check endpoints
 app.get("/start", (req, res) => {
   res.status(200).json({ 
     status: "healthy",
@@ -195,12 +172,25 @@ app.get("/ping", (req, res) => {
   });
 });
 
-// Catch-all handler for React routes - IMPORTANT for SPA
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy",
+    service: "College Forms API",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
-// Error handling
+// ✅ Apply SEO Middleware BEFORE catch-all route
+app.use(seoMiddleware);
+
+// ✅ Catch-all route for React app (will be used for normal users)
+app.get("*", (req, res) => {
+  const indexPath = path.join(__dirname, "../frontend/build/index.html");
+  res.sendFile(indexPath);
+});
+
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   
@@ -218,7 +208,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 Handler
+// 404 Handler for API routes
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
@@ -232,7 +222,8 @@ const ENV = process.env.NODE_ENV || 'development';
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running in ${ENV} mode on port ${PORT}`);
-  console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
-  console.log(`Sitemap available at: /sitemap.xml`);
-  console.log(`✅ Prerender.io enabled with correct token: VR7GmlHSBjoVcv51pp5k`);
+  console.log(`🌐 Allowed CORS origins: ${allowedOrigins.join(', ')}`);
+  console.log(`🗺️  Sitemap available at: /sitemap.xml`);
+  console.log(`🤖 SEO Bot detection: ENABLED`);
+  console.log(`🎯 Bot detection will serve meta tags, normal users get React app`);
 });
