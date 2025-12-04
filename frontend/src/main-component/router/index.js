@@ -69,12 +69,14 @@ import CompetitiveExams from './components/CompetitiveExams.jsx';
 import Admincourseexams from './admin/Admincourseexams.js';
 import BannerInquiry from './admin/BannerInquiry.jsx';
 import ExamEnquiries from './admin/ExamEnquiries.jsx';
-
+import DefaultSEO from '../../components/DefaultSEO.jsx';
 const AllRoute = () => {
   const theme = createTheme();
 
   return (
     <div className="App">
+
+      <DefaultSEO/>
       <ThemeProvider theme={theme}>
         <Router>
           {/* 🔝 ScrollToTop ensures every route opens from top */}

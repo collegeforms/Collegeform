@@ -84,7 +84,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build && npx react-snap",
+    "build": " react-scripts build ",
     "postbuild": "npx react-snap",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
