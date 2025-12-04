@@ -1,11 +1,12 @@
-# Allow all crawlers full access except sensitive folders
 User-agent: *
-Disallow: /wp-admin/
-Disallow: /wp-login.php
-Disallow: /cgi-bin/
-
-# Block specific URL parameters (optional)
-Disallow: /?*utm_
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /user/login
+Disallow: /user/signup
 
 # Sitemap location
-Sitemap: https://collegeforms.in/sitemap.xml 
+Sitemap: https://collegeforms.in/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 2

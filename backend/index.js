@@ -60,7 +60,7 @@ prerender.set("protocol", "https");
   "/static", 
   "/.well-known",
   "/admin",
-  "/sitemap2.xml"
+  "/sitemap.xml"
 ].forEach(route => prerender.blacklisted(route));
 
 [
@@ -196,8 +196,8 @@ app.get("/ping", (req, res) => {
 });
 
 // Catch-all handler for React routes - IMPORTANT for SPA
-app.get('*', (req, res) => {
-  res.sendFile(path.join(path.resolve(), 'build', 'index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
 });
 
 // Error handling
@@ -233,6 +233,6 @@ const ENV = process.env.NODE_ENV || 'development';
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running in ${ENV} mode on port ${PORT}`);
   console.log(`Allowed CORS origins: ${allowedOrigins.join(', ')}`);
-  console.log(`Sitemap available at: /sitemap2.xml`);
+  console.log(`Sitemap available at: /sitemap.xml`);
   console.log(`✅ Prerender.io enabled with correct token: VR7GmlHSBjoVcv51pp5k`);
 });
