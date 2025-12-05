@@ -24,7 +24,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 const BannerInquiry = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   const [inquiries, setInquiries] = useState([]);
   const [filteredInquiries, setFilteredInquiries] = useState([]);

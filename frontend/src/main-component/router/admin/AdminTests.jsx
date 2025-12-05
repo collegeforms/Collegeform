@@ -39,7 +39,7 @@ const AdminTests = () => {
   const [tabValue, setTabValue] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  const API_URL = 'https://collegeforms.in/api/admin/tests';
+  const API_URL = 'https://www.collegeforms.in/api/admin/tests';
   const authHeader = {
     headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
   };
@@ -229,7 +229,7 @@ const QuestionManager = ({ test, onBack, authHeader, showSnackbar }) => {
     marks: 1
   });
 
-  const API_URL = `https://collegeforms.in/api/admin/tests/${test._id}`;
+  const API_URL = `https://www.collegeforms.in/api/admin/tests/${test._id}`;
 
   const addQuestion = async () => {
     try {

@@ -662,7 +662,7 @@ const RequiredDocumentsSection = ({ requiredDocuments, setRequiredDocuments }) =
 
 const AddCollegePage = () => {
   const navigate = useNavigate();
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   const [newCollege, setNewCollege] = useState({
     name: "",
     location: "",

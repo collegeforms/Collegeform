@@ -28,7 +28,7 @@ console.log(userInfo);
     // User Login
     const loginUser = async (email, password) => {
         try {
-            const response = await fetch("https://collegeforms.in/api/login", {
+            const response = await fetch("https://www.collegeforms.in/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
@@ -54,7 +54,7 @@ console.log(userInfo);
     // Admin Login
     const loginAdmin = async (username, password) => {
         try {
-            const response = await fetch("https://collegeforms.in/api/auth/login", {
+            const response = await fetch("https://www.collegeforms.in/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),

@@ -42,7 +42,7 @@ const BannerRow = ({ category }) => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   // Primary color from props
   const primaryColor = '#002244';

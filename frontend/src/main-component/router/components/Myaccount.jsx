@@ -47,7 +47,7 @@ const MyAccount = () => {
   const [allFormProgress, setAllFormProgress] = useState([]);
   const [loadingProgress, setLoadingProgress] = useState(false);
   const [progressError, setProgressError] = useState(null);
-  const API_URL = "https://collegeforms.in";    
+  const API_URL = "https://www.collegeforms.in";    
 
 
  

@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const API_URL = "https://collegeforms.in";
+    const API_URL = "https://www.collegeforms.in";
   
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);

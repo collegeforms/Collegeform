@@ -68,7 +68,7 @@ const TestInProgress = ({ test, onTestComplete, authHeader }) => {
       }));
 
       const response = await axios.post(
-        `https://collegeforms.in/api/tests/${test._id}/attempt`,
+        `https://www.collegeforms.in/api/tests/${test._id}/attempt`,
         {
           answers: answerArray,
           timeSpent: (test.timeLimit * 60) - timeLeft

@@ -20,7 +20,7 @@ import { Delete, Add } from "@mui/icons-material";
 import axios from "axios";
 
 const SliderManager = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   const sliderContentRef = useRef(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));

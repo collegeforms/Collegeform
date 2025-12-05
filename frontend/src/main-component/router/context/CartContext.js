@@ -16,7 +16,7 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   // Base API URL - adjust according to your environment
-const API_BASE_URL = "https://collegeforms.in";
+const API_BASE_URL = "https://www.collegeforms.in";
   // Load cart items on component mount
   useEffect(() => {
     loadCartItems();

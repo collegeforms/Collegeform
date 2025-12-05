@@ -104,7 +104,7 @@ const LoginPopup = ({ isOpen, onClose, onLogin }) => {
 
       // Login API call
       const response = await axios.post(
-        "https://collegeforms.in/api/auth/login",
+        "https://www.collegeforms.in/api/auth/login",
         {
           email,
           password,
@@ -203,7 +203,7 @@ const MerittoLogin = () => {
   const [bannerError, setBannerError] = useState(null);
   
   const navigate = useNavigate();
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   // State for filters and dropdown options
   const [filters, setFilters] = useState({

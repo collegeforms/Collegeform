@@ -58,9 +58,9 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3036",
-  "https://collegeforms.in",
   "https://www.collegeforms.in",
-  "https://collegeforms.in",
+  "https://www.collegeforms.in",
+  "https://www.collegeforms.in",
 
 ];
 

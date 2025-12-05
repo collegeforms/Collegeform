@@ -28,7 +28,7 @@ import {
   Image as ImageIcon
 } from '@mui/icons-material';
 
-const API_URL = "https://collegeforms.in";
+const API_URL = "https://www.collegeforms.in";
 // Styled components
 const PageContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),

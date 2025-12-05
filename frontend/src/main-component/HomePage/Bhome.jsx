@@ -11,7 +11,7 @@ const Bhome = () => {
   const [mbanners, setmBanners] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   useEffect(() => {
     const fetchBanners = async () => {
       try {

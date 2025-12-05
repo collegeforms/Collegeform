@@ -13,7 +13,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 
 const AdminInquiry = () => {
-const API_URL = "https://collegeforms.in";
+const API_URL = "https://www.collegeforms.in";
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");

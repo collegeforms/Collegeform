@@ -10,7 +10,7 @@ import {
 import { Close, Edit } from '@mui/icons-material';
 
 const AdminUpload = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   // State for courses
   const [name, setName] = useState('');

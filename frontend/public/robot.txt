@@ -8,4 +8,4 @@ Disallow: /cgi-bin/
 Disallow: /?*utm_
 
 # Sitemap location
-Sitemap: https://collegeforms.in/sitemap.xml 
+Sitemap: https://www.collegeforms.in/sitemap.xml 

@@ -43,7 +43,7 @@ const Home = () => {
     // Fetch banners from the API
     const fetchBanners = async () => {
       try {
-        const response = await axios.get("https://collegeforms.in/api/banners");
+        const response = await axios.get("https://www.collegeforms.in/api/banners");
         setBanners(response.data); // Set banners in state
       } catch (error) {
         console.error("Error fetching banners:", error);
@@ -62,7 +62,7 @@ const Home = () => {
       <div className="banner-slider">
           {banners.map((banner) => (
             <div key={banner.id}>
-              <img src={`https://collegeforms.in${banner.image}`} alt="img" />
+              <img src={`https://www.collegeforms.in${banner.image}`} alt="img" />
             </div>
           ))}
         </div>

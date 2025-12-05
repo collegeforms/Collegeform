@@ -92,7 +92,7 @@ const BlogDetails = () => {
   const [loading, setLoading] = useState(true);
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [expandedFAQ, setExpandedFAQ] = useState(false);
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   // Function to generate meta description from content
   const generateMetaDescription = (content, maxLength = 160) => {
     if (!content) return '';

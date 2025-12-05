@@ -27,7 +27,7 @@ const OverseasEducation = (props) => {
   });
   
   const collegesPerPage = 9;
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   const navigate = useNavigate();
   const { category } = useParams();
   const location = useLocation();

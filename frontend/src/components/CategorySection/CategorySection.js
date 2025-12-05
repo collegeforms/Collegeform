@@ -48,7 +48,7 @@ const settings = {
 
 const CategorySection = (props) => {
     const [logos, setLogos] = useState([]);
- const API_URL = "https://collegeforms.in";
+ const API_URL = "https://www.collegeforms.in";
     const fetchLogos = async () => {
         try {
             const response = await axios.get(`${API_URL}/api/logos`);

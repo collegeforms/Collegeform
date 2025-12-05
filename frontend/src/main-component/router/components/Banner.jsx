@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel"; // Import Slick JS
 const Banner = () => {
-  const API_URL = "https://collegeform-production.up.railway.app" || "https://collegeforms.in";
+  const API_URL = "https://collegeform-production.up.railway.app" || "https://www.collegeforms.in";
 
 
 

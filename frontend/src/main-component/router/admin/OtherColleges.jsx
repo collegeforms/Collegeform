@@ -20,7 +20,7 @@ import AddCollegeDialog from "./AddCollegePage";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const OtherColleges = () => {  const API_URL = "https://collegeforms.in";
+const OtherColleges = () => {  const API_URL = "https://www.collegeforms.in";
   const navigate = useNavigate();
   const [colleges, setColleges] = useState([]);
   const [filteredColleges, setFilteredColleges] = useState([]);

@@ -27,7 +27,7 @@ import { Delete, CloudUpload, Edit, Link as LinkIcon } from "@mui/icons-material
 import axios from "axios";
 
 const AddBanner = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   const [banners, setBanners] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);

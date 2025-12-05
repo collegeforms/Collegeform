@@ -138,7 +138,7 @@ const AddCollegeDialog = ({ open, handleClose, handleAddCollege }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post("https://collegeforms.in/api/colleges", formData, {
+      const response = await axios.post("https://www.collegeforms.in/api/colleges", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

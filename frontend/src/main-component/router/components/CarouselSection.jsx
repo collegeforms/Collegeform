@@ -8,7 +8,7 @@ const CarouselSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   // Fetch banner data
   const fetchBannerData = async () => {

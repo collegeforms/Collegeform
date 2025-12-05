@@ -44,7 +44,7 @@ import {
   ArrowBack
 } from "@mui/icons-material";
 
-const API_URL = "https://collegeforms.in";
+const API_URL = "https://www.collegeforms.in";
 
 const collegeCategories = [
   "Default",

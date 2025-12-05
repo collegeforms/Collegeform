@@ -56,7 +56,7 @@ import { useNavigate } from "react-router-dom";
 import TiptapEditor from './TiptapEditor';
 
 const AdminBlogs = () => {
- const API_URL = "https://collegeforms.in";
+ const API_URL = "https://www.collegeforms.in";
 
 
   const { enqueueSnackbar } = useSnackbar();

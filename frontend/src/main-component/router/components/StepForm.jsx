@@ -121,7 +121,7 @@ const StepForm = () => {
   const [allCourses, setAllCourses] = useState([]);
   const [filteredColleges, setFilteredColleges] = useState([]);
   const [showThankYou, setShowThankYou] = useState(false);
- const API_URL = "https://collegeforms.in";
+ const API_URL = "https://www.collegeforms.in";
     
 
   const userToken = localStorage.getItem("userToken");

@@ -57,7 +57,7 @@ const Collegespage = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const API_URL = "https://collegeforms.in";  
+  const API_URL = "https://www.collegeforms.in";  
 
   const { city, collegeType } = useParams();
   const location = useLocation();

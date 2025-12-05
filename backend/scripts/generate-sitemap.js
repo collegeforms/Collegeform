@@ -2,7 +2,7 @@ import express from "express";
 import College from "../models/College.js"; // your college model
 
 const router = express.Router();
-const BASE_URL = "https://collegeforms.in";
+const BASE_URL = "https://www.collegeforms.in";
 
 router.get("/sitemap.xml", async (req, res) => {
   try {

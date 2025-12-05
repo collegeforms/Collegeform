@@ -87,7 +87,7 @@ const ReadMoreButton = styled(Button)({
 const HomeBlogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   useEffect(() => {
     const fetchBlogs = async () => {

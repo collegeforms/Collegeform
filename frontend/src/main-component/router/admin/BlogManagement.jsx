@@ -39,7 +39,7 @@ import { useNavigate } from "react-router-dom";
 import RichTextEditor from "./TiptapEditor";
 
 const BlogManagement = () => {
-  const API_URL = process.env.REACT_APP_API_URL || "https://collegeforms.in";
+  const API_URL = process.env.REACT_APP_API_URL || "https://www.collegeforms.in";
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 

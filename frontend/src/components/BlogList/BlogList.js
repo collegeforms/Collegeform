@@ -8,7 +8,7 @@ const ClickHandler = () => {
 }
 
 const BlogList = (props) => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

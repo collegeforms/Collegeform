@@ -4,7 +4,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import LOGO_URL from "./college-logo-2.png"
 const CompletedApplication = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   const PRIMARY_COLOR = "#002244";
 
   const [applications, setApplications] = useState([]);

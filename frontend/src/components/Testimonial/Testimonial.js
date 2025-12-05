@@ -47,7 +47,7 @@ const Testimonial = (props) => {
             try {
                 setLoading(true);
                 // Replace with your actual API endpoint
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
                 const response = await axios.get(`${API_URL}/api/reviews`);
                 console.log(response.data);
                 

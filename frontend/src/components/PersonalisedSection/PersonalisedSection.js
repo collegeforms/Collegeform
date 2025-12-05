@@ -11,7 +11,7 @@ export default function PersonalisedSection() {
     course: "",
   });
   const [loading, setLoading] = useState(false);
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
 
   const handleChange = (e) => {

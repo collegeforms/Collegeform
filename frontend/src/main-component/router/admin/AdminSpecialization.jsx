@@ -4,7 +4,7 @@ import { TextField, Button, Container, Typography, Box, Paper, Grid, IconButton,
 import { Close } from '@mui/icons-material';
 
 const AdminSpecialization = () => {
- const API_URL = "https://collegeforms.in";
+ const API_URL = "https://www.collegeforms.in";
   const [specialization, setSpecialization] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [specializations, setSpecializations] = useState([]);

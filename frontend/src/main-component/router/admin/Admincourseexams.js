@@ -4,7 +4,7 @@ import { TextField, Button, Container, Typography, Box, Paper, Grid, IconButton,
 import { Close, Add, Edit } from '@mui/icons-material';
 
 const Admincourseexams = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   
   const [courseName, setCourseName] = useState('');

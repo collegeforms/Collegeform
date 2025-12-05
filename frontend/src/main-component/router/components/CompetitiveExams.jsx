@@ -27,7 +27,7 @@ import Footer from '../../../components/footer/Footer';
 import BannerRow from './SimpleBannerRow';
 
 const CompetitiveExams = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);

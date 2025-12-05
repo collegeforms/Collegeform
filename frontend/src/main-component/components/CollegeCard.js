@@ -23,7 +23,7 @@ const CollegeCard = ({ college, onApplyClick }) => {
         <div className="col-md-4 ">
           <img
             alt={`Image of ${college.name}`}
-            src={`https://collegeforms.in${college.image}`}
+            src={`https://www.collegeforms.in${college.image}`}
             className="img-fluid college-card-img rounded-2"
           />
         </div>

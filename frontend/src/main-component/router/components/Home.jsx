@@ -38,7 +38,7 @@ const Home = () => {
 
 
   const [banners, setBanners] = useState([]);
-const API_URL = "https://collegeforms.in";
+const API_URL = "https://www.collegeforms.in";
   useEffect(() => {
     // Fetch banners from the API
     const fetchBanners = async () => {

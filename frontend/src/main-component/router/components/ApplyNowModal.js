@@ -158,7 +158,7 @@
         console.log("Saving preferences:", preferencesData);
 
         // Try to save preferences to backend
-        const response = await fetch("https://collegeforms.in/api/user/preferences", {
+        const response = await fetch("https://www.collegeforms.in/api/user/preferences", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

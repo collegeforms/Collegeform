@@ -25,7 +25,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 const ExamEnquiries = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
 
   const [enquiries, setEnquiries] = useState([]);
   const [filteredEnquiries, setFilteredEnquiries] = useState([]);

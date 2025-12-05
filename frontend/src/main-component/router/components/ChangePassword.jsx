@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import "./ChangePassword.css";
 
 const ChangePassword = () => {
-  const API_URL = "https://collegeforms.in";  const navigate = useNavigate();
+  const API_URL = "https://www.collegeforms.in";  const navigate = useNavigate();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");

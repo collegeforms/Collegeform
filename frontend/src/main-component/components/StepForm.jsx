@@ -85,7 +85,7 @@ const StepForm = () => {
     try {
       // Send the form data to the backend
       const response = await axios.post(
-        "https://collegeforms.in/api/students/submit",
+        "https://www.collegeforms.in/api/students/submit",
         formData
       );
 

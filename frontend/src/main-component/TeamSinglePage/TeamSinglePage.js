@@ -53,7 +53,7 @@ const CollegeSinglePage = (props) => {
     // Use cart context
     const { addToCart, isItemInCart, cartItems } = useCart();
 
-    const API_URL = "https://collegeforms.in";
+    const API_URL = "https://www.collegeforms.in";
     const authToken = localStorage.getItem('userToken');
 
     useEffect(() => {

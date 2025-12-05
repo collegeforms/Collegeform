@@ -21,7 +21,7 @@ const orderData = [
 const COLORS = ["#696CFF", "#6DCBA2", "#E1675E"];
 
 const Dashboard = () => {
-  const API_URL = "https://collegeforms.in";
+  const API_URL = "https://www.collegeforms.in";
   return (
     <Box sx={{ display: "flex" }}>
       <Container sx={{ flexGrow: 1, paddingTop: "20px" }}>

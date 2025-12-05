@@ -7,7 +7,7 @@ const Colleges = () => {
         // Fetch colleges from backend
         const fetchColleges = async () => {
             try {
-                const response = await fetch("https://collegeforms.in/api/colleges");
+                const response = await fetch("https://www.collegeforms.in/api/colleges");
                 const data = await response.json();
                 setColleges(data);
             } catch (error) {
@@ -78,7 +78,7 @@ const Colleges = () => {
                                         <img
                                         style={{  objectFit: "contain" }}
                                             alt={`Image of ${college.name}`}
-                                            src={`https://collegeforms.in${college.image}`}
+                                            src={`https://www.collegeforms.in${college.image}`}
                                             className="img-fluid"
                                         />
                                     </div>

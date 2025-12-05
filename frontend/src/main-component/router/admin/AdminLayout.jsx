@@ -12,7 +12,7 @@ import AdminNavbar from "./AdminNavbar";
 const drawerWidth = 280; // Sidebar width
 
 const AdminLayout = ({ children }) => {
-const API_URL = "https://collegeforms.in";
+const API_URL = "https://www.collegeforms.in";
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile); // Sidebar open by default on large screens

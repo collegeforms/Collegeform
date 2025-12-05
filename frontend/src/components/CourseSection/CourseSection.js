@@ -15,7 +15,7 @@ const CourseSection = (props) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedCards, setExpandedCards] = useState({});
- const API_URL = "https://collegeforms.in";  
+ const API_URL = "https://www.collegeforms.in";  
   const navigate = useNavigate();
 
   const toggleExpand = (id) => {

@@ -31,7 +31,7 @@ import {
 import axios from "axios";
 
 const AdminDocs = () => {
-   const API_URL = "https://collegeforms.in";
+   const API_URL = "https://www.collegeforms.in";
 
   const [documents, setDocuments] = useState([]);
   const [filteredDocuments, setFilteredDocuments] = useState([]);

@@ -39,7 +39,7 @@ const Addfaq = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [faqToDelete, setFaqToDelete] = useState(null);
-  const API_URL = "https://collegeforms.in";  
+  const API_URL = "https://www.collegeforms.in";  
 
   useEffect(() => {
     fetchFAQs();

@@ -19,7 +19,7 @@ const Logos = () => {
 
   const [logos, setLogos] = useState([]);
 console.log(logos);
-const API_URL = "https://collegeforms.in";
+const API_URL = "https://www.collegeforms.in";
   useEffect(() => {
     // Fetch logos from the API
     const fetchLogos = async () => {
