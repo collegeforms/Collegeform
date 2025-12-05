@@ -6,7 +6,4 @@ Disallow: /user/login
 Disallow: /user/signup
 
 # Sitemap location
-Sitemap: https://collegeforms.in/sitemap.xml
-
-# Crawl delay
-Crawl-delay: 2
+Sitemap: https://www.collegeforms.in/sitemap.xml

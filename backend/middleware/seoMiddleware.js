@@ -31,96 +31,96 @@ export const ROUTE_META_DATA = {
         title: "CollegeForms.in - India's most preferred and trusted online platform for discounted College Applications",
         description: "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.",
         keywords: "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees",
-        ogImage: "https://collegeforms.in/college-forms-og-image.jpg",
-        canonical: "https://collegeforms.in/"
+        ogImage: "https://www.collegeforms.in/college-forms-og-image.jpg",
+        canonical: "https://www.collegeforms.in/"
     },
 
     '/studyabroad': {
         title: "Study Abroad Programs – Scholarships & Admissions | CollegeForms",
         description: "Looking to study abroad? Explore top international colleges, scholarships on tuition, and MBA programs. Get expert college guidance and application help with CollegeForms.in.",
         keywords: "study abroad programs, international colleges, MBA abroad options, tuition fee scholarships, overseas admission help, best global colleges, IELTS EXAMs, SAT Exam, GRE/GMAT Exam",
-        ogImage: "https://collegeforms.in/study-abroad-og-image.jpg",
-        canonical: "https://collegeforms.in/studyabroad"
+        ogImage: "https://www.collegeforms.in/study-abroad-og-image.jpg",
+        canonical: "https://www.collegeforms.in/studyabroad"
     },
 
     '/colleges': {
         title: "Top Colleges in India - Rankings, Fees, Admission | CollegeForms",
         description: "Find the best colleges in India with rankings, fees structure, admission process, and student reviews. Get expert guidance for college selection.",
         keywords: "colleges in India, college rankings, admission process, college fees, top engineering colleges, top medical colleges, management colleges",
-        ogImage: "https://collegeforms.in/colleges-og-image.jpg",
-        canonical: "https://collegeforms.in/colleges"
+        ogImage: "https://www.collegeforms.in/colleges-og-image.jpg",
+        canonical: "https://www.collegeforms.in/colleges"
     },
 
     '/blogs': {
         title: "Education Blog - Latest Updates & Guidance | CollegeForms",
         description: "Latest education news, career guidance, college admission tips, and exam preparation strategies. Stay updated with the education sector.",
         keywords: "education blog, career guidance, admission tips, exam preparation, education news, college admission blog",
-        ogImage: "https://collegeforms.in/blogs-og-image.jpg",
-        canonical: "https://collegeforms.in/blogs"
+        ogImage: "https://www.collegeforms.in/blogs-og-image.jpg",
+        canonical: "https://www.collegeforms.in/blogs"
     },
 
     '/contactus': {
         title: "Contact Us - Get College Admission Help | CollegeForms",
         description: "Get in touch with our education experts for college admission guidance, scholarship information, and application help.",
         keywords: "contact college admission help, education consultants, admission guidance contact",
-        ogImage: "https://collegeforms.in/contact-og-image.jpg",
-        canonical: "https://collegeforms.in/contactus"
+        ogImage: "https://www.collegeforms.in/contact-og-image.jpg",
+        canonical: "https://www.collegeforms.in/contactus"
     },
 
     '/courses': {
         title: "Popular Courses & Career Options | CollegeForms",
         description: "Explore popular courses after 12th, career options, and find the right path for your future. Get guidance on course selection.",
         keywords: "courses after 12th, career options, course selection, engineering courses, medical courses",
-        ogImage: "https://collegeforms.in/courses-og-image.jpg",
-        canonical: "https://collegeforms.in/courses"
+        ogImage: "https://www.collegeforms.in/courses-og-image.jpg",
+        canonical: "https://www.collegeforms.in/courses"
     },
 
     '/exams': {
         title: "Entrance Exams Preparation & Guidance | CollegeForms",
         description: "Prepare for various entrance exams with expert guidance, tips, and resources. Get information about exam dates and patterns.",
         keywords: "entrance exams, exam preparation, JEE, NEET, CAT, MAT, exam dates",
-        ogImage: "https://collegeforms.in/exams-og-image.jpg",
-        canonical: "https://collegeforms.in/exams"
+        ogImage: "https://www.collegeforms.in/exams-og-image.jpg",
+        canonical: "https://www.collegeforms.in/exams"
     },
 
     '/students/tests': {
         title: "Online Tests & Practice Papers | CollegeForms",
         description: "Take online practice tests, mock exams, and improve your preparation with our test series for various entrance exams.",
         keywords: "online tests, practice papers, mock exams, test series",
-        ogImage: "https://collegeforms.in/tests-og-image.jpg",
-        canonical: "https://collegeforms.in/students/tests"
+        ogImage: "https://www.collegeforms.in/tests-og-image.jpg",
+        canonical: "https://www.collegeforms.in/students/tests"
     },
 
     '/events': {
         title: "Education Events & Workshops | CollegeForms",
         description: "Stay updated with upcoming education events, workshops, webinars, and college fairs. Participate and enhance your knowledge.",
         keywords: "education events, workshops, webinars, college fairs",
-        ogImage: "https://collegeforms.in/events-og-image.jpg",
-        canonical: "https://collegeforms.in/events"
+        ogImage: "https://www.collegeforms.in/events-og-image.jpg",
+        canonical: "https://www.collegeforms.in/events"
     },
 
     '/video': {
         title: "Educational Videos & Tutorials | CollegeForms",
         description: "Watch educational videos, tutorials, and expert talks on college admissions, exam preparation, and career guidance.",
         keywords: "educational videos, tutorials, expert talks",
-        ogImage: "https://collegeforms.in/video-og-image.jpg",
-        canonical: "https://collegeforms.in/video"
+        ogImage: "https://www.collegeforms.in/video-og-image.jpg",
+        canonical: "https://www.collegeforms.in/video"
     },
 
     '/privacy': {
         title: "Privacy Policy | CollegeForms",
         description: "Read our privacy policy to understand how we collect, use, and protect your personal information.",
         keywords: "privacy policy, data protection, terms of use",
-        ogImage: "https://collegeforms.in/privacy-og-image.jpg",
-        canonical: "https://collegeforms.in/privacy"
+        ogImage: "https://www.collegeforms.in/privacy-og-image.jpg",
+        canonical: "https://www.collegeforms.in/privacy"
     },
 
     '/terms': {
         title: "Terms & Conditions | CollegeForms",
         description: "Read our terms and conditions for using CollegeForms.in services and platform.",
         keywords: "terms and conditions, user agreement, legal terms",
-        ogImage: "https://collegeforms.in/terms-og-image.jpg",
-        canonical: "https://collegeforms.in/terms"
+        ogImage: "https://www.collegeforms.in/terms-og-image.jpg",
+        canonical: "https://www.collegeforms.in/terms"
     }
 };
 

@@ -3,7 +3,7 @@ import College from "../models/College.js";
 import Blog from "../models/Blog.js";
 
 const router = express.Router();
-const BASE_URL = "https://collegeforms.in";
+const BASE_URL = "https://www.collegeforms.in";
 
 // Helper to escape XML special characters
 const escapeXml = (unsafe) => {
