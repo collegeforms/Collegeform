@@ -545,7 +545,6 @@ export const seoMiddleware = async (req, res, next) => {
                                 <html>
                                 <head>
                                     <title>404 - Blog Not Found | CollegeForm</title>
-                                    <meta name="robots" content="noindex">
                                 </head>
                                 <body>
                                     <h1>404 - Blog Not Found</h1>
