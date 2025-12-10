@@ -82,10 +82,46 @@ const FAQAccordion = styled(Accordion)(({ theme }) => ({
   }
 }));
 
+// Structured Data Component
+const StructuredData = ({ blog, metaDescription, metaImage, canonicalUrl }) => {
+  if (!blog) return null;
+  
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": blog.title,
+    "description": metaDescription,
+    "image": metaImage,
+    "datePublished": blog.createdAt,
+    "dateModified": blog.updatedAt || blog.createdAt,
+    "author": {
+      "@type": "Organization",
+      "name": blog.author || "CollegeForm"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "CollegeForm",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://collegeform.com/logo.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": canonicalUrl
+    }
+  };
+
+  return (
+    <script 
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+};
+
 const BlogDetails = () => {
   const { slug } = useParams();
-  console.log(slug);
-  
   const navigate = useNavigate();
   const theme = useTheme();
   const [blog, setBlog] = useState(null);
@@ -93,6 +129,7 @@ const BlogDetails = () => {
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [expandedFAQ, setExpandedFAQ] = useState(false);
   const API_URL = "https://www.collegeforms.in";
+  
   // Function to generate meta description from content
   const generateMetaDescription = (content, maxLength = 160) => {
     if (!content) return '';
@@ -117,7 +154,6 @@ const BlogDetails = () => {
         setLoading(true);
         const response = await axios.get(`${API_URL}/api/blogs/${slug}`);
         setBlog(response.data);
-        console.log(response.data);
         
         const relatedResponse = await axios.get(
           `${API_URL}/api/blogs?category=${response.data.category}&limit=3`
@@ -229,36 +265,15 @@ const BlogDetails = () => {
         <meta name="author" content={blog.author || 'CollegeForm'} />
         <meta name="publish_date" property="og:publish_date" content={blog.createdAt} />
         <meta name="robots" content="index, follow" />
-        
-        {/* Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "headline": blog.title,
-            "description": metaDescription,
-            "image": metaImage,
-            "datePublished": blog.createdAt,
-            "dateModified": blog.updatedAt || blog.createdAt,
-            "author": {
-              "@type": "Organization",
-              "name": blog.author || "CollegeForm"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "CollegeForm",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://collegeform.com/logo.png"
-              }
-            },
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": canonicalUrl
-            }
-          })}
-        </script>
       </Helmet>
+
+      {/* Structured Data JSON-LD */}
+      <StructuredData 
+        blog={blog}
+        metaDescription={metaDescription}
+        metaImage={metaImage}
+        canonicalUrl={canonicalUrl}
+      />
 
       <Navbar hclass={'wpo-header-style-4'}/>
       
