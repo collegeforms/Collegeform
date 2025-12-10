@@ -173,7 +173,6 @@ const BlogDetails = () => {
         <Helmet>
           <title>Blog Not Found | CollegeForm</title>
           <meta name="description" content="The requested blog post was not found." />
-          <meta name="robots" content="noindex" />
         </Helmet>
         <Navbar hclass={'wpo-header-style-4'}/>
         <Container maxWidth="md" sx={{ py: 6, textAlign: 'center' }}>
