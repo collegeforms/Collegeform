@@ -14,9 +14,8 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  List,
-  ListItem,
-  ListItemText
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { CalendarMonth, ArrowBack, Share, Bookmark, ExpandMore, QuestionAnswer } from '@mui/icons-material';
 import axios from 'axios';
@@ -103,7 +102,7 @@ const StructuredData = ({ blog, metaDescription, metaImage, canonicalUrl }) => {
       "name": "CollegeForm",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://collegeform.com/logo.png"
+        "url": "https://www.collegeforms.in/logo.png"
       }
     },
     "mainEntityOfPage": {
@@ -128,8 +127,78 @@ const BlogDetails = () => {
   const [loading, setLoading] = useState(true);
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [expandedFAQ, setExpandedFAQ] = useState(false);
+  const [ssrData, setSsrData] = useState(null);
   const API_URL = "https://www.collegeforms.in";
   
+  // Check for SSR data on component mount
+  useEffect(() => {
+    // Check if SSR data is available in window object
+    if (window.__INITIAL_BLOG__ && window.__INITIAL_BLOG__.slug === slug) {
+      console.log('✅ Using SSR initial data');
+      setSsrData(window.__INITIAL_BLOG__);
+      setBlog(window.__INITIAL_BLOG__);
+      setLoading(false);
+      
+      // Clear SSR data after use
+      setTimeout(() => {
+        window.__INITIAL_BLOG__ = null;
+      }, 100);
+      
+      // Hide SSR content after React loads
+      const ssrElements = document.querySelectorAll('.ssr-content');
+      ssrElements.forEach(el => {
+        if (el.parentNode) {
+          el.style.display = 'none';
+        }
+      });
+      
+      // Fetch related blogs
+      fetchRelatedBlogs(window.__INITIAL_BLOG__.category);
+      
+      return;
+    }
+    
+    // If no SSR data, fetch from API
+    fetchBlogData();
+  }, [slug]);
+
+  const fetchBlogData = async () => {
+    try {
+      setLoading(true);
+      console.log(`📡 Fetching blog from API: ${slug}`);
+      
+      const response = await axios.get(`${API_URL}/api/blogs/${slug}`);
+      
+      if (!response.data) {
+        throw new Error('Blog not found');
+      }
+      
+      setBlog(response.data);
+      fetchRelatedBlogs(response.data.category);
+    } catch (error) {
+      console.error('Error fetching blog:', error);
+      // Don't set loading to false immediately - show error state
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRelatedBlogs = async (category) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/blogs?category=${category}&limit=3&exclude=${blog?._id || ''}`
+      );
+      setRelatedBlogs(response.data.filter(b => b.slug !== slug));
+    } catch (err) {
+      console.error('Error fetching related blogs:', err);
+    }
+  };
+
+  // Handle FAQ accordion expansion
+  const handleFAQChange = (panel) => (event, isExpanded) => {
+    setExpandedFAQ(isExpanded ? panel : false);
+  };
+
   // Function to generate meta description from content
   const generateMetaDescription = (content, maxLength = 160) => {
     if (!content) return '';
@@ -148,48 +217,43 @@ const BlogDetails = () => {
     return `${title} | ${siteName}`;
   };
 
-  useEffect(() => {
-    const fetchBlog = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${API_URL}/api/blogs/${slug}`);
-        setBlog(response.data);
-        
-        const relatedResponse = await axios.get(
-          `${API_URL}/api/blogs?category=${response.data.category}&limit=3`
-        );
-        setRelatedBlogs(relatedResponse.data.filter(b => b.slug !== response.data.slug));
-        
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching blog:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchBlog();
-  }, [slug]);
-
-  // Handle FAQ accordion expansion
-  const handleFAQChange = (panel) => (event, isExpanded) => {
-    setExpandedFAQ(isExpanded ? panel : false);
-  };
-
   // Dynamic meta tags based on blog data
   const metaTitle = blog ? generateMetaTitle(blog.title) : 'Blog | CollegeForm';
   const metaDescription = blog ? generateMetaDescription(blog.content) : 'Read our latest blog posts and articles about education, colleges, and career guidance.';
-  const metaImage = blog?.image || '/default-blog-image.jpg';
+  const metaImage = blog?.image 
+    ? (blog.image.startsWith('http') ? blog.image : `${API_URL}${blog.image}`)
+    : `${API_URL}/default-blog-image.jpg`;
   const canonicalUrl = window.location.href;
 
-  if (loading) {
+  // Hide SSR content when React component mounts
+  useEffect(() => {
+    if (blog && !loading) {
+      const ssrElements = document.querySelectorAll('.ssr-content, .ssr-header, .ssr-image, .ssr-body');
+      ssrElements.forEach(el => {
+        if (el.parentNode) {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => {
+            el.style.display = 'none';
+          }, 300);
+        }
+      });
+    }
+  }, [blog, loading]);
+
+  if (loading && !ssrData) {
     return (
       <>
         <Helmet>
           <title>Loading... | CollegeForm</title>
           <meta name="description" content="Loading blog content..." />
+          <meta name="robots" content="noindex" />
         </Helmet>
         <Navbar hclass={'wpo-header-style-4'}/>
         <Container maxWidth="md" sx={{ py: 6 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+            <CircularProgress />
+          </Box>
           <Skeleton variant="rectangular" width="60%" height={48} sx={{ mb: 4, mx: 'auto' }} />
           <Skeleton variant="rectangular" width="40%" height={24} sx={{ mb: 6, mx: 'auto' }} />
           <Skeleton variant="rectangular" height={400} sx={{ mb: 4, borderRadius: '12px' }} />
@@ -203,15 +267,19 @@ const BlogDetails = () => {
     );
   }
 
-  if (!blog) {
+  if (!blog && !loading) {
     return (
       <>
         <Helmet>
           <title>Blog Not Found | CollegeForm</title>
           <meta name="description" content="The requested blog post was not found." />
+          <meta name="robots" content="noindex" />
         </Helmet>
         <Navbar hclass={'wpo-header-style-4'}/>
         <Container maxWidth="md" sx={{ py: 6, textAlign: 'center' }}>
+          <Alert severity="error" sx={{ mb: 4 }}>
+            Blog not found or has been removed.
+          </Alert>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
             Blog Not Found
           </Typography>
@@ -298,7 +366,8 @@ const BlogDetails = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 1
+              gap: 1,
+              flexWrap: 'wrap'
             }}
           >
             <CalendarMonth fontSize="small" />
@@ -309,13 +378,20 @@ const BlogDetails = () => {
                 <span>By {blog.author}</span>
               </>
             )}
+            {blog.views > 0 && (
+              <>
+                <span>•</span>
+                <span>{blog.views.toLocaleString()} views</span>
+              </>
+            )}
           </Typography>
         </BlogHeader>
 
         {blog.image && (
           <BlogImage 
-            src={blog.image} 
-            alt={blog.title} 
+            src={blog.image.startsWith('http') ? blog.image : `${API_URL}${blog.image}`} 
+            alt={blog.title}
+            loading="lazy"
           />
         )}
 
@@ -323,14 +399,23 @@ const BlogDetails = () => {
           display: 'flex', 
           gap: 2, 
           mb: 4,
-          justifyContent: 'center'
+          justifyContent: 'center',
+          flexWrap: 'wrap'
         }}>
           <Button 
             variant="outlined" 
             startIcon={<Share />}
             onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              alert('Link copied to clipboard!');
+              if (navigator.share) {
+                navigator.share({
+                  title: blog.title,
+                  text: metaDescription,
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link copied to clipboard!');
+              }
             }}
             sx={{
               px: 3,
@@ -349,6 +434,21 @@ const BlogDetails = () => {
           <Button 
             variant="outlined" 
             startIcon={<Bookmark />}
+            onClick={() => {
+              const savedBlogs = JSON.parse(localStorage.getItem('savedBlogs') || '[]');
+              if (!savedBlogs.find(b => b._id === blog._id)) {
+                savedBlogs.push({
+                  _id: blog._id,
+                  title: blog.title,
+                  slug: blog.slug,
+                  savedAt: new Date().toISOString()
+                });
+                localStorage.setItem('savedBlogs', JSON.stringify(savedBlogs));
+                alert('Blog saved for later!');
+              } else {
+                alert('Already saved!');
+              }
+            }}
             sx={{
               px: 3,
               py: 1,
@@ -361,7 +461,7 @@ const BlogDetails = () => {
               }
             }}
           >
-            Save
+            Save for Later
           </Button>
         </Box>
 
@@ -373,7 +473,9 @@ const BlogDetails = () => {
             color: theme.palette.text.primary,
             fontSize: '1.8rem',
             fontWeight: 600,
-            lineHeight: 1.3
+            lineHeight: 1.3,
+            borderBottom: `2px solid ${theme.palette.primary.light}`,
+            paddingBottom: '8px'
           },
           '& h3': {
             mt: 5,
@@ -424,6 +526,7 @@ const BlogDetails = () => {
           '& a': {
             color: theme.palette.primary.main,
             textDecoration: 'none',
+            fontWeight: 500,
             '&:hover': {
               textDecoration: 'underline'
             }
@@ -535,7 +638,7 @@ const BlogDetails = () => {
                 textAlign: 'center'
               }}
             >
-              More Like This
+              Related Articles
             </Typography>
             <Grid container spacing={4}>
               {relatedBlogs.map((relatedBlog) => (

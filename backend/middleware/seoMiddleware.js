@@ -2,6 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Blog from '../models/Blog.js'; // Make sure this import exists
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +16,12 @@ const BOT_USER_AGENTS = [
     'showyoubot', 'outbrain', 'pinterest', 'slackbot', 'vkShare', 'redditbot',
     'applebot', 'whatsapp', 'telegrambot', 'discordbot', 'skypeuripreview',
     'ia_archiver', 'archive.org_bot', 'msnbot', 'msnbot-media', 'adsbot-google',
-    'developers.google.com/+/web/snippet'
+    'developers.google.com/+/web/snippet',
+    'google-structured-data-testing-tool', // Google testing tools
+    'google-page-speed', 'lighthouse', 'pingdom', 'gtmetrix', // Performance tools
+    'ahrefsbot', 'semrushbot', 'moz.com', 'mj12bot', 'seznambot', // SEO tools
+    'applebot', 'baiduspider', 'sogou', 'exabot', // International bots
+    'Google-SearchConsole', 'Google-InspectionTool' // GSC tools
 ];
 
 // Check if user agent is a bot
@@ -23,6 +29,149 @@ export const isBot = (userAgent) => {
     if (!userAgent) return false;
     const ua = userAgent.toLowerCase();
     return BOT_USER_AGENTS.some(bot => ua.includes(bot));
+};
+
+// Generate meta description from blog content
+const generateMetaDescription = (content, maxLength = 160) => {
+    if (!content) return 'Read our latest blog about education and career guidance.';
+    
+    // Remove HTML tags
+    const plainText = content
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+        .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+        .replace(/&amp;/g, '&') // Replace &amp; with &
+        .replace(/&lt;/g, '<') // Replace &lt; with <
+        .replace(/&gt;/g, '>') // Replace &gt; with >
+        .replace(/&quot;/g, '"') // Replace &quot; with "
+        .replace(/&#39;/g, "'") // Replace &#39; with '
+        .trim();
+    
+    // Trim to max length without cutting words
+    if (plainText.length <= maxLength) return plainText;
+    
+    // Find the last space within limit and trim there
+    const trimmed = plainText.substring(0, maxLength);
+    const lastSpace = trimmed.lastIndexOf(' ');
+    
+    return lastSpace > 0 
+        ? trimmed.substring(0, lastSpace) + '...'
+        : trimmed + '...';
+};
+
+// Generate blog excerpt for preview
+const generateBlogExcerpt = (content, maxLength = 500) => {
+    if (!content) return '';
+    
+    const plainText = content
+        .replace(/<[^>]*>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    
+    if (plainText.length <= maxLength) return plainText;
+    
+    const trimmed = plainText.substring(0, maxLength);
+    const lastSpace = trimmed.lastIndexOf(' ');
+    
+    return lastSpace > 0 
+        ? trimmed.substring(0, lastSpace) + '...'
+        : trimmed + '...';
+};
+
+// Generate breadcrumb structured data
+const generateBreadcrumbData = (blogTitle, slug, baseUrl) => {
+    return {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": baseUrl
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blogs",
+                "item": `${baseUrl}/blogs`
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": blogTitle,
+                "item": `${baseUrl}/blogs/${slug}`
+            }
+        ]
+    };
+};
+
+// Generate FAQ structured data
+const generateFAQData = (faqs, baseUrl) => {
+    if (!faqs || faqs.length === 0) return null;
+    
+    return {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqs.map((faq, index) => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer.replace(/<[^>]*>/g, '')
+            }
+        }))
+    };
+};
+
+// Generate blog structured data
+const generateBlogStructuredData = (blog, metaDescription, metaImage, baseUrl) => {
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": blog.title,
+        "description": metaDescription,
+        "image": metaImage,
+        "datePublished": blog.createdAt,
+        "dateModified": blog.updatedAt || blog.createdAt,
+        "author": {
+            "@type": "Organization",
+            "name": blog.author || "CollegeForm",
+            "url": baseUrl
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "CollegeForm",
+            "logo": {
+                "@type": "ImageObject",
+                "url": `${baseUrl}/logo.png`,
+                "width": 200,
+                "height": 60
+            }
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `${baseUrl}/blogs/${blog.slug}`
+        }
+    };
+    
+    // Add keywords if available
+    if (blog.keywords && blog.keywords.length > 0) {
+        structuredData.keywords = blog.keywords.join(', ');
+    }
+    
+    // Add category
+    if (blog.category) {
+        structuredData.articleSection = blog.category;
+    }
+    
+    // Add word count if content is available
+    if (blog.content) {
+        const wordCount = blog.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+        structuredData.wordCount = wordCount;
+    }
+    
+    return structuredData;
 };
 
 // Route-specific meta data
@@ -143,7 +292,168 @@ const readIndexHtml = () => {
     }
 };
 
-// Generate HTML with meta tags
+// Generate HTML for blog pages
+const generateBlogHTML = (blog, baseUrl) => {
+    // Generate meta description
+    const metaDescription = blog.metaDescription || generateMetaDescription(blog.content);
+    
+    // Generate image URL
+    const metaImage = blog.image 
+        ? (blog.image.startsWith('http') ? blog.image : `${baseUrl}${blog.image}`)
+        : `${baseUrl}/default-blog-image.jpg`;
+    
+    // Generate page title
+    const pageTitle = `${blog.title} | CollegeForm Blog`;
+    
+    // Get category
+    const category = blog.category || 'Education';
+    
+    // Generate keywords
+    const keywords = blog.tags ? blog.tags.join(', ') : `${category}, education, college, career, blog`;
+    
+    // Generate structured data
+    const blogStructuredData = generateBlogStructuredData(blog, metaDescription, metaImage, baseUrl);
+    const breadcrumbData = generateBreadcrumbData(blog.title, blog.slug, baseUrl);
+    const faqData = blog.faqs ? generateFAQData(blog.faqs, baseUrl) : null;
+    
+    // Generate blog excerpt for preview
+    const blogExcerpt = generateBlogExcerpt(blog.content);
+    
+    // Format date
+    const publishedDate = new Date(blog.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    const metaTags = `
+        <title>${pageTitle}</title>
+        <meta name="description" content="${metaDescription}" />
+        <meta name="keywords" content="${keywords}" />
+        <link rel="canonical" href="${baseUrl}/blogs/${blog.slug}" />
+        
+        <!-- Open Graph -->
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="${baseUrl}/blogs/${blog.slug}" />
+        <meta property="og:title" content="${pageTitle}" />
+        <meta property="og:description" content="${metaDescription}" />
+        <meta property="og:image" content="${metaImage}" />
+        <meta property="og:site_name" content="College Form" />
+        <meta property="article:published_time" content="${blog.createdAt}" />
+        <meta property="article:modified_time" content="${blog.updatedAt || blog.createdAt}" />
+        <meta property="article:author" content="${blog.author || 'CollegeForm'}" />
+        <meta property="article:section" content="${category}" />
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="${baseUrl}/blogs/${blog.slug}" />
+        <meta name="twitter:title" content="${pageTitle}" />
+        <meta name="twitter:description" content="${metaDescription}" />
+        <meta name="twitter:image" content="${metaImage}" />
+        
+        <!-- Additional SEO -->
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="language" content="English" />
+        <meta name="author" content="${blog.author || 'CollegeForm'}" />
+        <meta name="publish_date" content="${blog.createdAt}" />
+        
+        <!-- Structured Data -->
+        <script type="application/ld+json">
+            ${JSON.stringify(blogStructuredData, null, 2)}
+        </script>
+        
+        <script type="application/ld+json">
+            ${JSON.stringify(breadcrumbData, null, 2)}
+        </script>
+        
+        ${faqData ? `
+        <script type="application/ld+json">
+            ${JSON.stringify(faqData, null, 2)}
+        </script>
+        ` : ''}
+    `;
+
+    // Create blog content for bots to see
+    const blogContentHTML = `
+        <div class="ssr-blog-content" style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+            <article>
+                <header style="text-align: center; margin-bottom: 40px;">
+                    <h1 style="font-size: 2.5rem; color: #1a237e; margin-bottom: 20px;">${blog.title}</h1>
+                    <div style="color: #666; font-size: 0.9rem; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <span>📅 ${publishedDate}</span>
+                        ${blog.author ? `<span>👤 By ${blog.author}</span>` : ''}
+                        ${category ? `<span>🏷️ Category: ${category}</span>` : ''}
+                    </div>
+                </header>
+                
+                ${blog.image ? `
+                <div style="margin: 30px 0;">
+                    <img src="${metaImage}" alt="${blog.title}" 
+                         style="width: 100%; max-height: 500px; object-fit: cover; border-radius: 12px;"
+                         loading="lazy">
+                </div>
+                ` : ''}
+                
+                <div style="font-size: 1.1rem; line-height: 1.8; color: #333;">
+                    ${blogExcerpt}
+                    <p style="margin-top: 30px; font-style: italic;">
+                        <strong>Continue reading the full article for more insights...</strong>
+                    </p>
+                </div>
+                
+                ${blog.faqs && blog.faqs.length > 0 ? `
+                <section style="margin-top: 50px; background: #f8f9fa; padding: 30px; border-radius: 12px;">
+                    <h2 style="color: #1a237e; margin-bottom: 20px;">Frequently Asked Questions</h2>
+                    <div style="display: grid; gap: 15px;">
+                        ${blog.faqs.slice(0, 3).map((faq, index) => `
+                            <div style="border-left: 4px solid #2196f3; padding-left: 15px;">
+                                <h3 style="color: #333; margin-bottom: 10px; font-size: 1.1rem;">
+                                    Q${index + 1}: ${faq.question}
+                                </h3>
+                                <p style="color: #555;">${faq.answer.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+                ` : ''}
+            </article>
+        </div>
+    `;
+
+    const newHead = `<head>
+        <meta charset="utf-8"/>
+        <link rel="icon" href="/favicon.png"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1"/>
+        <meta name="theme-color" content="#000000"/>
+        ${metaTags}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-DMZRBF2RQ1"></script>
+        <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-DMZRBF2RQ1")</script>
+        <script>!function(e,t,a,n,g){e[n]=e[n]||[],e[n].push({"gtm.start":(new Date).getTime(),event:"gtm.js"});var m=t.getElementsByTagName(a)[0],r=t.createElement(a);r.async=!0,r.src="https://www.googletagmanager.com/gtm.js?id=GTM-549BCBRD",m.parentNode.insertBefore(r,m)}(window,document,"script","dataLayer")</script>
+        <script defer="defer" src="/static/js/main.ba321a83.js"></script>
+        <link href="/static/css/main.28da5570.css" rel="stylesheet">
+        
+        <!-- Inline styles for SSR content -->
+        <style>
+            .ssr-blog-content { display: block !important; }
+            #root { display: none; }
+        </style>
+    </head>`;
+    
+    // Get the HTML template
+    const htmlTemplate = readIndexHtml();
+    
+    // Replace head and add blog content
+    const modifiedHtml = htmlTemplate
+        .replace(/<head>[\s\S]*?<\/head>/, newHead)
+        .replace('<div id="root"></div>', `<div id="root" style="display: none;"></div>${blogContentHTML}`);
+    
+    return modifiedHtml;
+};
+
+// Generate general SEO HTML
 const generateSEOHTML = (meta, htmlTemplate) => {
     const metaTags = `
         <title>${meta.title}</title>
@@ -173,7 +483,6 @@ const generateSEOHTML = (meta, htmlTemplate) => {
         <meta name="author" content="College Forms" />
     `;
 
-    // Replace the entire head section with new meta tags
     const newHead = `<head>
         <meta charset="utf-8"/>
         <link rel="icon" href="/favicon.png"/>
@@ -193,9 +502,10 @@ const generateSEOHTML = (meta, htmlTemplate) => {
 };
 
 // Main middleware function
-export const seoMiddleware = (req, res, next) => {
+export const seoMiddleware = async (req, res, next) => {
     const userAgent = req.headers['user-agent'] || '';
     const requestPath = req.path;
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     
     // Skip for API, static files, sitemap, etc.
     if (requestPath.startsWith('/api/') || 
@@ -213,7 +523,62 @@ export const seoMiddleware = (req, res, next) => {
         console.log(`📄 Requested path: ${requestPath}`);
         
         try {
-            // Read the HTML template
+            // Handle blog routes specially
+            if (requestPath.startsWith('/blogs/') && requestPath !== '/blogs') {
+                const slug = requestPath.split('/blogs/')[1];
+                
+                if (slug) {
+                    console.log(`📝 Fetching blog: ${slug}`);
+                    
+                    try {
+                        // Fetch blog from database
+                        const blog = await Blog.findOne({ 
+                            slug: slug,
+                            status: 'published'
+                        }).lean();
+                        
+                        if (!blog) {
+                            console.log(`❌ Blog not found: ${slug}`);
+                            // Serve 404 for bots
+                            const notFoundHtml = `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <title>404 - Blog Not Found | CollegeForm</title>
+                                    <meta name="robots" content="noindex">
+                                </head>
+                                <body>
+                                    <h1>404 - Blog Not Found</h1>
+                                </body>
+                                </html>
+                            `;
+                            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                            return res.status(404).send(notFoundHtml);
+                        }
+                        
+                        // Increment view count
+                        await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
+                        
+                        // Generate blog HTML
+                        const blogHtml = generateBlogHTML(blog, baseUrl);
+                        
+                        console.log(`✅ Serving blog HTML for: ${blog.title.substring(0, 50)}...`);
+                        
+                        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                        res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=1800');
+                        res.setHeader('X-SSR', 'true');
+                        res.setHeader('X-Blog-Id', blog._id.toString());
+                        
+                        return res.send(blogHtml);
+                        
+                    } catch (dbError) {
+                        console.error('❌ Database error:', dbError.message);
+                        // Fall back to normal React app on database error
+                    }
+                }
+            }
+            
+            // For other bot requests, use general SEO handling
             const htmlTemplate = readIndexHtml();
             
             // Get meta data for this route
