@@ -151,10 +151,10 @@ router.get("/sitemap.xml", async (req, res) => {
                 if (blog.slug && blog.slug.trim()) {
                     const escapedSlug = escapeXml(blog.slug.trim());
                     xml += `  <url>\n`;
-                    xml += `    <loc>${BASE_URL}/blog/${escapedSlug}</loc>\n`;
+                    xml += `    <loc>${BASE_URL}/blogs/${escapedSlug}</loc>\n`;
                     xml += `    <lastmod>${formatDate(blog.updatedAt)}</lastmod>\n`;
                     xml += `    <changefreq>monthly</changefreq>\n`;
-                    xml += `    <priority>0.6</priority>\n`;
+                    xml += `    <priority>0.8</priority>\n`;
                     xml += `  </url>\n`;
                 }
             });
@@ -394,7 +394,7 @@ router.get("/sitemap-blogs.xml", async (req, res) => {
                 const escapedSlug = escapeXml(blog.slug.trim());
                 xml += `
   <url>
-    <loc>${BASE_URL}/blog/${escapedSlug}</loc>
+    <loc>${BASE_URL}/blogs/${escapedSlug}</loc>
     <lastmod>${formatDate(blog.updatedAt)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
