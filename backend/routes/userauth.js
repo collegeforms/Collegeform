@@ -1,4 +1,3 @@
-// routes/auth.js
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -40,7 +39,7 @@ router.post("/check-phone", async (req, res) => {
 router.post("/send-login-otp", async (req, res) => {
   try {
     const { phone } = req.body;
-console.log(phone);
+    console.log("Send login OTP for phone:", phone);
 
     if (!phone) {
       return res.status(400).json({ message: "Phone number is required" });
@@ -98,40 +97,58 @@ console.log(phone);
   }
 });
 
-// Send OTP for signup (for new users)
+// Send OTP for signup (for new users) - FIXED VERSION
 router.post("/send-signup-otp", async (req, res) => {
   try {
     const { phone } = req.body;
-console.log(phone);
+    console.log("Send signup OTP for phone:", phone);
 
     if (!phone) {
       return res.status(400).json({ message: "Phone number is required" });
     }
 
-    // Check if user already exists
+    // Check if user already exists (with completed registration)
     const existingUser = await User.findOne({ phone });
-    if (existingUser && existingUser.name) {
+    if (existingUser && existingUser.name && existingUser.name.trim() !== '') {
       return res.status(400).json({ 
         message: "Phone number already registered. Please login instead." 
       });
     }
 
     // Check if OTP was sent recently (prevent spam)
+    const recentOtpUser = await User.findOne({ 
+      phone, 
+      lastOtpSent: { $gt: new Date(Date.now() - 2 * 60 * 1000) } // 2 minutes cooldown
+    });
+
+    if (recentOtpUser) {
+      return res.status(429).json({ 
+        message: "Please wait before requesting another OTP" 
+      });
+    }
 
     // Generate OTP
     const otp = generateOtp();
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    // Create temporary user or update OTP details
+    // Create temporary user or update OTP details - FIXED UPSERT
     await User.findOneAndUpdate(
       { phone },
       { 
         otp, 
         otpExpires, 
         lastOtpSent: new Date(),
-        isVerified: false
+        isVerified: false,
+        // Only set name if it doesn't exist (for resending OTP)
+        ...(!existingUser?.name && { name: "" }) // Empty name for temp users
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { 
+        upsert: true, 
+        new: true, 
+        setDefaultsOnInsert: true,
+        // Prevent email from being set during upsert
+        $setOnInsert: { email: undefined }
+      }
     );
 
     // Send OTP via SMS
@@ -147,6 +164,15 @@ console.log(phone);
     });
   } catch (error) {
     console.error("Send Signup OTP Error:", error);
+    
+    // Handle duplicate key error specifically
+    if (error.code === 11000) {
+      // Email duplicate key error - database needs cleanup
+      return res.status(500).json({ 
+        message: "Database error. Please contact support or try again later." 
+      });
+    }
+    
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -189,13 +215,18 @@ router.post("/verify-login-otp", async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
+        email: user.email || '',
         phone: user.phone,
-        city: user.city,
-        course: user.course,
-        dob: user.dob,
-        address: user.address,
-        education: user.education
+        city: user.city || '',
+        course: user.course || '',
+        dob: user.dob || '',
+        address: user.address || '',
+        education: user.education || '',
+        levelOfEducation: user.levelOfEducation || '',
+        coursePreferred: user.coursePreferred || '',
+        citiesPreferred: user.citiesPreferred || '',
+        collegeName: user.collegeName || '',
+        location: user.location || ''
       },
     });
   } catch (error) {
@@ -204,10 +235,10 @@ router.post("/verify-login-otp", async (req, res) => {
   }
 });
 
-// Verify OTP for signup and complete registration
+// Verify OTP for signup and complete registration - FIXED VERSION
 router.post("/verify-signup-otp", async (req, res) => {
   try {
-    const { phone, otp, name, email } = req.body;
+    const { phone, otp, name, email, levelOfEducation, coursePreferred, citiesPreferred, collegeName, location } = req.body;
 
     if (!phone || !otp || !name) {
       return res.status(400).json({ message: "Phone, OTP and name are required" });
@@ -225,11 +256,27 @@ router.post("/verify-signup-otp", async (req, res) => {
     }
 
     // Complete user registration
-    user.name = name;
-    user.email = email || '';
+    user.name = name.trim();
+    
+    // Handle email properly
+    if (email && email.trim() !== '') {
+      user.email = email.trim().toLowerCase();
+    } else {
+      // Set to undefined (not null) to avoid duplicate key errors
+      user.email = undefined;
+    }
+    
     user.otp = null;
     user.otpExpires = null;
     user.isVerified = true;
+    
+    // Add form fields
+    user.levelOfEducation = levelOfEducation || '';
+    user.coursePreferred = coursePreferred || '';
+    user.citiesPreferred = citiesPreferred || '';
+    user.collegeName = collegeName || '';
+    user.location = location || '';
+    
     await user.save();
 
     // Generate JWT
@@ -244,17 +291,27 @@ router.post("/verify-signup-otp", async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
+        email: user.email || '',
         phone: user.phone,
-        city: user.city,
-        course: user.course,
-        dob: user.dob,
-        address: user.address,
-        education: user.education
+        levelOfEducation: user.levelOfEducation || '',
+        coursePreferred: user.coursePreferred || '',
+        citiesPreferred: user.citiesPreferred || '',
+        collegeName: user.collegeName || '',
+        location: user.location || ''
       },
     });
   } catch (error) {
     console.error("Verify Signup OTP Error:", error);
+    
+    // Handle duplicate key error specifically
+    if (error.code === 11000) {
+      if (error.keyPattern && error.keyPattern.email) {
+        return res.status(400).json({ 
+          message: "Email already registered. Please use a different email or leave it empty." 
+        });
+      }
+    }
+    
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -327,7 +384,7 @@ router.post("/resend-signup-otp", async (req, res) => {
 
     // Check if user already exists (prevent signup OTP for existing users)
     const existingUser = await User.findOne({ phone });
-    if (existingUser && existingUser.name) {
+    if (existingUser && existingUser.name && existingUser.name.trim() !== '') {
       return res.status(400).json({ 
         message: "Phone number already registered. Please login instead." 
       });
@@ -356,6 +413,12 @@ router.post("/resend-signup-otp", async (req, res) => {
         otp, 
         otpExpires, 
         lastOtpSent: new Date() 
+      },
+      { 
+        upsert: true, 
+        new: true,
+        // Prevent email from being set during upsert
+        $setOnInsert: { email: undefined, name: "" }
       }
     );
 
@@ -376,7 +439,7 @@ router.post("/resend-signup-otp", async (req, res) => {
 // Edit Profile
 router.put('/edit-profile', authMiddleware, async (req, res) => {
     try {
-        const { name, email, phone, dob, address, education } = req.body;
+        const { name, email, phone, dob, address, education, levelOfEducation, coursePreferred, citiesPreferred } = req.body;
         const userId = req.user.id;
 
         // Find user by ID
@@ -387,11 +450,23 @@ router.put('/edit-profile', authMiddleware, async (req, res) => {
 
         // Update user fields
         if (name) user.name = name;
-        if (email) user.email = email;
+        
+        // Handle email update carefully
+        if (email !== undefined) {
+            if (email && email.trim() !== '') {
+                user.email = email.trim().toLowerCase();
+            } else {
+                user.email = undefined;
+            }
+        }
+        
         if (phone) user.phone = phone;
         if (dob) user.dob = new Date(dob);
         if (address) user.address = address;
         if (education) user.education = education;
+        if (levelOfEducation) user.levelOfEducation = levelOfEducation;
+        if (coursePreferred) user.coursePreferred = coursePreferred;
+        if (citiesPreferred) user.citiesPreferred = citiesPreferred;
 
         // Save updated user
         await user.save();
@@ -402,15 +477,26 @@ router.put('/edit-profile', authMiddleware, async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email,
+                email: user.email || '',
                 phone: user.phone,
                 dob: user.dob,
                 address: user.address,
-                education: user.education
+                education: user.education,
+                levelOfEducation: user.levelOfEducation,
+                coursePreferred: user.coursePreferred,
+                citiesPreferred: user.citiesPreferred
             }
         });
     } catch (error) {
         console.error("Profile update error:", error);
+        
+        // Handle duplicate key error
+        if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+            return res.status(400).json({ 
+                message: "Email already in use. Please use a different email." 
+            });
+        }
+        
         res.status(500).json({ message: "Error updating profile" });
     }
 });
@@ -432,11 +518,16 @@ router.get('/get-user', authMiddleware, async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email,
+                email: user.email || '',
                 phone: user.phone,
                 dob: user.dob,
                 address: user.address,
-                education: user.education
+                education: user.education,
+                levelOfEducation: user.levelOfEducation || '',
+                coursePreferred: user.coursePreferred || '',
+                citiesPreferred: user.citiesPreferred || '',
+                collegeName: user.collegeName || '',
+                location: user.location || ''
             }
         });
     } catch (error) {
