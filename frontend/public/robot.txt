@@ -5,7 +5,7 @@ Disallow: /wp-login.php
 Disallow: /cgi-bin/
 
 # Block specific URL parameters (optional)
-Disallow: /?*utm_
+Allow: / 
 
 # Sitemap location
 Sitemap: https://www.collegeforms.in/sitemap.xml 

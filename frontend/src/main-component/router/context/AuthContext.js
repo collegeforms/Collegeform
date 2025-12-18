@@ -137,105 +137,97 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Send OTP for signup - FIXED VERSION
-  const sendSignupOtp = async (phone) => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("Sending signup OTP to:", phone);
-      
-      const response = await fetch(`${API_URL}/api/auth/send-signup-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ phone }),
-      });
+// Send OTP for signup - UPDATED VERSION
+const sendSignupOtp = async (formData) => {
+  setLoading(true);
+  setError(null);
+  try {
+    console.log("Sending signup OTP with form data:", formData);
+    
+    const response = await fetch(`${API_URL}/api/auth/send-signup-otp`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phone: formData.phone,
+        name: formData.name,
+        email: formData.email,
+        levelOfEducation: formData.levelOfEducation,
+        coursePreferred: formData.coursePreferred,
+        citiesPreferred: formData.citiesPreferred,
+        collegeName: formData.collegeName,
+        location: formData.location
+      }),
+    });
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to send OTP");
-      }
-
-      setOtpSent(true);
-      setOtpPhone(phone);
-      setOtpPurpose("signup");
-      startResendTimer();
-      
-      console.log("Signup OTP sent successfully");
-      return { success: true, message: data.message };
-    } catch (error) {
-      console.error("Error sending signup OTP:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to send OTP");
     }
-  };
 
-  // Verify OTP for signup - FIXED VERSION
-  const verifySignupOtp = async (formData, otp) => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("Verifying OTP for signup:", { phone: otpPhone, otp, formData });
-      
-      // Prepare the request payload
-      const payload = {
+    setOtpSent(true);
+    setOtpPhone(formData.phone);
+    setOtpPurpose("signup");
+    startResendTimer();
+    
+    console.log("Signup OTP sent successfully");
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error("Error sending signup OTP:", error);
+    setError(error.message);
+    return { success: false, error: error.message };
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Update verifySignupOtp to be simpler since name is already saved:
+const verifySignupOtp = async (otp) => {
+  setLoading(true);
+  setError(null);
+  try {
+    console.log("Verifying OTP for signup:", { phone: otpPhone, otp });
+    
+    const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
         phone: otpPhone,
-        otp: otp,
-        name: formData.name.trim(),
-        levelOfEducation: formData.levelOfEducation || '',
-        coursePreferred: formData.coursePreferred || '',
-        citiesPreferred: formData.citiesPreferred || '',
-        collegeName: formData.collegeName || 'Multiple Colleges',
-        location: formData.location || 'Multiple Locations'
-      };
+        otp: otp
+      }),
+    });
 
-      // Only add email if it's a valid non-empty string
-      if (formData.email && formData.email.trim() !== '') {
-        payload.email = formData.email.trim();
-      }
-      // If email is empty/null/undefined, don't send it at all
-      // This allows backend to keep email as undefined
-
-      console.log("Sending signup payload:", payload);
-      
-      const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "OTP verification failed");
-      }
-
-      // Save user data to localStorage
-      localStorage.setItem("userToken", data.token);
-      localStorage.setItem("userInfo", JSON.stringify(data.user));
-      
-      // Update state
-      setUser({ token: data.token, info: data.user });
-      setOtpSent(false);
-      setOtpPhone("");
-      setOtpPurpose("");
-      setResendTimer(0);
-      
-      console.log("OTP verified successfully, user logged in:", data.user);
-      return { success: true, user: data.user };
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || "OTP verification failed");
     }
-  };
+
+    // Save user data to localStorage
+    localStorage.setItem("userToken", data.token);
+    localStorage.setItem("userInfo", JSON.stringify(data.user));
+    
+    // Update state
+    setUser({ token: data.token, info: data.user });
+    setOtpSent(false);
+    setOtpPhone("");
+    setOtpPurpose("");
+    setResendTimer(0);
+    
+    console.log("OTP verified successfully, user logged in:", data.user);
+    return { success: true, user: data.user };
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    setError(error.message);
+    return { success: false, error: error.message };
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Resend OTP - FIXED VERSION
   const resendOtp = async () => {
