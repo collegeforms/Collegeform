@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const API_URL = "https://www.collegeforms.in";
+    const API_URL = "http://localhost:5000";
   
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
@@ -138,12 +138,17 @@ export const AuthProvider = ({ children }) => {
 
   // Send OTP for signup - FIXED VERSION
 // Send OTP for signup - UPDATED VERSION
+// In AuthContext.js - This is already correct:
+// In AuthContext.js - Update the sendSignupOtp function:
+
+// Send OTP for signup
 const sendSignupOtp = async (formData) => {
   setLoading(true);
   setError(null);
   try {
     console.log("Sending signup OTP with form data:", formData);
     
+    // Send ALL form data to backend
     const response = await fetch(`${API_URL}/api/auth/send-signup-otp`, {
       method: "POST",
       headers: { 
@@ -152,12 +157,8 @@ const sendSignupOtp = async (formData) => {
       body: JSON.stringify({
         phone: formData.phone,
         name: formData.name,
-        email: formData.email,
-        levelOfEducation: formData.levelOfEducation,
-        coursePreferred: formData.coursePreferred,
-        citiesPreferred: formData.citiesPreferred,
-        collegeName: formData.collegeName,
-        location: formData.location
+        email: formData.email
+        // Add other fields if you have them in your form
       }),
     });
 
@@ -183,13 +184,14 @@ const sendSignupOtp = async (formData) => {
   }
 };
 
-// Update verifySignupOtp to be simpler since name is already saved:
+// Verify OTP for signup
 const verifySignupOtp = async (otp) => {
   setLoading(true);
   setError(null);
   try {
     console.log("Verifying OTP for signup:", { phone: otpPhone, otp });
     
+    // Send only phone and OTP for verification
     const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
       method: "POST",
       headers: { 
@@ -218,7 +220,7 @@ const verifySignupOtp = async (otp) => {
     setOtpPurpose("");
     setResendTimer(0);
     
-    console.log("OTP verified successfully, user logged in:", data.user);
+    console.log("Registration completed, user logged in:", data.user);
     return { success: true, user: data.user };
   } catch (error) {
     console.error("Error verifying OTP:", error);
@@ -228,6 +230,9 @@ const verifySignupOtp = async (otp) => {
     setLoading(false);
   }
 };
+
+// Update verifySignupOtp to be simpler since name is already saved:
+
 
   // Resend OTP - FIXED VERSION
   const resendOtp = async () => {

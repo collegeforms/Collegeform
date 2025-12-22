@@ -97,14 +97,25 @@ router.post("/send-login-otp", async (req, res) => {
   }
 });
 
-// Send OTP for signup (for new users) - FIXED VERSION
+// Send OTP for signup (save all data immediately)
 router.post("/send-signup-otp", async (req, res) => {
   try {
-    const { phone } = req.body;
-    console.log("Send signup OTP for phone:", phone);
+    console.log("Received signup OTP request body:", req.body);
+    
+    const { 
+      phone, 
+      name, 
+      email 
+    } = req.body;
+    
+    console.log("Send signup OTP with data:", { phone, name, email });
 
     if (!phone) {
       return res.status(400).json({ message: "Phone number is required" });
+    }
+
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
     }
 
     // Check if user already exists (with completed registration)
@@ -131,25 +142,31 @@ router.post("/send-signup-otp", async (req, res) => {
     const otp = generateOtp();
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    // Create temporary user or update OTP details - FIXED UPSERT
+    // Create or update user with ALL data
+    const updateData = {
+      name: name.trim(),
+      otp,
+      otpExpires,
+      lastOtpSent: new Date(),
+      isVerified: false
+    };
+
+    // Add email if provided
+    if (email && email.trim() !== '') {
+      updateData.email = email.trim().toLowerCase();
+    }
+
     await User.findOneAndUpdate(
       { phone },
-      { 
-        otp, 
-        otpExpires, 
-        lastOtpSent: new Date(),
-        isVerified: false,
-        // Only set name if it doesn't exist (for resending OTP)
-        ...(!existingUser?.name && { name: "" }) // Empty name for temp users
-      },
+      updateData,
       { 
         upsert: true, 
-        new: true, 
-        setDefaultsOnInsert: true,
-        // Prevent email from being set during upsert
-        $setOnInsert: { email: undefined }
+        new: true,
+        setDefaultsOnInsert: true
       }
     );
+
+    console.log("OTP generated and user data saved:", { phone, otp });
 
     // Send OTP via SMS
     const smsSent = await sendSmsOtp(phone, otp);
@@ -167,9 +184,13 @@ router.post("/send-signup-otp", async (req, res) => {
     
     // Handle duplicate key error specifically
     if (error.code === 11000) {
-      // Email duplicate key error - database needs cleanup
+      if (error.keyPattern && error.keyPattern.email) {
+        return res.status(400).json({ 
+          message: "Email already registered. Please use a different email." 
+        });
+      }
       return res.status(500).json({ 
-        message: "Database error. Please contact support or try again later." 
+        message: "Database error. Please try again." 
       });
     }
     
@@ -235,13 +256,13 @@ router.post("/verify-login-otp", async (req, res) => {
   }
 });
 
-// Verify OTP for signup and complete registration - FIXED VERSION
+// Verify OTP for signup (just verify OTP, data already saved)
 router.post("/verify-signup-otp", async (req, res) => {
   try {
-    const { phone, otp, name, email, levelOfEducation, coursePreferred, citiesPreferred, collegeName, location } = req.body;
+    const { phone, otp } = req.body;
 
-    if (!phone || !otp || !name) {
-      return res.status(400).json({ message: "Phone, OTP and name are required" });
+    if (!phone || !otp) {
+      return res.status(400).json({ message: "Phone and OTP are required" });
     }
 
     // Find user with matching OTP
@@ -255,28 +276,10 @@ router.post("/verify-signup-otp", async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    // Complete user registration
-    user.name = name.trim();
-    
-    // Handle email properly
-    if (email && email.trim() !== '') {
-      user.email = email.trim().toLowerCase();
-    } else {
-      // Set to undefined (not null) to avoid duplicate key errors
-      user.email = undefined;
-    }
-    
+    // Just verify and activate user (data already saved)
     user.otp = null;
     user.otpExpires = null;
     user.isVerified = true;
-    
-    // Add form fields
-    user.levelOfEducation = levelOfEducation || '';
-    user.coursePreferred = coursePreferred || '';
-    user.citiesPreferred = citiesPreferred || '';
-    user.collegeName = collegeName || '';
-    user.location = location || '';
-    
     await user.save();
 
     // Generate JWT
@@ -302,16 +305,6 @@ router.post("/verify-signup-otp", async (req, res) => {
     });
   } catch (error) {
     console.error("Verify Signup OTP Error:", error);
-    
-    // Handle duplicate key error specifically
-    if (error.code === 11000) {
-      if (error.keyPattern && error.keyPattern.email) {
-        return res.status(400).json({ 
-          message: "Email already registered. Please use a different email or leave it empty." 
-        });
-      }
-    }
-    
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -406,19 +399,13 @@ router.post("/resend-signup-otp", async (req, res) => {
     const otp = generateOtp();
     const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    // Update OTP details
+    // Update OTP details (don't change name/email on resend)
     await User.findOneAndUpdate(
       { phone },
       { 
         otp, 
         otpExpires, 
         lastOtpSent: new Date() 
-      },
-      { 
-        upsert: true, 
-        new: true,
-        // Prevent email from being set during upsert
-        $setOnInsert: { email: undefined, name: "" }
       }
     );
 

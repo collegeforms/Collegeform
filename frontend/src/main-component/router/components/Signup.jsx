@@ -45,76 +45,84 @@ const Signup = () => {
     });
   };
 
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    setLocalError("");
-    setSuccessMessage("");
-    clearError();
-    
-    // Validation
-    if (!formData.name) {
-      setLocalError("Name is required");
-      return;
-    }
-    
-    if (!formData.phone || formData.phone.length !== 10) {
-      setLocalError("Please enter a valid 10-digit phone number");
-      return;
-    }
+// In Signup.js - Add debug logging to see what's being sent:
 
-    if (!/^\d+$/.test(formData.phone)) {
-      setLocalError("Phone number should contain only digits");
-      return;
-    }
+const handleSendOtp = async (e) => {
+  e.preventDefault();
+  setLocalError("");
+  setSuccessMessage("");
+  clearError();
+  
+  // Validation
+  if (!formData.name) {
+    setLocalError("Name is required");
+    return;
+  }
+  
+  if (!formData.phone || formData.phone.length !== 10) {
+    setLocalError("Please enter a valid 10-digit phone number");
+    return;
+  }
 
-    // Email validation - NEW
-    if (!formData.email) {
-      setLocalError("Email address is required");
-      return;
-    }
+  if (!/^\d+$/.test(formData.phone)) {
+    setLocalError("Phone number should contain only digits");
+    return;
+  }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setLocalError("Please enter a valid email address");
-      return;
-    }
+  // Email validation
+  if (!formData.email) {
+    setLocalError("Email address is required");
+    return;
+  }
 
-    // Send OTP for signup
-    const result = await sendSignupOtp(formData.phone);
-    
-    if (result.success) {
-      setSuccessMessage(`OTP sent successfully to ${formData.phone}`);
-    } else {
-      setLocalError(result.error || "Failed to send OTP. Please try again.");
-    }
-  };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    setLocalError("Please enter a valid email address");
+    return;
+  }
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setLocalError("");
-    setSuccessMessage("");
-    clearError();
-    
-    if (!otp || otp.length !== 6) {
-      setLocalError("Please enter a valid 6-digit OTP");
-      return;
-    }
+  // Debug: Show what's being sent
+  console.log("Form data being sent:", formData);
+  console.log("Is form valid?", isFormValid);
 
-    if (!/^\d+$/.test(otp)) {
-      setLocalError("OTP should contain only digits");
-      return;
-    }
+  // Send OTP for signup
+  const result = await sendSignupOtp(formData);
+  
+  if (result.success) {
+    setSuccessMessage(`OTP sent successfully to ${formData.phone}`);
+  } else {
+    setLocalError(result.error || "Failed to send OTP. Please try again.");
+  }
+};
 
-    const result = await verifySignupOtp(formData, otp);
-    
-    if (result.success) {
-      setSuccessMessage("Account created successfully! Redirecting...");
-      setTimeout(() => {
-        navigate(from, { replace: true });
-      }, 1000);
-    } else {
-      setLocalError(result.error || "Invalid OTP. Please try again.");
-    }
-  };
+ // In Signup.js - Update the handleVerifyOtp function:
+const handleVerifyOtp = async (e) => {
+  e.preventDefault();
+  setLocalError("");
+  setSuccessMessage("");
+  clearError();
+  
+  if (!otp || otp.length !== 6) {
+    setLocalError("Please enter a valid 6-digit OTP");
+    return;
+  }
+
+  if (!/^\d+$/.test(otp)) {
+    setLocalError("OTP should contain only digits");
+    return;
+  }
+
+  // Now only passing OTP (formData already saved)
+  const result = await verifySignupOtp(otp);
+  
+  if (result.success) {
+    setSuccessMessage("Account created successfully! Redirecting...");
+    setTimeout(() => {
+      navigate(from, { replace: true });
+    }, 1000);
+  } else {
+    setLocalError(result.error || "Invalid OTP. Please try again.");
+  }
+};
 
   const handleResendOtp = async () => {
     setLocalError("");
