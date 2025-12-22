@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -21,7 +21,7 @@ import {
 
 const Adminusers = () => {
   const API_URL = "https://www.collegeforms.in";  
-  const { admin, logoutAdmin } = useContext(AuthContext);
+  const { admin } = useContext(AuthContext);
   const token = localStorage.getItem("adminToken");
 
   const navigate = useNavigate();
@@ -32,7 +32,15 @@ const Adminusers = () => {
   const [remark, setRemark] = useState("");
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [selectedUserHistory, setSelectedUserHistory] = useState([]);
-  const [activeHistoryTab, setActiveHistoryTab] = useState("colleges"); // "colleges" or "searches"
+  const [activeHistoryTab, setActiveHistoryTab] = useState("colleges");
+
+  // Helper function to get timestamp from MongoDB ObjectId
+  const getTimestampFromObjectId = (objectId) => {
+    if (!objectId) return 0;
+    const idString = objectId.toString();
+    // Extract timestamp from ObjectId (first 8 characters)
+    return parseInt(idString.substring(0, 8), 16) * 1000;
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -47,7 +55,15 @@ const Adminusers = () => {
 
         const data = await response.json();
         if (!response.ok) throw new Error(data.message);
-        setUsers(data);
+        
+        // Sort users by createdAt in descending order (newest first)
+        const sortedUsers = data.sort((a, b) => {
+          const dateA = new Date(a.createdAt || (a._id ? getTimestampFromObjectId(a._id) : 0));
+          const dateB = new Date(b.createdAt || (b._id ? getTimestampFromObjectId(b._id) : 0));
+          return dateB - dateA; // For descending order (newest first)
+        });
+        
+        setUsers(sortedUsers);
       } catch (error) {
         console.error("Error fetching users:", error.message);
       }
@@ -55,6 +71,20 @@ const Adminusers = () => {
 
     fetchUsers();
   }, [admin, navigate, token]);
+
+  // Sort users in reverse order using useMemo for better performance
+  const sortedUsers = useMemo(() => {
+    return [...users].sort((a, b) => {
+      const dateA = new Date(a.createdAt || (a._id ? getTimestampFromObjectId(a._id) : 0));
+      const dateB = new Date(b.createdAt || (b._id ? getTimestampFromObjectId(b._id) : 0));
+      return dateB - dateA; // Newest first
+    });
+  }, [users]);
+
+  // Filter sorted users
+  const filteredUsers = filteredStatus === "All" 
+    ? sortedUsers 
+    : sortedUsers.filter(user => user.status === filteredStatus);
 
   const fetchUserSearchHistory = async (userId) => {
     try {
@@ -89,8 +119,6 @@ const Adminusers = () => {
     // Sort by last viewed date (newest first)
     return collegeViews.sort((a, b) => new Date(b.lastViewedAt || b.viewedAt) - new Date(a.lastViewedAt || a.viewedAt));
   };
-
-  const filteredUsers = filteredStatus === "All" ? users : users.filter(user => user.status === filteredStatus);
 
   const changeStatus = async (userId, newStatus) => {
     try {
@@ -182,6 +210,7 @@ const Adminusers = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>#</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
@@ -189,41 +218,54 @@ const Adminusers = () => {
               <TableCell>Action</TableCell>
               <TableCell>Remark</TableCell>
               <TableCell>Search History</TableCell>
+              <TableCell>Joined Date</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredUsers.map((user) => (
-              <TableRow key={user._id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>
-                  <Box sx={{
-                    display: "inline-block",
-                    padding: "4px 10px",
-                    borderRadius: "4px",
-                    backgroundColor: user.status === "Complete" ? "#28a745" : "#dc3545",
-                    color: "#fff"
-                  }}>
-                    {user.status}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <FormControlLabel
-                    control={<Switch checked={user.status === "Complete"} onChange={() => handleSwitchChange(user._id, user.status)} color="primary" />}
-                    label={user.status === "Complete" ? "Complete" : "Pending"}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button variant="outlined" onClick={() => handleOpenModal(user)}>Remark</Button>
-                </TableCell>
-                <TableCell>
-                  <Button variant="outlined" onClick={() => fetchUserSearchHistory(user._id)}>
-                    View History
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {filteredUsers.map((user, index) => {
+              // Get creation date
+              const createdAt = user.createdAt || (user._id ? getTimestampFromObjectId(user._id) : null);
+              const joinDate = createdAt ? new Date(createdAt).toLocaleDateString() : "N/A";
+              
+              return (
+                <TableRow key={user._id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.phone}</TableCell>
+                  <TableCell>
+                    <Box sx={{
+                      display: "inline-block",
+                      padding: "4px 10px",
+                      borderRadius: "4px",
+                      backgroundColor: user.status === "Complete" ? "#28a745" : "#dc3545",
+                      color: "#fff"
+                    }}>
+                      {user.status}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <FormControlLabel
+                      control={<Switch checked={user.status === "Complete"} onChange={() => handleSwitchChange(user._id, user.status)} color="primary" />}
+                      label={user.status === "Complete" ? "Complete" : "Pending"}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outlined" onClick={() => handleOpenModal(user)}>Remark</Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outlined" onClick={() => fetchUserSearchHistory(user._id)}>
+                      View History
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color="text.secondary">
+                      {joinDate}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
