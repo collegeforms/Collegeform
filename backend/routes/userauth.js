@@ -491,7 +491,7 @@ router.put('/edit-profile', authMiddleware, async (req, res) => {
 // Get User Data
 router.get('/get-user', authMiddleware, async (req, res) => {
     try {
-        const userId = req.user._id;
+          const userId = req.user.id || req.user._id;
 
         // Find user by ID
         const user = await User.findById(userId);
