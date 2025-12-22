@@ -73,9 +73,16 @@ const Requestcallback = () => {
         data = response.data;
       }
       
-      console.log("Extracted callbacks data:", data);
-      setCallbacks(data);
-      setFilteredCallbacks(data);
+      // Sort by createdAt date newest first
+      const sortedData = data.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.created_at || Date.now());
+        const dateB = new Date(b.createdAt || b.created_at || Date.now());
+        return dateB - dateA; // Newest first
+      });
+      
+      console.log("Extracted callbacks data:", sortedData);
+      setCallbacks(sortedData);
+      setFilteredCallbacks(sortedData);
     } catch (error) {
       console.error("Error fetching callbacks:", error);
       Swal.fire("Error!", "Failed to fetch callback requests.", "error");
@@ -120,7 +127,14 @@ const Requestcallback = () => {
       if (result.isConfirmed) {
         try {
           await axios.delete(`${API_URL}/api/callbacks/${id}`);
-          setCallbacks(callbacks.filter((callback) => callback._id !== id));
+          // Update local state and re-sort
+          const updatedCallbacks = callbacks.filter((callback) => callback._id !== id);
+          const sortedCallbacks = updatedCallbacks.sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.created_at || Date.now());
+            const dateB = new Date(b.createdAt || b.created_at || Date.now());
+            return dateB - dateA; // Newest first
+          });
+          setCallbacks(sortedCallbacks);
           Swal.fire("Deleted!", "The callback request has been deleted.", "success");
         } catch (error) {
           console.error("Error deleting callback:", error);
@@ -142,9 +156,16 @@ const Requestcallback = () => {
   const handleStatusUpdate = async (id, newStatus) => {
     try {
       await axios.put(`${API_URL}/api/callbacks/${id}`, { status: newStatus });
-      setCallbacks(callbacks.map(callback => 
+      // Update local state and re-sort
+      const updatedCallbacks = callbacks.map(callback => 
         callback._id === id ? { ...callback, status: newStatus } : callback
-      ));
+      );
+      const sortedCallbacks = updatedCallbacks.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.created_at || Date.now());
+        const dateB = new Date(b.createdAt || b.created_at || Date.now());
+        return dateB - dateA; // Newest first
+      });
+      setCallbacks(sortedCallbacks);
       Swal.fire("Updated!", "Status updated successfully.", "success");
     } catch (error) {
       console.error("Error updating status:", error);
@@ -168,7 +189,7 @@ const Requestcallback = () => {
   return (
     <Box sx={{ padding: "20px", backgroundColor: "#F1F5FB", minHeight: "100vh" }}>
       <Typography variant="h4" sx={{ marginBottom: "20px", color: "#564BD5" }}>
-        Callback Requests
+        Callback Requests (Newest First)
       </Typography>
 
       {/* Search Box and Stats */}
@@ -233,7 +254,7 @@ const Requestcallback = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: "#564BD5" }}>
-                  {["#", "Name", "Contact", "Email", "Category", "Inquiry", "Status", "Date", "Actions"].map((header) => (
+                  {["#", "Name", "Contact", "Email", "Category", "Inquiry", "Status", "Date (Newest First)", "Actions"].map((header) => (
                     <TableCell key={header} align="center">
                       <Typography sx={{ fontWeight: "bold", color: "#fff" }}>{header}</Typography>
                     </TableCell>
@@ -382,7 +403,7 @@ const Requestcallback = () => {
                   variant="outlined"
                 />
                 <TextField
-                  label="Submission Date"
+                  label="Submission Date (Newest First)"
                   value={formatDate(selectedCallback.createdAt)}
                   InputProps={{ readOnly: true }}
                   fullWidth

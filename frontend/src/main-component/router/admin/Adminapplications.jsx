@@ -18,8 +18,11 @@ import {
 import axios from 'axios';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+// Extend dayjs with relativeTime plugin
+dayjs.extend(relativeTime);
 
 const AdminApplications = () => {
   const API_URL = "https://www.collegeforms.in";
@@ -60,7 +63,15 @@ const AdminApplications = () => {
           'Authorization': `Bearer ${adminToken}`
         }
       });
-      setApplications(response.data);
+      
+      // Sort applications newest first by createdAt date
+      const sortedApplications = response.data.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.appliedDate || Date.now());
+        const dateB = new Date(b.createdAt || b.appliedDate || Date.now());
+        return dateB - dateA; // Newest first
+      });
+      
+      setApplications(sortedApplications);
     } catch (err) {
       console.error('Error fetching applications:', err);
       setError('Failed to fetch applications data');
@@ -103,7 +114,14 @@ const AdminApplications = () => {
         return app;
       });
 
-      setApplications(updatedApplications);
+      // Re-sort applications after update (newest first)
+      const sortedUpdatedApplications = updatedApplications.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.appliedDate || Date.now());
+        const dateB = new Date(b.createdAt || b.appliedDate || Date.now());
+        return dateB - dateA; // Newest first
+      });
+
+      setApplications(sortedUpdatedApplications);
       setStatusDialogOpen(false);
       setStatusUpdate({ status: 'pending', remarks: '' });
     } catch (err) {
@@ -204,7 +222,7 @@ const AdminApplications = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return dayjs(dateString).format('DD MMM YYYY');
+    return dayjs(dateString).format('DD MMM YYYY, hh:mm A');
   };
 
   if (loading) {
@@ -231,7 +249,7 @@ const AdminApplications = () => {
         <AppBar position="static" color="default" elevation={1} sx={{ mb: 3 }}>
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Applications Management
+              Applications Management (Newest First)
             </Typography>
             <Typography variant="body2" color="textSecondary">
               Total: {applications.length} applications
@@ -336,7 +354,7 @@ const AdminApplications = () => {
                 <TableCell>Email</TableCell>
                 <TableCell>Course</TableCell>
                 <TableCell>Colleges</TableCell>
-                <TableCell>Applied Date</TableCell>
+                <TableCell>Applied Date (Newest First)</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -384,7 +402,17 @@ const AdminApplications = () => {
                       })}
                     </Box>
                   </TableCell>
-                  <TableCell>{formatDate(application.createdAt)}</TableCell>
+                  <TableCell>
+                    <Box>
+                      <Typography variant="body2">
+                        {formatDate(application.createdAt)}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        {/* Safely check if fromNow function exists */}
+                        {dayjs(application.createdAt).fromNow ? dayjs(application.createdAt).fromNow() : ''}
+                      </Typography>
+                    </Box>
+                  </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <Tooltip title="View Details">
