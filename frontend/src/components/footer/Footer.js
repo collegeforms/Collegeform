@@ -108,8 +108,8 @@ const Footer = (props) => {
 </li>
 <li className="mt-3">
   Phone:{" "}
-  <a href="tel:+919826667279" style={{ color: "inherit", textDecoration: "none" }}>
-    +91-9826667279
+  <a href="tel:+919575444470" style={{ color: "inherit", textDecoration: "none" }}>
+    +91-9575444470
   </a>
 </li>
 
