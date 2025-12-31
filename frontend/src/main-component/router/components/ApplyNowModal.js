@@ -170,7 +170,7 @@ const ApplyNowModal = ({ open, handleClose, collegeName, collegeLocation }) => {
       console.log("Saving preferences:", preferencesData);
 
       // Try to save preferences to backend
-      const response = await fetch("http://localhost:5000/api/user/preferences", { // Updated URL
+      const response = await fetch("https://www.collegeforms.in/api/user/preferences", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -259,8 +259,10 @@ const ApplyNowModal = ({ open, handleClose, collegeName, collegeLocation }) => {
       }
     }
 
-    console.log("Sending OTP for phone:", formData.phone);
-    const result = await sendSignupOtp(formData.phone);
+    console.log("Sending OTP with form data:", formData);
+    
+    // Pass the entire formData object to sendSignupOtp
+    const result = await sendSignupOtp(formData);
     setIsLoading(false);
     
     if (result.success) {
@@ -297,7 +299,8 @@ const ApplyNowModal = ({ open, handleClose, collegeName, collegeLocation }) => {
     console.log("Verifying OTP:", otp, "for phone:", formData.phone);
     console.log("Form data to be saved:", formData);
     
-    const result = await verifySignupOtp(formData, otp);
+    // Pass the OTP only to verifySignupOtp
+    const result = await verifySignupOtp(otp);
     
     if (result.success) {
       console.log("OTP verified successfully, saving preferences");
@@ -318,6 +321,14 @@ const ApplyNowModal = ({ open, handleClose, collegeName, collegeLocation }) => {
   const handleResendOtp = async () => {
     setFormError("");
     clearError(); // Clear auth context error
+    
+    // Create a minimal object with just phone for resending
+    const resendData = {
+      phone: formData.phone,
+      name: formData.name,
+      email: formData.email
+    };
+    
     const result = await resendOtp();
     if (!result.success && result.error) {
       setFormError(result.error);

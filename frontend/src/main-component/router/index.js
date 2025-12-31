@@ -70,6 +70,7 @@ import Admincourseexams from './admin/Admincourseexams.js';
 import BannerInquiry from './admin/BannerInquiry.jsx';
 import ExamEnquiries from './admin/ExamEnquiries.jsx';
 import DefaultSEO from '../../components/DefaultSEO.jsx';
+import Universalform from './components/Universalform.jsx';
 const AllRoute = () => {
   const theme = createTheme();
 
@@ -136,6 +137,7 @@ const AllRoute = () => {
             <Route path="/education/education-loan" element={<Educationloan />} />
             <Route path="/education/accommodation" element={<Accommodation />} />
             <Route path="/CompetitiveExams" element={<CompetitiveExams />} />
+            <Route path="/universal-form" element={<Universalform />} />
 
             <Route path="/cart" element={<CartPage />} />
             <Route path="/studyabroad" element={<PrivacyPage />} />
