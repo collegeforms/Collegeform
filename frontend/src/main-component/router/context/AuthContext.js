@@ -1,11 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const API_URL = "https://www.collegeforms.in";
-  const navigate = useNavigate();
+    const API_URL = "https://www.collegeforms.in";
   
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
@@ -138,110 +136,105 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Send OTP for signup
-  const sendSignupOtp = async (formData) => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("Sending signup OTP with form data:", formData);
-      
-      // Send ALL form data to backend
-      const response = await fetch(`${API_URL}/api/auth/send-signup-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phone: formData.phone,
-          name: formData.name,
-          email: formData.email
-          // Add other fields if you have them in your form
-        }),
-      });
+  // Send OTP for signup - FIXED VERSION
+// Send OTP for signup - UPDATED VERSION
+// In AuthContext.js - This is already correct:
+// In AuthContext.js - Update the sendSignupOtp function:
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to send OTP");
-      }
+// Send OTP for signup
+const sendSignupOtp = async (formData) => {
+  setLoading(true);
+  setError(null);
+  try {
+    console.log("Sending signup OTP with form data:", formData);
+    
+    // Send ALL form data to backend
+    const response = await fetch(`${API_URL}/api/auth/send-signup-otp`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phone: formData.phone,
+        name: formData.name,
+        email: formData.email
+        // Add other fields if you have them in your form
+      }),
+    });
 
-      setOtpSent(true);
-      setOtpPhone(formData.phone);
-      setOtpPurpose("signup");
-      startResendTimer();
-      
-      console.log("Signup OTP sent successfully");
-      return { success: true, message: data.message };
-    } catch (error) {
-      console.error("Error sending signup OTP:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to send OTP");
     }
-  };
 
-  // Verify OTP for signup with Google Ads conversion tracking
-  const verifySignupOtp = async (otp) => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("Verifying OTP for signup:", { phone: otpPhone, otp });
-      
-      // Send only phone and OTP for verification
-      const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          phone: otpPhone,
-          otp: otp
-        }),
-      });
+    setOtpSent(true);
+    setOtpPhone(formData.phone);
+    setOtpPurpose("signup");
+    startResendTimer();
+    
+    console.log("Signup OTP sent successfully");
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error("Error sending signup OTP:", error);
+    setError(error.message);
+    return { success: false, error: error.message };
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "OTP verification failed");
-      }
+// Verify OTP for signup
+const verifySignupOtp = async (otp) => {
+  setLoading(true);
+  setError(null);
+  try {
+    console.log("Verifying OTP for signup:", { phone: otpPhone, otp });
+    
+    // Send only phone and OTP for verification
+    const response = await fetch(`${API_URL}/api/auth/verify-signup-otp`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        phone: otpPhone,
+        otp: otp
+      }),
+    });
 
-      // Save user data to localStorage
-      localStorage.setItem("userToken", data.token);
-      localStorage.setItem("userInfo", JSON.stringify(data.user));
-      
-      // Update state
-      setUser({ token: data.token, info: data.user });
-      setOtpSent(false);
-      setOtpPhone("");
-      setOtpPurpose("");
-      setResendTimer(0);
-      
-      console.log("Registration completed, user logged in:", data.user);
-      
-      // 🔴 GOOGLE ADS CONVERSION TRACKING - SIGNUP SUCCESS
-      // Track signup conversion only once per session
-      if (response?.status === 200 && !localStorage.getItem('signup_conversion')) {
-        if (typeof window !== 'undefined' && window.gtag) {
-          window.gtag('event', 'conversion', {
-            send_to: 'AW-17353115810/nEF_CN-g_94bFKKRztJA'
-          });
-          console.log('Google Ads conversion tracked: Signup completed');
-        }
-        localStorage.setItem('signup_conversion', 'true');
-      }
-      
-      return { success: true, user: data.user };
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || "OTP verification failed");
     }
-  };
 
-  // Resend OTP
+    // Save user data to localStorage
+    localStorage.setItem("userToken", data.token);
+    localStorage.setItem("userInfo", JSON.stringify(data.user));
+    
+    // Update state
+    setUser({ token: data.token, info: data.user });
+    setOtpSent(false);
+    setOtpPhone("");
+    setOtpPurpose("");
+    setResendTimer(0);
+    
+    console.log("Registration completed, user logged in:", data.user);
+    return { success: true, user: data.user };
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    setError(error.message);
+    return { success: false, error: error.message };
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Update verifySignupOtp to be simpler since name is already saved:
+
+
+  // Resend OTP - FIXED VERSION
   const resendOtp = async () => {
     if (resendTimer > 0) {
       const errorMsg = `Please wait ${resendTimer} seconds before resending OTP`;
@@ -358,7 +351,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userToken");
     localStorage.removeItem("userInfo");
     localStorage.removeItem("adminToken");
-    localStorage.removeItem("signup_conversion"); // Clear conversion flag on logout
     setUser(null);
     setAdmin(null);
     setOtpSent(false);

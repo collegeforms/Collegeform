@@ -45,84 +45,103 @@ const Signup = () => {
     });
   };
 
-// In Signup.js - Add debug logging to see what's being sent:
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    setLocalError("");
+    setSuccessMessage("");
+    clearError();
+    
+    // Validation
+    if (!formData.name) {
+      setLocalError("Name is required");
+      return;
+    }
+    
+    if (!formData.phone || formData.phone.length !== 10) {
+      setLocalError("Please enter a valid 10-digit phone number");
+      return;
+    }
 
-const handleSendOtp = async (e) => {
-  e.preventDefault();
-  setLocalError("");
-  setSuccessMessage("");
-  clearError();
-  
-  // Validation
-  if (!formData.name) {
-    setLocalError("Name is required");
-    return;
-  }
-  
-  if (!formData.phone || formData.phone.length !== 10) {
-    setLocalError("Please enter a valid 10-digit phone number");
-    return;
-  }
+    if (!/^\d+$/.test(formData.phone)) {
+      setLocalError("Phone number should contain only digits");
+      return;
+    }
 
-  if (!/^\d+$/.test(formData.phone)) {
-    setLocalError("Phone number should contain only digits");
-    return;
-  }
+    // Email validation
+    if (!formData.email) {
+      setLocalError("Email address is required");
+      return;
+    }
 
-  // Email validation
-  if (!formData.email) {
-    setLocalError("Email address is required");
-    return;
-  }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setLocalError("Please enter a valid email address");
+      return;
+    }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-    setLocalError("Please enter a valid email address");
-    return;
-  }
+    // Debug: Show what's being sent
+    console.log("Form data being sent:", formData);
+    console.log("Is form valid?", isFormValid);
 
-  // Debug: Show what's being sent
-  console.log("Form data being sent:", formData);
-  console.log("Is form valid?", isFormValid);
+    // Send OTP for signup
+    const result = await sendSignupOtp(formData);
+    
+    if (result.success) {
+      setSuccessMessage(`OTP sent successfully to ${formData.phone}`);
+    } else {
+      setLocalError(result.error || "Failed to send OTP. Please try again.");
+    }
+  };
 
-  // Send OTP for signup
-  const result = await sendSignupOtp(formData);
-  
-  if (result.success) {
-    setSuccessMessage(`OTP sent successfully to ${formData.phone}`);
-  } else {
-    setLocalError(result.error || "Failed to send OTP. Please try again.");
-  }
-};
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setLocalError("");
+    setSuccessMessage("");
+    clearError();
+    
+    if (!otp || otp.length !== 6) {
+      setLocalError("Please enter a valid 6-digit OTP");
+      return;
+    }
 
- // In Signup.js - Update the handleVerifyOtp function:
-const handleVerifyOtp = async (e) => {
-  e.preventDefault();
-  setLocalError("");
-  setSuccessMessage("");
-  clearError();
-  
-  if (!otp || otp.length !== 6) {
-    setLocalError("Please enter a valid 6-digit OTP");
-    return;
-  }
+    if (!/^\d+$/.test(otp)) {
+      setLocalError("OTP should contain only digits");
+      return;
+    }
 
-  if (!/^\d+$/.test(otp)) {
-    setLocalError("OTP should contain only digits");
-    return;
-  }
-
-  // Now only passing OTP (formData already saved)
-  const result = await verifySignupOtp(otp);
-  
-  if (result.success) {
-    setSuccessMessage("Account created successfully! Redirecting...");
-    setTimeout(() => {
-      navigate(from, { replace: true });
-    }, 1000);
-  } else {
-    setLocalError(result.error || "Invalid OTP. Please try again.");
-  }
-};
+    // Now only passing OTP (formData already saved)
+    const result = await verifySignupOtp(otp);
+    
+    if (result.success) {
+      setSuccessMessage("Account created successfully! Redirecting...");
+      
+      // 🔴 GOOGLE ADS CONVERSION TRACKING - SIGNUP SUCCESS
+      // Only track conversion if not already tracked in this session
+      if (!localStorage.getItem('signup_conversion')) {
+        try {
+          // Check if gtag is available
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('event', 'conversion', {
+              send_to: 'AW-17353115810/nEF_CN-g_94bFKKRztJA'
+            });
+            console.log('Google Ads conversion tracked: Signup completed');
+          }
+          
+          // Set flag to prevent duplicate tracking
+          localStorage.setItem('signup_conversion', 'true');
+        } catch (conversionError) {
+          console.warn('Failed to track conversion:', conversionError);
+          // Don't fail the signup if conversion tracking fails
+        }
+      }
+      
+      // Redirect after a short delay
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 1000);
+    } else {
+      setLocalError(result.error || "Invalid OTP. Please try again.");
+    }
+  };
 
   const handleResendOtp = async () => {
     setLocalError("");
@@ -256,7 +275,7 @@ const handleVerifyOtp = async (e) => {
 
             <div className="form-group">
               <label htmlFor="email" className="form-label">
-                Email Address <span className="text-danger">*</span> {/* Added asterisk */}
+                Email Address <span className="text-danger">*</span>
               </label>
               <div className="input-container">
                 <EmailIcon className="input-icon" />
