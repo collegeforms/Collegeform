@@ -6,6 +6,8 @@ router.get('/robots.txt', (req, res) => {
 User-agent: *
 Allow: /
 Allow: /api/colleges/
+Allow: /api/
+
 Allow: /uploads/
 
 # Disallow admin and private areas
@@ -18,9 +20,13 @@ User-agent: Googlebot
 Allow: /api/colleges/
 Allow: /static/
 Allow: /uploads/
+Allow: /api/
+
 
 User-agent: AdsBot-Google
 Allow: /
+Allow: /api/
+
 
 # Sitemaps
 Sitemap: https://www.collegeforms.in/sitemap.xml

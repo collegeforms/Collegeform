@@ -1,5 +1,6 @@
 // backend/middleware/seoMiddleware.js
 import College from '../models/College.js';
+import Blog from '../models/Blog.js';
 
 const getDynamicMetaTags = async (url) => {
   const baseUrl = 'https://www.collegeforms.in';
@@ -21,28 +22,33 @@ const getDynamicMetaTags = async (url) => {
   };
 
   try {
-    const cleanUrl = url.split('?')[0]; // Remove query parameters
+    const cleanUrl = url.split('?')[0];
     
     // ======================
-    // COLLEGE DETAIL PAGE - FIXED
+    // HOMEPAGE
     // ======================
-    if (cleanUrl.startsWith('/college/')) {
+    if (cleanUrl === '/' || cleanUrl === '') {
+      // Keep default values, just update canonical
+      meta.canonical = baseUrl;
+      meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    }
+    
+    // ======================
+    // COLLEGE DETAIL PAGE
+    // ======================
+    else if (cleanUrl.startsWith('/college/')) {
       const slug = cleanUrl.split('/college/')[1];
       if (slug) {
         console.log(`🔍 Fetching college data for slug: ${slug}`);
         
-        // Try to find the college in database with correct field names
         let college;
         
         try {
-          // Try exact slug match first
           college = await College.findOne({ slug: slug })
             .select('name location description shortDescription minFees maxFees avgPackage courses rating image coursePricing admissionProcess importantDates placementStats placementCompanies keyHighlights')
             .lean();
           
-          // If not found by slug, try to find by name in URL
           if (!college) {
-            // Extract college name from URL for fallback search
             const collegeNameFromUrl = slug.split('-')
               .filter(word => !['university', 'college', 'institute', 'bangalore', 'delhi', 'mumbai', 'pune', 'chennai', 'hyderabad', 'kolkata', 'ahmedabad', 'courses', 'fees', 'placements', 'admissions'].includes(word.toLowerCase()))
               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -63,7 +69,6 @@ const getDynamicMetaTags = async (url) => {
         if (college) {
           console.log(`✅ Found college: ${college.name}`);
           
-          // Extract location parts (city, state)
           let city = 'India';
           let state = 'India';
           if (college.location) {
@@ -72,16 +77,13 @@ const getDynamicMetaTags = async (url) => {
             state = locationParts[1]?.trim() || 'India';
           }
           
-          // Extract course names
           let courseNames = 'Various Courses';
           if (college.courses && college.courses.length > 0) {
             courseNames = college.courses.slice(0, 5).join(', ');
           }
           
-          // Generate dynamic title
           meta.title = `${college.name} - Courses, Fees ${currentYear}, Placements, Admissions | College Forms`;
           
-          // Generate dynamic description
           const feeRange = college.minFees && college.maxFees ? 
             `Fees range from ₹${college.minFees.toLocaleString()} to ₹${college.maxFees.toLocaleString()}` : 
             'Affordable fee structure';
@@ -92,25 +94,15 @@ const getDynamicMetaTags = async (url) => {
           
           meta.description = `${college.name} located in ${college.location}. Explore ${courseNames.toLowerCase()} courses, ${feeRange}, ${placementInfo}. Get complete admission guidance, important dates, required documents, and application process for ${currentYear}.`;
           
-          // Generate keywords
           meta.keywords = `${college.name}, ${college.name} courses, ${college.name} fees ${currentYear}, ${college.name} placements, ${college.name} admission ${currentYear}, ${city} colleges, best colleges in ${state}, college admission help, discounted college forms`;
           
-          // Correct canonical URL
           meta.canonical = `${baseUrl}/college/${slug}`;
-          
-          // Robots tag
           meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
-          
-          // Author and Publisher
-          meta.author = 'College Forms';
-          meta.publisher = 'College Forms';
-          
-          // Images
           meta.ogImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/college-default.jpg`;
           meta.twitterImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/twitter-default.jpg`;
           
           // Structured Data for College
-          const structuredData = {
+          meta.structuredData = {
             "@context": "https://schema.org",
             "@type": "EducationalOrganization",
             "name": college.name,
@@ -133,9 +125,8 @@ const getDynamicMetaTags = async (url) => {
             } : undefined
           };
           
-          // Add offers if fee information exists
           if (college.minFees) {
-            structuredData.offers = {
+            meta.structuredData.offers = {
               "@type": "Offer",
               "price": college.minFees,
               "priceCurrency": "INR",
@@ -144,9 +135,8 @@ const getDynamicMetaTags = async (url) => {
             };
           }
           
-          // Add course information
           if (college.courses && college.courses.length > 0) {
-            structuredData.course = college.courses.map(course => ({
+            meta.structuredData.course = college.courses.map(course => ({
               "@type": "Course",
               "name": course,
               "description": `${course} course at ${college.name}`,
@@ -157,13 +147,9 @@ const getDynamicMetaTags = async (url) => {
             }));
           }
           
-          meta.structuredData = structuredData;
-          
         } else {
-          // College not found in DB - Generate dynamic content from URL
           console.log(`❌ College not found in DB for slug: ${slug}`);
           
-          // Parse college name from URL
           const urlParts = slug.split('-');
           const collegeName = urlParts
             .filter(part => !['university', 'college', 'institute', 'bangalore', 'delhi', 'mumbai', 'pune', 'chennai', 'hyderabad', 'kolkata', 'ahmedabad', 'courses', 'fees', 'placements', 'admissions'].includes(part.toLowerCase()))
@@ -181,10 +167,7 @@ const getDynamicMetaTags = async (url) => {
           meta.keywords = `${collegeName}, ${collegeName} courses, ${collegeName} fees, ${collegeName} admission, ${location.split(',')[0]} colleges, college admission help, discounted application forms`;
           meta.canonical = `${baseUrl}/college/${slug}`;
           meta.robots = 'index, follow, max-image-preview:large';
-          meta.author = 'College Forms';
-          meta.publisher = 'College Forms';
           
-          // Generate structured data even for not-found colleges
           meta.structuredData = {
             "@context": "https://schema.org",
             "@type": "EducationalOrganization",
@@ -203,11 +186,163 @@ const getDynamicMetaTags = async (url) => {
     }
     
     // ======================
-    // HOMEPAGE
+    // BLOG PAGES
     // ======================
-    else if (cleanUrl === '/' || cleanUrl === '') {
-      // Default values already set, just update canonical
-      meta.canonical = baseUrl;
+    else if (cleanUrl.startsWith('/blogs')) {
+      // Blog listing page (/blogs)
+      if (cleanUrl === '/blogs' || cleanUrl === '/blogs/') {
+        meta.title = `College Admission Blogs & Articles ${currentYear} - Expert Guidance | College Forms`;
+        meta.description = `Read expert articles on college admissions, entrance exams, career guidance, and study tips. Get the latest updates on admissions, scholarships, and educational trends at College Forms.`;
+        meta.keywords = `college admission blogs, education articles, study tips, entrance exam preparation, career guidance, admission tips, college guidance blogs`;
+        meta.canonical = `${baseUrl}/blogs`;
+        meta.robots = 'index, follow, max-image-preview:large';
+        meta.author = 'College Forms';
+        meta.publisher = 'College Forms';
+        meta.ogImage = `${baseUrl}/uploads/blog-listing-default.jpg`;
+        meta.twitterImage = `${baseUrl}/uploads/blog-listing-default.jpg`;
+        
+        // Structured Data for Blog Listing
+        meta.structuredData = {
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          "name": "College Forms Education Blog",
+          "description": "Expert articles on college admissions, entrance exams, career guidance, and educational trends",
+          "url": `${baseUrl}/blogs`,
+          "publisher": {
+            "@type": "Organization",
+            "name": "College Forms",
+            "logo": {
+              "@type": "ImageObject",
+              "url": `${baseUrl}/logo.png`,
+              "width": 200,
+              "height": 60
+            }
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `${baseUrl}/blogs`
+          }
+        };
+      } 
+      // Individual blog post (/blogs/slug-here)
+      else if (cleanUrl.startsWith('/blogs/')) {
+        const slug = cleanUrl.split('/blogs/')[1];
+        if (slug && slug !== '') {
+          console.log(`🔍 Fetching blog data for slug: ${slug}`);
+          
+          try {
+            const blog = await Blog.findOne({ slug: slug })
+              .select('title content excerpt image author category createdAt updatedAt faqs')
+              .lean();
+            
+            if (blog) {
+              console.log(`✅ Found blog: ${blog.title}`);
+              
+              // Extract excerpt from content if no excerpt provided
+              const blogExcerpt = blog.excerpt || 
+                blog.content.substring(0, 200)
+                  .replace(/<[^>]*>/g, '')
+                  .replace(/\s+/g, ' ')
+                  .trim() + '...';
+              
+              meta.title = `${blog.title} | College Forms Blog`;
+              meta.description = blogExcerpt;
+              meta.keywords = `${blog.category}, ${blog.title.toLowerCase().replace(/[^a-zA-Z0-9]/g, ' ')}, college admission tips, education blog, study tips`;
+              meta.canonical = `${baseUrl}/blogs/${slug}`;
+              meta.robots = 'index, follow, max-image-preview:large';
+              meta.author = blog.author;
+              meta.publisher = 'College Forms';
+              meta.ogImage = blog.image ? `${baseUrl}${blog.image}` : `${baseUrl}/uploads/blog-default.jpg`;
+              meta.twitterImage = blog.image ? `${baseUrl}${blog.image}` : `${baseUrl}/uploads/blog-default.jpg`;
+              
+              // Structured Data for Blog Post
+              const datePublished = new Date(blog.createdAt).toISOString();
+              const dateModified = new Date(blog.updatedAt || blog.createdAt).toISOString();
+              
+              meta.structuredData = {
+                "@context": "https://schema.org",
+                "@type": "BlogPosting",
+                "headline": blog.title,
+                "description": blogExcerpt,
+                "image": blog.image ? `${baseUrl}${blog.image}` : `${baseUrl}/uploads/blog-default.jpg`,
+                "datePublished": datePublished,
+                "dateModified": dateModified,
+                "author": {
+                  "@type": "Person",
+                  "name": blog.author
+                },
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "College Forms",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": `${baseUrl}/logo.png`,
+                    "width": 200,
+                    "height": 60
+                  }
+                },
+                "mainEntityOfPage": {
+                  "@type": "WebPage",
+                  "@id": `${baseUrl}/blogs/${slug}`
+                }
+              };
+              
+              // Add FAQ structured data if available
+              if (blog.faqs && blog.faqs.length > 0) {
+                meta.structuredData.mainEntity = {
+                  "@type": "FAQPage",
+                  "mainEntity": blog.faqs.map(faq => ({
+                    "@type": "Question",
+                    "name": faq.question,
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": faq.answer
+                    }
+                  }))
+                };
+              }
+              
+            } else {
+              // Blog not found - generate from URL
+              console.log(`❌ Blog not found for slug: ${slug}`);
+              
+              const blogTitle = slug.split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+              
+              meta.title = `${blogTitle} - College Admission Blog | College Forms`;
+              meta.description = `Read about ${blogTitle.toLowerCase()} on College Forms blog. Get expert insights and tips for college admissions, entrance exams, and career guidance.`;
+              meta.keywords = `${blogTitle.toLowerCase()}, college admission blog, education article, study tips, career guidance`;
+              meta.canonical = `${baseUrl}/blogs/${slug}`;
+              meta.robots = 'index, follow, max-image-preview:large';
+              meta.author = 'College Forms';
+              meta.publisher = 'College Forms';
+              
+              meta.structuredData = {
+                "@context": "https://schema.org",
+                "@type": "BlogPosting",
+                "headline": blogTitle,
+                "description": `Article about ${blogTitle} on College Forms blog`,
+                "datePublished": new Date().toISOString(),
+                "author": {
+                  "@type": "Person",
+                  "name": "College Forms"
+                },
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "College Forms",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": `${baseUrl}/logo.png`
+                  }
+                }
+              };
+            }
+          } catch (error) {
+            console.error('Error fetching blog:', error);
+          }
+        }
+      }
     }
     
     // ======================
@@ -219,8 +354,6 @@ const getDynamicMetaTags = async (url) => {
       meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees`;
       meta.canonical = `${baseUrl}/colleges`;
       meta.robots = 'index, follow, max-image-preview:large';
-      meta.author = 'College Forms';
-      meta.publisher = 'College Forms';
     }
     
     // ======================
@@ -232,8 +365,6 @@ const getDynamicMetaTags = async (url) => {
       meta.keywords = `college admission events, admission webinars, free counseling, education events, college guidance sessions`;
       meta.canonical = `${baseUrl}/events`;
       meta.robots = 'index, follow, max-image-preview:large';
-      meta.author = 'College Forms';
-      meta.publisher = 'College Forms';
     }
     
     // ======================
@@ -245,22 +376,210 @@ const getDynamicMetaTags = async (url) => {
       meta.keywords = `best courses after 12th ${currentYear}, engineering courses, medical courses, arts courses, career guidance, course selection`;
       meta.canonical = `${baseUrl}/courses`;
       meta.robots = 'index, follow, max-image-preview:large';
-      meta.author = 'College Forms';
-      meta.publisher = 'College Forms';
+    }
+    
+    // ======================
+    // CONTACT PAGE
+    // ======================
+    else if (cleanUrl === '/contact') {
+      meta.title = `Contact College Forms - Get Admission Help & Support | College Forms`;
+      meta.description = `Get in touch with College Forms for admission guidance, application help, scholarship information, and college selection support. Our experts are here to help you.`;
+      meta.keywords = `contact college forms, admission help, college guidance support, application assistance`;
+      meta.canonical = `${baseUrl}/contact`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // ABOUT PAGE
+    // ======================
+    else if (cleanUrl === '/about') {
+      meta.title = `About College Forms - India's Trusted College Admission Platform`;
+      meta.description = `Learn about College Forms - India's most preferred platform for discounted college applications, expert admission guidance, and comprehensive college information.`;
+      meta.keywords = `about college forms, college admission platform, discounted applications, admission guidance`;
+      meta.canonical = `${baseUrl}/about`;
+      meta.robots = 'index, follow, max-image-preview:large';
     }
     
   } catch (error) {
     console.error('SEO Meta Tag Generation Error:', error);
-    // Keep default values
   }
   
   return meta;
 };
 
-const generateBotHTML = (metaTags) => {
+const generateBotHTML = (metaTags, url) => {
   const structuredDataHTML = metaTags.structuredData 
     ? `<script type="application/ld+json">${JSON.stringify(metaTags.structuredData, null, 2)}</script>`
     : '';
+  
+  // Determine page type
+  const isBlogPage = url.includes('/blogs/') && url !== '/blogs';
+  const isBlogList = url === '/blogs' || url === '/blogs/';
+  const isCollegePage = url.includes('/college/');
+  
+  let pageSpecificContent = '';
+  let pageType = 'website';
+  
+  if (isBlogPage) {
+    pageType = 'article';
+    // Blog post content
+    const blogTitle = metaTags.title.replace(' | College Forms Blog', '');
+    
+    pageSpecificContent = `
+      <div class="blog-content">
+        <h2>${blogTitle}</h2>
+        <div class="blog-meta">
+          <span class="author">By: ${metaTags.author || 'College Forms'}</span>
+          <span class="date">Published: ${new Date().toLocaleDateString('en-IN', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}</span>
+        </div>
+        
+        <div class="blog-excerpt">
+          <p>${metaTags.description}</p>
+        </div>
+        
+        <h3>Key Takeaways</h3>
+        <ul class="content-list">
+          <li>Expert insights on college admissions and education</li>
+          <li>Latest trends in education and career opportunities</li>
+          <li>Practical tips for entrance exam preparation</li>
+          <li>Scholarship and financial aid information</li>
+          <li>Career guidance and future prospects</li>
+        </ul>
+        
+        <div class="highlight-box">
+          <h3>About College Forms Blog</h3>
+          <p>Our blog provides expert guidance on college admissions, entrance exams, career choices, and educational trends. Stay updated with the latest information to make informed decisions about your education.</p>
+        </div>
+      </div>
+    `;
+  } else if (isBlogList) {
+    pageSpecificContent = `
+      <div class="blog-listing">
+        <h2>Latest Education Blogs & Articles</h2>
+        <p>Explore our collection of expert articles on college admissions, entrance exams, career guidance, and study tips.</p>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <h4>📚 Admission Tips</h4>
+            <p>Learn how to ace college applications and interviews</p>
+          </div>
+          <div class="feature-card">
+            <h4>🎯 Exam Preparation</h4>
+            <p>Strategies for JEE, NEET, CAT, and other entrance exams</p>
+          </div>
+          <div class="feature-card">
+            <h4>💰 Scholarships</h4>
+            <p>Find information on scholarships and financial aid</p>
+          </div>
+          <div class="feature-card">
+            <h4>💼 Career Guidance</h4>
+            <p>Explore career options and future prospects</p>
+          </div>
+        </div>
+        
+        <h3>Popular Blog Categories</h3>
+        <ul class="content-list">
+          <li>College Admission Process</li>
+          <li>Entrance Exam Preparation</li>
+          <li>Scholarship Information</li>
+          <li>Career Guidance</li>
+          <li>Study Abroad</li>
+          <li>Online Education</li>
+        </ul>
+        
+        <div class="highlight-box">
+          <h3>Why Read Our Blog?</h3>
+          <p>Stay updated with the latest education trends, get expert admission tips, and discover scholarship opportunities. Our blog is regularly updated with fresh content to help you make informed decisions about your education.</p>
+        </div>
+      </div>
+    `;
+  } else if (isCollegePage) {
+    // College page content
+    const collegeName = metaTags.title.split(' - ')[0];
+    
+    pageSpecificContent = `
+      <div class="college-content">
+        <h2>${collegeName} Information</h2>
+        <p>${metaTags.description}</p>
+        
+        <div class="highlight-box">
+          <h3>College Overview</h3>
+          <p>Get complete details about ${collegeName} including courses offered, fee structure, placement records, admission process, and important dates.</p>
+        </div>
+        
+        <h3>Key Information</h3>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h4>🎓 Courses Offered</h4>
+            <p>Explore various undergraduate and postgraduate programs</p>
+          </div>
+          <div class="feature-card">
+            <h4>💰 Fee Structure</h4>
+            <p>Get detailed fee information with scholarship options</p>
+          </div>
+          <div class="feature-card">
+            <h4>📈 Placements</h4>
+            <p>Check placement records and company information</p>
+          </div>
+          <div class="feature-card">
+            <h4>📝 Admission Process</h4>
+            <p>Complete admission guidance and application help</p>
+          </div>
+        </div>
+        
+        <h3>Why Apply Through College Forms?</h3>
+        <ul class="content-list">
+          <li>Exclusive discounts on application fees</li>
+          <li>Expert admission counseling for ${collegeName}</li>
+          <li>Scholarship and financial aid assistance</li>
+          <li>Document preparation and verification help</li>
+          <li>Personalized college selection guidance</li>
+        </ul>
+      </div>
+    `;
+  } else {
+    // Default content for other pages
+    pageSpecificContent = `
+      <div class="highlight-box">
+        <h2>Why Choose College Forms?</h2>
+        <p>College Forms is India's most trusted platform for college admissions, offering exclusive discounts on application forms, expert admission guidance, and comprehensive college information.</p>
+      </div>
+      
+      <h2>Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h4>🎓 5000+ Colleges</h4>
+          <p>Extensive database of colleges across India with verified information</p>
+        </div>
+        <div class="feature-card">
+          <h4>💰 Exclusive Discounts</h4>
+          <p>Get special discounts on college application forms and scholarships</p>
+        </div>
+        <div class="feature-card">
+          <h4>📝 Easy Applications</h4>
+          <p>Apply to multiple colleges with single click application process</p>
+        </div>
+        <div class="feature-card">
+          <h4>🎯 Expert Guidance</h4>
+          <p>Professional admission counseling and career guidance</p>
+        </div>
+      </div>
+      
+      <h2>Comprehensive College Information</h2>
+      <ul class="content-list">
+        <li>Complete fee structure and scholarship details</li>
+        <li>Admission process and important dates</li>
+        <li>Placement records and company information</li>
+        <li>Course details and eligibility criteria</li>
+        <li>Campus facilities and infrastructure</li>
+        <li>Faculty information and accreditation details</li>
+      </ul>
+    `;
+  }
   
   return `<!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns#">
@@ -289,7 +608,7 @@ const generateBotHTML = (metaTags) => {
     <meta property="og:locale" content="en_IN">
     
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="${pageType}">
     <meta property="og:url" content="${metaTags.canonical}">
     <meta property="og:title" content="${metaTags.title}">
     <meta property="og:description" content="${metaTags.description.replace(/"/g, '&quot;')}">
@@ -297,6 +616,8 @@ const generateBotHTML = (metaTags) => {
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="College Forms">
+    ${isBlogPage ? `<meta property="og:article:author" content="${metaTags.author}">` : ''}
+    ${isBlogPage ? `<meta property="og:article:published_time" content="${new Date().toISOString()}">` : ''}
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
@@ -411,6 +732,22 @@ const generateBotHTML = (metaTags) => {
             margin-bottom: 10px;
             color: #4b5563;
         }
+        .blog-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .blog-excerpt {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .college-content .feature-card {
+            text-align: left;
+        }
         @media (max-width: 768px) {
             .seo-container {
                 padding: 20px;
@@ -421,6 +758,9 @@ const generateBotHTML = (metaTags) => {
             h2 {
                 font-size: 1.5rem;
             }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -429,54 +769,11 @@ const generateBotHTML = (metaTags) => {
         <h1>${metaTags.title}</h1>
         <p>${metaTags.description}</p>
         
-        <div class="highlight-box">
-            <h2>Why Choose College Forms?</h2>
-            <p>College Forms is India's most trusted platform for college admissions, offering exclusive discounts on application forms, expert admission guidance, and comprehensive college information.</p>
-        </div>
-        
-        <h2>Key Features</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <h4>🎓 5000+ Colleges</h4>
-                <p>Extensive database of colleges across India with verified information</p>
-            </div>
-            <div class="feature-card">
-                <h4>💰 Exclusive Discounts</h4>
-                <p>Get special discounts on college application forms and scholarships</p>
-            </div>
-            <div class="feature-card">
-                <h4>📝 Easy Applications</h4>
-                <p>Apply to multiple colleges with single click application process</p>
-            </div>
-            <div class="feature-card">
-                <h4>🎯 Expert Guidance</h4>
-                <p>Professional admission counseling and career guidance</p>
-            </div>
-        </div>
-        
-        <h2>Comprehensive College Information</h2>
-        <ul class="content-list">
-            <li>Complete fee structure and scholarship details</li>
-            <li>Admission process and important dates</li>
-            <li>Placement records and company information</li>
-            <li>Course details and eligibility criteria</li>
-            <li>Campus facilities and infrastructure</li>
-            <li>Faculty information and accreditation details</li>
-        </ul>
-        
-        <h2>Admission Assistance</h2>
-        <p>Our team of admission experts helps you with:</p>
-        <ul class="content-list">
-            <li>College selection based on your profile</li>
-            <li>Application form filling assistance</li>
-            <li>Document preparation and verification</li>
-            <li>Entrance exam guidance</li>
-            <li>Scholarship application support</li>
-            <li>Admission interview preparation</li>
-        </ul>
+        ${pageSpecificContent}
         
         <div style="text-align: center; margin-top: 40px;">
             <a href="${metaTags.canonical}" class="cta-button">Visit College Forms for Complete Details</a>
+            <a href="https://www.collegeforms.in/contact" class="cta-button" style="margin-left: 15px; background: #6b7280;">Get Expert Help</a>
         </div>
         
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
@@ -527,38 +824,22 @@ export const seoMiddleware = async (req, res, next) => {
     
     const lowerUA = ua.toLowerCase();
     
-    // Comprehensive list of bots
     const bots = [
-      // Google
       'googlebot',
       'google-inspectiontool',
       'mediapartners-google',
       'adsbot-google',
-      
-      // Bing
       'bingbot',
       'msnbot',
       'msnbot-media',
       'bingpreview',
-      
-      // Yahoo
       'slurp',
-      
-      // Facebook
       'facebookexternalhit',
       'facebot',
-      
-      // Twitter
       'twitterbot',
-      
-      // LinkedIn
       'linkedinbot',
-      
-      // Pinterest
       'pinterest',
       'pinterestbot',
-      
-      // SEO tools
       'ahrefsbot',
       'semrushbot',
       'moz.com',
@@ -573,8 +854,6 @@ export const seoMiddleware = async (req, res, next) => {
       'exabot',
       'ccbot',
       'gptbot',
-      
-      // Generic bots
       'bot',
       'crawler',
       'spider',
@@ -582,7 +861,6 @@ export const seoMiddleware = async (req, res, next) => {
       'monitor'
     ];
     
-    // Check if user agent contains any bot identifier
     return bots.some(bot => lowerUA.includes(bot));
   };
   
@@ -595,7 +873,7 @@ export const seoMiddleware = async (req, res, next) => {
       const metaTags = await getDynamicMetaTags(url);
       
       // Generate HTML for bots
-      const botHTML = generateBotHTML(metaTags);
+      const botHTML = generateBotHTML(metaTags, url);
       
       // Set headers
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -605,6 +883,7 @@ export const seoMiddleware = async (req, res, next) => {
       console.log(`✅ Serving SEO HTML for: ${url}`);
       console.log(`📝 Title: ${metaTags.title.substring(0, 50)}...`);
       console.log(`🔗 Canonical: ${metaTags.canonical}`);
+      console.log(`🤖 User-Agent: ${userAgent.substring(0, 50)}...`);
       
       return res.send(botHTML);
       
@@ -627,12 +906,18 @@ export const debugSeoMiddleware = async (req, res) => {
   
   try {
     const metaTags = await getDynamicMetaTags(url);
+    const isBotCheck = (ua) => {
+      if (!ua) return false;
+      const lowerUA = ua.toLowerCase();
+      const bots = ['googlebot', 'bingbot', 'slurp', 'facebookexternalhit', 'twitterbot'];
+      return bots.some(bot => lowerUA.includes(bot));
+    };
     
     res.json({
       url,
       metaTags,
       userAgent: req.get('user-agent'),
-      isBot: isBot(req.get('user-agent')),
+      isBot: isBotCheck(req.get('user-agent')),
       timestamp: new Date().toISOString()
     });
   } catch (error) {
