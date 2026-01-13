@@ -25,12 +25,28 @@ const getDynamicMetaTags = async (url) => {
     const cleanUrl = url.split('?')[0];
     
     // ======================
-    // HOMEPAGE
+    // HOMEPAGE & ALIASES
     // ======================
-    if (cleanUrl === '/' || cleanUrl === '') {
-      // Keep default values, just update canonical
-      meta.canonical = baseUrl;
+    if (cleanUrl === '/' || cleanUrl === '' || cleanUrl === '/home') {
+      meta.title = "India's most preferred and trusted online platform for discounted College Applications | College Forms";
+      meta.description = "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.";
+      meta.keywords = "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees";
+      meta.canonical = `${baseUrl}/`;
       meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+      
+      // Structured Data for Homepage
+      meta.structuredData = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "College Forms",
+        "url": baseUrl,
+        "description": "India's most trusted platform for college admissions with exclusive discounts",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${baseUrl}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      };
     }
     
     // ======================
@@ -183,6 +199,94 @@ const getDynamicMetaTags = async (url) => {
           };
         }
       }
+    }
+    
+    // ======================
+    // COLLEGES LISTING PAGE
+    // ======================
+    else if (cleanUrl === '/colleges') {
+      meta.title = `Best Colleges in India ${currentYear} - Top Engineering, Medical, Management Colleges | College Forms`;
+      meta.description = `Find and compare the best colleges in India for ${currentYear}. Explore top engineering, medical, management, arts colleges with fee structure, placement records, admission process, and exclusive discounts.`;
+      meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees, college admission`;
+      meta.canonical = `${baseUrl}/colleges`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // STEP BY STEP GUIDANCE PAGE
+    // ======================
+    else if (cleanUrl === '/step') {
+      meta.title = `Step-by-Step College Admission Guide ${currentYear} | College Forms`;
+      meta.description = `Complete step-by-step guide for college admissions. Learn how to choose the right college, prepare documents, apply online, and secure admission with expert guidance from College Forms.`;
+      meta.keywords = `college admission guide, step by step admission, admission process, document preparation, college application steps`;
+      meta.canonical = `${baseUrl}/step`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // OFFERS & DISCOUNTS PAGE
+    // ======================
+    else if (cleanUrl === '/offer') {
+      meta.title = `Exclusive Offers & Discounts on College Applications ${currentYear} | College Forms`;
+      meta.description = `Get exclusive discounts and special offers on college application forms. Save money on admission fees with our limited-time offers for engineering, medical, management colleges.`;
+      meta.keywords = `college application discounts, exclusive offers, admission fee discounts, special offers, save on college applications`;
+      meta.canonical = `${baseUrl}/offer`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // EDUCATION LOAN PAGE
+    // ======================
+    else if (cleanUrl === '/education/education-loan') {
+      meta.title = `Education Loan for College Studies - Complete Guide ${currentYear} | College Forms`;
+      meta.description = `Get complete information about education loans for college studies. Compare interest rates, eligibility criteria, documents required, and apply for education loan with expert guidance.`;
+      meta.keywords = `education loan, student loan, college education loan, loan for studies, education finance`;
+      meta.canonical = `${baseUrl}/education/education-loan`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // ACCOMMODATION PAGE
+    // ======================
+    else if (cleanUrl === '/education/accommodation') {
+      meta.title = `College Accommodation & Hostel Facilities ${currentYear} | College Forms`;
+      meta.description = `Find college accommodation, hostel facilities, PG options near colleges. Get information on room types, fees, facilities, and book your stay with verified accommodation partners.`;
+      meta.keywords = `college accommodation, hostel facilities, student hostel, PG near college, college hostel, accommodation for students`;
+      meta.canonical = `${baseUrl}/education/accommodation`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // COMPETITIVE EXAMS PAGE
+    // ======================
+    else if (cleanUrl === '/CompetitiveExams') {
+      meta.title = `Competitive Exams for College Admissions ${currentYear} - JEE, NEET, CAT | College Forms`;
+      meta.description = `Prepare for competitive exams like JEE, NEET, CAT, CLAT, and more. Get exam patterns, syllabus, preparation tips, and college admission guidance based on exam scores.`;
+      meta.keywords = `competitive exams, JEE preparation, NEET exam, CAT exam, entrance exams, exam preparation`;
+      meta.canonical = `${baseUrl}/CompetitiveExams`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // STUDY ABROAD PAGE
+    // ======================
+    else if (cleanUrl === '/studyabroad') {
+      meta.title = `Study Abroad Programs & International Colleges ${currentYear} | College Forms`;
+      meta.description = `Explore study abroad opportunities in USA, UK, Canada, Australia, and other countries. Get guidance on admission process, visas, scholarships for international education.`;
+      meta.keywords = `study abroad, international education, foreign universities, overseas education, study in USA, study in UK`;
+      meta.canonical = `${baseUrl}/studyabroad`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // STUDENT TESTS PAGE
+    // ======================
+    else if (cleanUrl === '/students/tests') {
+      meta.title = `Online Tests & Practice Papers for College Admissions ${currentYear} | College Forms`;
+      meta.description = `Take free online tests and practice papers for college entrance exams. Get instant results, performance analysis, and personalized preparation guidance.`;
+      meta.keywords = `online tests, practice papers, mock tests, entrance exam practice, test preparation`;
+      meta.canonical = `${baseUrl}/students/tests`;
+      meta.robots = 'index, follow, max-image-preview:large';
     }
     
     // ======================
@@ -346,17 +450,6 @@ const getDynamicMetaTags = async (url) => {
     }
     
     // ======================
-    // COLLEGES LISTING PAGE
-    // ======================
-    else if (cleanUrl === '/colleges') {
-      meta.title = `Best Colleges in India ${currentYear} - Top Engineering, Medical, Management Colleges | College Forms`;
-      meta.description = `Find and compare the best colleges in India for ${currentYear}. Explore top engineering, medical, management, arts colleges with fee structure, placement records, admission process, and exclusive discounts.`;
-      meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees`;
-      meta.canonical = `${baseUrl}/colleges`;
-      meta.robots = 'index, follow, max-image-preview:large';
-    }
-    
-    // ======================
     // EVENTS PAGE
     // ======================
     else if (cleanUrl === '/events') {
@@ -368,7 +461,62 @@ const getDynamicMetaTags = async (url) => {
     }
     
     // ======================
-    // COURSES PAGE
+    // CONTACT US PAGE
+    // ======================
+    else if (cleanUrl === '/contactus') {
+      meta.title = `Contact College Forms - Get Admission Help & Support ${currentYear} | College Forms`;
+      meta.description = `Get in touch with College Forms for admission guidance, application help, scholarship information, and college selection support. Our experts are here to help you.`;
+      meta.keywords = `contact college forms, admission help, college guidance support, application assistance, admission counseling`;
+      meta.canonical = `${baseUrl}/contactus`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // PRIVACY POLICY PAGE
+    // ======================
+    else if (cleanUrl === '/privacy') {
+      meta.title = `Privacy Policy - College Forms | Your Data Protection`;
+      meta.description = `Read College Forms privacy policy to understand how we protect your personal information and ensure data security during the college admission process.`;
+      meta.keywords = `privacy policy, data protection, privacy terms, college forms privacy`;
+      meta.canonical = `${baseUrl}/privacy`;
+      meta.robots = 'index, follow';
+    }
+    
+    // ======================
+    // TERMS & CONDITIONS PAGE
+    // ======================
+    else if (cleanUrl === '/terms') {
+      meta.title = `Terms & Conditions - College Forms | Platform Usage Terms`;
+      meta.description = `Read College Forms terms and conditions for using our platform, services, and understanding your rights and responsibilities during college admissions.`;
+      meta.keywords = `terms and conditions, usage terms, platform terms, college forms terms`;
+      meta.canonical = `${baseUrl}/terms`;
+      meta.robots = 'index, follow';
+    }
+    
+    // ======================
+    // OVERSEAS EDUCATION PAGE
+    // ======================
+    else if (cleanUrl === '/education/overseas') {
+      meta.title = `Overseas Education & Study Abroad Guidance ${currentYear} | College Forms`;
+      meta.description = `Get complete guidance for overseas education including country selection, university admission, visa process, scholarships, and pre-departure preparations.`;
+      meta.keywords = `overseas education, study abroad guidance, international studies, foreign education, study overseas`;
+      meta.canonical = `${baseUrl}/education/overseas`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // ENGINEERING EDUCATION PAGE
+    // ======================
+    else if (cleanUrl === '/education/engineering') {
+      meta.title = `Engineering Colleges & Courses ${currentYear} - Top B.Tech Programs | College Forms`;
+      meta.description = `Explore top engineering colleges, B.Tech programs, admission process, and placement records. Get complete guidance for engineering admissions in India.`;
+      meta.keywords = `engineering colleges, B.Tech programs, engineering courses, engineering admission, top engineering colleges`;
+      meta.canonical = `${baseUrl}/education/engineering`;
+      meta.robots = 'index, follow, max-image-preview:large';
+    }
+    
+    // ======================
+    // COURSES PAGE (for backward compatibility)
     // ======================
     else if (cleanUrl === '/courses') {
       meta.title = `Best Courses after 12th ${currentYear} - Engineering, Medical, Arts, Commerce | College Forms`;
@@ -379,10 +527,10 @@ const getDynamicMetaTags = async (url) => {
     }
     
     // ======================
-    // CONTACT PAGE
+    // CONTACT PAGE (for backward compatibility)
     // ======================
     else if (cleanUrl === '/contact') {
-      meta.title = `Contact College Forms - Get Admission Help & Support | College Forms`;
+      meta.title = `Contact College Forms - Get Admission Help & Support ${currentYear} | College Forms`;
       meta.description = `Get in touch with College Forms for admission guidance, application help, scholarship information, and college selection support. Our experts are here to help you.`;
       meta.keywords = `contact college forms, admission help, college guidance support, application assistance`;
       meta.canonical = `${baseUrl}/contact`;
@@ -390,7 +538,7 @@ const getDynamicMetaTags = async (url) => {
     }
     
     // ======================
-    // ABOUT PAGE
+    // ABOUT PAGE (for backward compatibility)
     // ======================
     else if (cleanUrl === '/about') {
       meta.title = `About College Forms - India's Trusted College Admission Platform`;
@@ -417,12 +565,13 @@ const generateBotHTML = (metaTags, url) => {
   const isBlogList = url === '/blogs' || url === '/blogs/';
   const isCollegePage = url.includes('/college/');
   
-  let pageSpecificContent = '';
+  // Determine specific page type for custom content
   let pageType = 'website';
+  let pageSpecificContent = '';
   
+  // Generate specific content based on URL
   if (isBlogPage) {
     pageType = 'article';
-    // Blog post content
     const blogTitle = metaTags.title.replace(' | College Forms Blog', '');
     
     pageSpecificContent = `
@@ -498,7 +647,6 @@ const generateBotHTML = (metaTags, url) => {
       </div>
     `;
   } else if (isCollegePage) {
-    // College page content
     const collegeName = metaTags.title.split(' - ')[0];
     
     pageSpecificContent = `
@@ -538,6 +686,140 @@ const generateBotHTML = (metaTags, url) => {
           <li>Scholarship and financial aid assistance</li>
           <li>Document preparation and verification help</li>
           <li>Personalized college selection guidance</li>
+        </ul>
+      </div>
+    `;
+  } else if (url === '/step') {
+    pageSpecificContent = `
+      <div class="step-content">
+        <h2>Step-by-Step College Admission Guide</h2>
+        <p>Follow our comprehensive guide to navigate the college admission process smoothly and successfully.</p>
+        
+        <div class="highlight-box">
+          <h3>Complete Admission Process</h3>
+          <p>From choosing the right college to securing admission - we guide you through every step.</p>
+        </div>
+        
+        <h3>Admission Steps</h3>
+        <ol class="content-list" style="list-style-type: decimal;">
+          <li><strong>Research & Selection:</strong> Find colleges matching your preferences and eligibility</li>
+          <li><strong>Document Preparation:</strong> Gather all required documents and certificates</li>
+          <li><strong>Application Submission:</strong> Fill and submit applications with our expert help</li>
+          <li><strong>Entrance Exam Preparation:</strong> Prepare for required entrance tests</li>
+          <li><strong>Interview & Counseling:</strong> Get ready for admission interviews</li>
+          <li><strong>Admission Confirmation:</strong> Complete admission formalities</li>
+        </ol>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <h4>📋 Personalized Guidance</h4>
+            <p>Get one-on-one counseling based on your profile</p>
+          </div>
+          <div class="feature-card">
+            <h4>📄 Document Help</h4>
+            <p>Assistance with all required documents and forms</p>
+          </div>
+          <div class="feature-card">
+            <h4>🎯 Exam Preparation</h4>
+            <p>Resources and tips for entrance exams</p>
+          </div>
+          <div class="feature-card">
+            <h4>✅ Application Review</h4>
+            <p>Expert review of your applications before submission</p>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (url === '/offer') {
+    pageSpecificContent = `
+      <div class="offer-content">
+        <h2>Exclusive Offers & Discounts</h2>
+        <p>Save money on college application fees with our special offers and discounts.</p>
+        
+        <div class="highlight-box">
+          <h3>Limited Time Offers</h3>
+          <p>Apply to top colleges with special discounted rates available only through College Forms.</p>
+        </div>
+        
+        <h3>Current Offers</h3>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h4>🎓 Engineering Colleges</h4>
+            <p>Up to 50% off on application fees</p>
+            <p><strong>Valid until: ${new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString()}</strong></p>
+          </div>
+          <div class="feature-card">
+            <h4>🏥 Medical Colleges</h4>
+            <p>40% discount on admission forms</p>
+            <p><strong>Limited seats available</strong></p>
+          </div>
+          <div class="feature-card">
+            <h4>💼 Management Colleges</h4>
+            <p>Special MBA application discounts</p>
+            <p><strong>Apply before deadline</strong></p>
+          </div>
+          <div class="feature-card">
+            <h4>🎨 Arts & Science</h4>
+            <p>Scholarship-linked application offers</p>
+            <p><strong>Merit-based discounts</strong></p>
+          </div>
+        </div>
+        
+        <h3>How to Avail Offers?</h3>
+        <ul class="content-list">
+          <li>Register on College Forms platform</li>
+          <li>Select your preferred colleges</li>
+          <li>Apply through our platform to get automatic discounts</li>
+          <li>Contact our support team for exclusive offers</li>
+        </ul>
+      </div>
+    `;
+  } else if (url === '/education/education-loan') {
+    pageSpecificContent = `
+      <div class="loan-content">
+        <h2>Education Loan Assistance</h2>
+        <p>Get complete guidance and assistance for education loans to fund your college studies.</p>
+        
+        <div class="highlight-box">
+          <h3>Why Choose Our Loan Assistance?</h3>
+          <p>We partner with leading banks and financial institutions to get you the best education loan rates with minimal documentation.</p>
+        </div>
+        
+        <h3>Loan Services</h3>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h4>🏦 Bank Partnerships</h4>
+            <p>Tie-ups with 20+ leading banks</p>
+          </div>
+          <div class="feature-card">
+            <h4>💰 Best Interest Rates</h4>
+            <p>Competitive rates starting from 8.5%</p>
+          </div>
+          <div class="feature-card">
+            <h4>📄 Minimal Documentation</h4>
+            <p>Simplified documentation process</p>
+          </div>
+          <div class="feature-card">
+            <h4>⏱️ Quick Processing</h4>
+            <p>Fast loan approval within 7-10 days</p>
+          </div>
+        </div>
+        
+        <h3>Eligibility Criteria</h3>
+        <ul class="content-list">
+          <li>Indian citizenship</li>
+          <li>Admission confirmation from recognized college</li>
+          <li>Co-applicant (parent/guardian) with stable income</li>
+          <li>Good academic record</li>
+        </ul>
+        
+        <h3>Documents Required</h3>
+        <ul class="content-list">
+          <li>Admission letter from college</li>
+          <li>Fee structure from college</li>
+          <li>Identity and address proof</li>
+          <li>Income proof of co-applicant</li>
+          <li>Academic certificates</li>
         </ul>
       </div>
     `;
@@ -748,6 +1030,10 @@ const generateBotHTML = (metaTags, url) => {
         .college-content .feature-card {
             text-align: left;
         }
+        ol.content-list {
+            list-style-type: decimal;
+            padding-left: 40px;
+        }
         @media (max-width: 768px) {
             .seo-container {
                 padding: 20px;
@@ -773,7 +1059,7 @@ const generateBotHTML = (metaTags, url) => {
         
         <div style="text-align: center; margin-top: 40px;">
             <a href="${metaTags.canonical}" class="cta-button">Visit College Forms for Complete Details</a>
-            <a href="https://www.collegeforms.in/contact" class="cta-button" style="margin-left: 15px; background: #6b7280;">Get Expert Help</a>
+            <a href="https://www.collegeforms.in/contactus" class="cta-button" style="margin-left: 15px; background: #6b7280;">Get Expert Help</a>
         </div>
         
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">

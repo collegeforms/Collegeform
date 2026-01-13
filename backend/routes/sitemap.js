@@ -52,13 +52,8 @@ router.get("/sitemap.xml", async (req, res) => {
             
             { url: '/events', priority: '0.7', changefreq: 'weekly' },
             
-            { url: '/myaccount', priority: '0.3', changefreq: 'monthly' },
-            { url: '/cart', priority: '0.5', changefreq: 'weekly' },
-            { url: '/user/login', priority: '0.2', changefreq: 'monthly' },
-            { url: '/user/signup', priority: '0.2', changefreq: 'monthly' },
             
             { url: '/contactus', priority: '0.7', changefreq: 'monthly' },
-            { url: '/FAQ', priority: '0.6', changefreq: 'monthly' },
             
             { url: '/privacy', priority: '0.3', changefreq: 'yearly' },
             { url: '/terms', priority: '0.3', changefreq: 'yearly' },
