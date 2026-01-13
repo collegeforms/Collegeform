@@ -26,7 +26,8 @@ import Footer from "../../../components/footer/Footer";
 import "./filters.css";
 import { Helmet } from "react-helmet";
 import BannerRow from "./SimpleBannerRow";
-
+import SEO from "./SEO";
+import { useCollegeSEO } from "./hooks/useCollegeSEO";
 const Collegespage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCollege, setSelectedCollege] = useState(null);
@@ -42,6 +43,9 @@ const Collegespage = () => {
     specialization: [],
     levels: [],
   });
+    const { slug } = useParams();
+  const { title, description, canonical, ogImage, structuredData } = useCollegeSEO(slug);
+  
   const [filterOptions, setFilterOptions] = useState({
     courses: [],
     locations: [],
@@ -615,25 +619,16 @@ const Collegespage = () => {
   };
 
   return (
-    <><Helmet>
-      <title>Top Colleges in India – Compare & Apply | College Search Made Easy</title>
-      <meta name="description" content="Find the best colleges across India for BBA, MBA, PGDM, and more. Use our college finder, explore college lists, and apply with discounts and scholarships on tuition fees." />
-      <meta name="keywords" content="top colleges list, BBA MBA colleges, college finder tool, best PGDM institutes, compare colleges India, admission application help, common application form, universal form" />
+    <>
+         <SEO
+        title={title}
+        description={description}
+        canonical={canonical}
+        ogImage={ogImage}
+        ogType="article"
+        structuredData={structuredData}
+      />
       
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://www.collegeforms.in/colleges" />
-      <meta property="og:title" content="Top Colleges in India – Compare & Apply | College Search Made Easy" />
-      <meta property="og:description" content="Find and compare top colleges for BBA, MBA, PGDM in India. Apply with discounts using our universal application form." />
-      <meta property="og:image" content="https://www.collegeforms.in/images/college-guidance-og.jpg" />
-      
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:url" content="https://www.collegeforms.in/colleges" />
-      <meta name="twitter:title" content="Top Colleges in India – Compare & Apply | College Search Made Easy" />
-      <meta name="twitter:description" content="Use our college finder to discover and apply to top BBA, MBA, PGDM colleges in India with exclusive discounts." />
-      <meta name="twitter:image" content="https://www.collegeforms.in/images/college-guidance-twitter.jpg" />
-      
-      <link rel="canonical" href="https://www.collegeforms.in/colleges" />
-    </Helmet>
 
       <Navbar />
       <BannerRow category={'Default'} />

@@ -5,7 +5,12 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node index.js",
-    "start:prod": "NODE_ENV=production node index.js"
+    "start:prod": "NODE_ENV=production node index.js",
+     "build:client": "cd ../frontend && npm run build",
+    "deploy": "npm run build:client && npm start",
+    "seo:test": "node scripts/seo-test.js",
+    "seo:audit": "node scripts/seo-audit.js",
+    "sitemap:generate": "node scripts/generate-sitemap.js"
   },
   "author": "",
   "type": "module",
@@ -27,7 +32,11 @@
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "prerender-node": "^3.8.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-helmet-async": "^2.0.5",
     "resend": "^6.1.0",
+    "sitemap": "^9.0.0",
     "slugify": "^1.6.6"
   },
   "keywords": [],
