@@ -1,4 +1,4 @@
-// frontend/src/components/SEO.jsx
+// frontend/src/main-component/router/components/SEO.jsx
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 
@@ -9,23 +9,28 @@ const SEO = ({
   ogImage, 
   ogType = 'website',
   structuredData,
-  noIndex = false 
+  noIndex = false,
+  keywords = ''
 }) => {
   const location = useLocation();
   const siteUrl = 'https://www.collegeforms.in';
   const siteName = 'College Forms';
+  const currentYear = new Date().getFullYear();
   
-  const defaultTitle = 'College Forms - College Admissions & Application Forms';
-  const defaultDescription = 'Apply to 1000+ colleges in India. Get free admission counseling, application forms for UG/PG courses, entrance exam details & more.';
+  // Default values matching your homepage
+  const defaultTitle = "India's most preferred and trusted online platform for discounted College Applications | College Forms";
+  const defaultDescription = "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.";
+  const defaultKeywords = "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees";
   const defaultImage = `${siteUrl}/uploads/og-default.jpg`;
   
   // Construct final values
-  const seoTitle = title ? `${title} | ${siteName}` : defaultTitle;
+  const seoTitle = title || defaultTitle;
   const seoDescription = description || defaultDescription;
-  const seoCanonical = canonical || `${siteUrl}${location.pathname}`;
+  const seoCanonical = canonical ? `${siteUrl}${canonical}` : `${siteUrl}${location.pathname}`;
   const seoImage = ogImage || defaultImage;
+  const seoKeywords = keywords || defaultKeywords;
   
-  // Remove query params from canonical
+  // Remove query params from canonical URL
   const cleanCanonical = seoCanonical.split('?')[0];
 
   return (
@@ -33,16 +38,29 @@ const SEO = ({
       {/* Primary Meta Tags */}
       <title>{seoTitle}</title>
       <meta name="description" content={seoDescription} />
-      <meta name="keywords" content="college admission, application forms, UG courses, PG courses, entrance exams, India colleges" />
+      <meta name="keywords" content={seoKeywords} />
       <link rel="canonical" href={cleanCanonical} />
       
       {/* Robots */}
       {noIndex ? (
         <meta name="robots" content="noindex, nofollow" />
       ) : (
-        <meta name="robots" content="index, follow" />
+        <>
+          <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+          <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+          <meta name="bingbot" content="index, follow, max-image-preview:large" />
+        </>
       )}
 
+      {/* Author & Publisher */}
+      <meta name="author" content="College Forms" />
+      <meta name="publisher" content="College Forms" />
+      <meta name="copyright" content={`Copyright © ${currentYear} College Forms. All rights reserved.`} />
+      
+      {/* Language */}
+      <meta name="language" content="en" />
+      <meta property="og:locale" content="en_IN" />
+      
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={cleanCanonical} />
@@ -52,8 +70,7 @@ const SEO = ({
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:site_name" content={siteName} />
-      <meta property="og:locale" content="en_IN" />
-
+      
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:url" content={cleanCanonical} />
@@ -61,18 +78,18 @@ const SEO = ({
       <meta name="twitter:description" content={seoDescription} />
       <meta name="twitter:image" content={seoImage} />
       <meta name="twitter:site" content="@CollegeForms" />
-
+      <meta name="twitter:creator" content="@CollegeForms" />
+      
       {/* Additional SEO Tags */}
-      <meta name="author" content={siteName} />
-      <meta name="copyright" content={`Copyright © ${new Date().getFullYear()} ${siteName}`} />
-      <meta name="language" content="English" />
       <meta name="geo.region" content="IN" />
       <meta name="geo.placename" content="India" />
+      <meta name="ICBM" content="20.5937, 78.9629" />
       
       {/* Mobile & PWA */}
       <meta name="theme-color" content="#2563eb" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      <meta name="mobile-web-app-capable" content="yes" />
       
       {/* Structured Data */}
       {structuredData && (
@@ -80,6 +97,31 @@ const SEO = ({
           {JSON.stringify(structuredData)}
         </script>
       )}
+      
+      {/* Default Organization Structured Data */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "College Forms",
+          "url": "https://www.collegeforms.in",
+          "logo": "https://www.collegeforms.in/logo.png",
+          "description": "India's most preferred and trusted online platform for discounted College Applications",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+91-XXXXXXXXXX",
+            "contactType": "Customer Support",
+            "areaServed": "IN",
+            "availableLanguage": ["English", "Hindi"]
+          },
+          "sameAs": [
+            "https://www.facebook.com/collegeforms",
+            "https://twitter.com/CollegeForms",
+            "https://www.linkedin.com/company/collegeforms",
+            "https://www.instagram.com/collegeforms"
+          ]
+        })}
+      </script>
     </Helmet>
   );
 };

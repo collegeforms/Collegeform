@@ -1,53 +1,22 @@
 // backend/middleware/seoMiddleware.js
-import path from 'path';
-import { fileURLToPath } from 'url';
 import College from '../models/College.js';
-import Course from '../models/course.js';
-import Blog from '../models/Blog.js';
-import Exam from '../models/Exam.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ======================
-// BOT DETECTION
-// ======================
-
-const BOT_USER_AGENTS = [
-  'googlebot', 'googlebot-news', 'googlebot-image',
-  'bingbot', 'slurp', 'duckduckbot',
-  'baiduspider', 'yandexbot', 'sogou',
-  'exabot', 'facebookexternalhit',
-  'twitterbot', 'rogerbot', 'linkedinbot',
-  'embedly', 'quora link preview',
-  'showyoubot', 'outbrain', 'pinterest',
-  'developers.google.com', 'whatsapp',
-  'telegrambot', 'discordbot', 'slackbot',
-  'applebot', 'petalbot'
-];
-
-const isBotRequest = (userAgent) => {
-  if (!userAgent) return false;
-  const lowerUA = userAgent.toLowerCase();
-  return BOT_USER_AGENTS.some(bot => lowerUA.includes(bot));
-};
-
-// ======================
-// META TAG GENERATOR
-// ======================
 
 const getDynamicMetaTags = async (url) => {
   const baseUrl = 'https://www.collegeforms.in';
   const siteName = 'College Forms';
+  const currentYear = new Date().getFullYear();
   
-  // Default meta tags
+  // Default meta tags for homepage
   let meta = {
-    title: `${siteName} - College Admissions & Application Forms`,
-    description: 'Apply to 1000+ colleges in India. Get free admission counseling, application forms for UG/PG courses, entrance exam details & more.',
-    keywords: 'college admission, application forms, UG courses, PG courses, entrance exams, India colleges',
-    canonical: baseUrl + url.split('?')[0], // Remove query params for canonical
+    title: "India's most preferred and trusted online platform for discounted College Applications | College Forms",
+    description: "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.",
+    keywords: "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees",
+    canonical: baseUrl + url.split('?')[0],
     ogImage: `${baseUrl}/uploads/og-default.jpg`,
     twitterImage: `${baseUrl}/uploads/twitter-default.jpg`,
+    robots: 'index, follow, max-image-preview:large',
+    author: 'College Forms',
+    publisher: 'College Forms',
     structuredData: null
   };
 
@@ -55,121 +24,178 @@ const getDynamicMetaTags = async (url) => {
     const cleanUrl = url.split('?')[0]; // Remove query parameters
     
     // ======================
-    // COLLEGE DETAIL PAGE
+    // COLLEGE DETAIL PAGE - UPDATED WITH CORRECT FIELD NAMES
     // ======================
     if (cleanUrl.startsWith('/college/')) {
       const slug = cleanUrl.split('/college/')[1];
       if (slug) {
-        const college = await College.findOne({ slug })
-          .populate('courses', 'name')
-          .select('name description city state courses logo website accreditation rating');
+        console.log(`🔍 Fetching college data for slug: ${slug}`);
+        
+        // Try to find the college in database with correct field names
+        let college;
+        
+        try {
+          // Try exact slug match first
+          college = await College.findOne({ slug: slug })
+            .select('name location description shortDescription minFees maxFees avgPackage courses rating image coursePricing admissionProcess importantDates placementStats placementCompanies keyHighlights')
+            .lean();
+          
+          // If not found by slug, try to find by name in URL
+          if (!college) {
+            // Extract college name from URL for fallback search
+            const collegeNameFromUrl = slug.split('-')
+              .filter(word => !['university', 'college', 'institute', 'bangalore', 'delhi', 'mumbai', 'pune', 'chennai', 'hyderabad', 'kolkata', 'ahmedabad', 'courses', 'fees', 'placements', 'admissions'].includes(word.toLowerCase()))
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+              
+            if (collegeNameFromUrl) {
+              college = await College.findOne({
+                name: { $regex: collegeNameFromUrl, $options: 'i' }
+              })
+              .select('name location description shortDescription minFees maxFees avgPackage courses rating image')
+              .lean();
+            }
+          }
+        } catch (dbError) {
+          console.error('Database error:', dbError);
+        }
         
         if (college) {
-          const courseNames = college.courses?.map(c => c.name).join(', ') || 'Various courses';
+          console.log(`✅ Found college: ${college.name}`);
           
-          meta.title = `${college.name} | Admission 2024, Courses, Fees, Placement | College Forms`;
-          meta.description = `${college.name} in ${college.city}, ${college.state}. ${college.description?.substring(0, 150) || `Offering ${courseNames}. Get admission forms, fees, cutoff, ranking & placement details.`}`;
-          meta.keywords = `${college.name}, ${college.city} colleges, ${college.state} colleges, ${college.name} admission, ${college.name} courses`;
+          // Extract location parts (city, state)
+          let city = 'India';
+          let state = 'India';
+          if (college.location) {
+            const locationParts = college.location.split(',');
+            city = locationParts[0]?.trim() || 'India';
+            state = locationParts[1]?.trim() || 'India';
+          }
+          
+          // Extract course names
+          let courseNames = 'Various Courses';
+          if (college.courses && college.courses.length > 0) {
+            courseNames = college.courses.slice(0, 5).join(', ');
+          }
+          
+          // Generate dynamic title - CORRECTED
+          meta.title = `${college.name} - Courses, Fees ${currentYear}, Placements, Admissions | College Forms`;
+          
+          // Generate dynamic description
+          const feeRange = college.minFees && college.maxFees ? 
+            `Fees range from ₹${college.minFees.toLocaleString()} to ₹${college.maxFees.toLocaleString()}` : 
+            'Affordable fee structure';
+            
+          const placementInfo = college.avgPackage ? 
+            `with average placement package of ₹${college.avgPackage.toLocaleString()} LPA` : 
+            'with excellent placement records';
+          
+          meta.description = `${college.name} located in ${college.location}. Explore ${courseNames.toLowerCase()} courses, ${feeRange}, ${placementInfo}. Get complete admission guidance, important dates, required documents, and application process for ${currentYear}.`;
+          
+          // Generate keywords
+          meta.keywords = `${college.name}, ${college.name} courses, ${college.name} fees ${currentYear}, ${college.name} placements, ${college.name} admission ${currentYear}, ${city} colleges, best colleges in ${state}, college admission help, discounted college forms`;
+          
+          // CORRECT canonical URL - specific to this college page
           meta.canonical = `${baseUrl}/college/${slug}`;
-          meta.ogImage = college.logo ? `${baseUrl}${college.logo}` : meta.ogImage;
           
-          // Structured Data for College
-          meta.structuredData = {
+          // Robots tag
+          meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+          
+          // Author and Publisher
+          meta.author = 'College Forms';
+          meta.publisher = 'College Forms';
+          
+          // Images
+          meta.ogImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/college-default.jpg`;
+          meta.twitterImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/twitter-default.jpg`;
+          
+          // Structured Data for College - UPDATED WITH CORRECT FIELDS
+          const structuredData = {
             "@context": "https://schema.org",
-            "@type": "CollegeOrUniversity",
+            "@type": "EducationalOrganization",
             "name": college.name,
-            "description": college.description?.substring(0, 200),
+            "description": college.shortDescription || college.description?.substring(0, 200) || `Information about ${college.name} college`,
             "url": `${baseUrl}/college/${slug}`,
-            "logo": college.logo ? `${baseUrl}${college.logo}` : null,
+            "logo": college.image ? `${baseUrl}${college.image}` : `${baseUrl}/logo.png`,
+            "image": college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/college-default.jpg`,
             "address": {
               "@type": "PostalAddress",
-              "addressLocality": college.city,
-              "addressRegion": college.state,
+              "addressLocality": city,
+              "addressRegion": state,
               "addressCountry": "IN"
             },
             "aggregateRating": college.rating ? {
               "@type": "AggregateRating",
               "ratingValue": college.rating,
-              "reviewCount": college.reviewsCount || 10
+              "ratingCount": 100,
+              "bestRating": "5",
+              "worstRating": "1"
             } : undefined
           };
-        }
-      }
-    }
-    
-    // ======================
-    // COURSE DETAIL PAGE
-    // ======================
-    else if (cleanUrl.startsWith('/course/')) {
-      const slug = cleanUrl.split('/course/')[1];
-      if (slug) {
-        const course = await Course.findOne({ slug })
-          .populate('colleges', 'name city')
-          .select('title description duration fees eligibility scope');
-        
-        if (course) {
-          const collegeCount = course.colleges?.length || 0;
           
-          meta.title = `${course.title} Course - Duration, Fees, Eligibility, Colleges | College Forms`;
-          meta.description = `${course.title} course details: ${course.duration} duration, fees ₹${course.fees?.min || 'Varies'}. Eligibility: ${course.eligibility || '10+2'}. Offered by ${collegeCount}+ colleges. Career scope: ${course.scope || 'Excellent opportunities'}`;
-          meta.keywords = `${course.title} course, ${course.title} admission, ${course.title} fees, ${course.title} eligibility, ${course.title} colleges`;
-          meta.canonical = `${baseUrl}/course/${slug}`;
-          
-          // Structured Data for Course
-          meta.structuredData = {
-            "@context": "https://schema.org",
-            "@type": "Course",
-            "name": course.title,
-            "description": course.description,
-            "courseCode": course.code || course.title.substring(0, 10).toUpperCase(),
-            "timeRequired": course.duration,
-            "educationalCredentialAwarded": "Certificate/Diploma/Degree",
-            "offers": {
+          // Add offers if fee information exists
+          if (college.minFees) {
+            structuredData.offers = {
               "@type": "Offer",
-              "price": course.fees?.min || "0",
-              "priceCurrency": "INR"
-            }
-          };
-        }
-      }
-    }
-    
-    // ======================
-    // BLOG DETAIL PAGE
-    // ======================
-    else if (cleanUrl.startsWith('/blog/')) {
-      const slug = cleanUrl.split('/blog/')[1];
-      if (slug) {
-        const blog = await Blog.findOne({ slug })
-          .select('title excerpt content featuredImage author publishedAt tags');
-        
-        if (blog) {
-          meta.title = `${blog.title} | College Forms Blog`;
-          meta.description = blog.excerpt || blog.content?.substring(0, 160) + '...';
-          meta.keywords = blog.tags?.join(', ') || 'college admission, education tips';
-          meta.canonical = `${baseUrl}/blog/${slug}`;
-          meta.ogImage = blog.featuredImage ? `${baseUrl}${blog.featuredImage}` : meta.ogImage;
+              "price": college.minFees,
+              "priceCurrency": "INR",
+              "availability": "https://schema.org/InStock",
+              "description": "Annual tuition fees"
+            };
+          }
           
-          // Structured Data for Blog
+          // Add course information
+          if (college.courses && college.courses.length > 0) {
+            structuredData.course = college.courses.map(course => ({
+              "@type": "Course",
+              "name": course,
+              "description": `${course} course at ${college.name}`,
+              "provider": {
+                "@type": "Organization",
+                "name": college.name
+              }
+            }));
+          }
+          
+          meta.structuredData = structuredData;
+          
+        } else {
+          // College not found in DB - Generate dynamic content from URL
+          console.log(`❌ College not found in DB for slug: ${slug}`);
+          
+          // Parse college name from URL
+          const urlParts = slug.split('-');
+          const collegeName = urlParts
+            .filter(part => !['university', 'college', 'institute', 'bangalore', 'delhi', 'mumbai', 'pune', 'chennai', 'hyderabad', 'kolkata', 'ahmedabad', 'courses', 'fees', 'placements', 'admissions'].includes(part.toLowerCase()))
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+          
+          const location = urlParts.includes('bangalore') ? 'Bangalore, Karnataka' : 
+                          urlParts.includes('delhi') ? 'Delhi' : 
+                          urlParts.includes('mumbai') ? 'Mumbai, Maharashtra' : 
+                          'India';
+          
+          // For example: christ-university-bangalore-courses-fees-placements-admissions-bangalore
+          meta.title = `${collegeName} - Courses, Fees ${currentYear}, Placements, Admissions | College Forms`;
+          meta.description = `${collegeName} in ${location}. Explore courses, fee structure ${currentYear}, placement records, admission process, scholarships, and application forms. Get expert admission guidance and exclusive discounts at College Forms.`;
+          meta.keywords = `${collegeName}, ${collegeName} courses, ${collegeName} fees, ${collegeName} admission, ${location.split(',')[0]} colleges, college admission help, discounted application forms`;
+          meta.canonical = `${baseUrl}/college/${slug}`;
+          meta.robots = 'index, follow, max-image-preview:large';
+          meta.author = 'College Forms';
+          meta.publisher = 'College Forms';
+          
+          // Generate structured data even for not-found colleges
           meta.structuredData = {
             "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "headline": blog.title,
-            "description": blog.excerpt,
-            "image": blog.featuredImage ? `${baseUrl}${blog.featuredImage}` : meta.ogImage,
-            "datePublished": blog.publishedAt,
-            "dateModified": blog.updatedAt || blog.publishedAt,
-            "author": {
-              "@type": "Person",
-              "name": blog.author || "College Forms Team"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "College Forms",
-              "logo": {
-                "@type": "ImageObject",
-                "url": `${baseUrl}/logo.png`
-              }
+            "@type": "EducationalOrganization",
+            "name": collegeName,
+            "description": `Information about ${collegeName} college in ${location}`,
+            "url": `${baseUrl}/college/${slug}`,
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": location.split(',')[0],
+              "addressRegion": location.split(',')[1] || location,
+              "addressCountry": "IN"
             }
           };
         }
@@ -177,60 +203,16 @@ const getDynamicMetaTags = async (url) => {
     }
     
     // ======================
-    // EXAM DETAIL PAGE
+    // HOMEPAGE
     // ======================
-    else if (cleanUrl.startsWith('/exam/')) {
-      const slug = cleanUrl.split('/exam/')[1];
-      if (slug) {
-        const exam = await Exam.findOne({ slug })
-          .select('name description eligibility syllabus importantDates');
-        
-        if (exam) {
-          meta.title = `${exam.name} 2024 - Exam Date, Syllabus, Eligibility, Application Form | College Forms`;
-          meta.description = `${exam.name} entrance exam details: ${exam.description?.substring(0, 140) || 'National level entrance exam'}. Check eligibility, syllabus, important dates, application process & preparation tips.`;
-          meta.keywords = `${exam.name} 2024, ${exam.name} exam date, ${exam.name} syllabus, ${exam.name} application form`;
-          meta.canonical = `${baseUrl}/exam/${slug}`;
-        }
-      }
-    }
-    
-    // ======================
-    // LISTING PAGES
-    // ======================
-    else if (cleanUrl === '/colleges') {
-      meta.title = 'Colleges in India - Top Engineering, Medical, Arts Colleges | College Forms';
-      meta.description = 'Browse 5000+ colleges in India by location, course, specialization. Find admission details, fees, cutoff ranks, placement records & apply online.';
-      meta.keywords = 'engineering colleges, medical colleges, arts colleges, top colleges India, college admission 2024';
-      
-      meta.structuredData = {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        "name": "Colleges in India",
-        "description": "List of top colleges in India",
-        "numberOfItems": 5000,
-        "itemListOrder": "https://schema.org/ItemListOrderAscending"
-      };
-    }
-    
-    else if (cleanUrl === '/courses') {
-      meta.title = 'Courses in India - Engineering, Medical, Management, Arts | College Forms';
-      meta.description = 'Explore 200+ courses in India: BTech, MBBS, MBA, BBA, BSc, BA, etc. Check course details, duration, fees, eligibility, scope & colleges.';
-      meta.keywords = 'engineering courses, medical courses, management courses, UG courses, PG courses';
-    }
-    
-    else if (cleanUrl === '/exams') {
-      meta.title = 'Entrance Exams 2024 - JEE, NEET, CAT, UPSC, SSC | College Forms';
-      meta.description = 'Complete guide to entrance exams in India: JEE Main, NEET, CAT, MAT, CLAT, UPSC, SSC. Check exam dates, syllabus, eligibility, application process.';
-      meta.keywords = 'JEE Main 2024, NEET 2024, CAT 2024, entrance exams, competitive exams';
-    }
-    
-    // ======================
-    // STATIC PAGES
-    // ======================
-    else if (cleanUrl === '/') {
-      meta.title = 'College Forms - Online College Admission & Application Forms 2024';
-      meta.description = 'Apply to 1000+ colleges online. Free admission counseling for engineering, medical, management, arts courses. Get application forms, check fees, cutoff & admission process.';
-      meta.keywords = 'college admission 2024, online application form, admission counseling, college search, India colleges';
+    else if (cleanUrl === '/' || cleanUrl === '') {
+      meta.title = "India's most preferred and trusted online platform for discounted College Applications | College Forms";
+      meta.description = "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.";
+      meta.keywords = "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees";
+      meta.canonical = baseUrl;
+      meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+      meta.author = 'College Forms';
+      meta.publisher = 'College Forms';
       
       // Homepage Structured Data
       meta.structuredData = {
@@ -238,6 +220,7 @@ const getDynamicMetaTags = async (url) => {
         "@type": "WebSite",
         "name": "College Forms",
         "url": baseUrl,
+        "description": "India's most preferred online platform for discounted college applications",
         "potentialAction": {
           "@type": "SearchAction",
           "target": `${baseUrl}/search?q={search_term_string}`,
@@ -246,38 +229,33 @@ const getDynamicMetaTags = async (url) => {
       };
     }
     
-    else if (cleanUrl === '/about') {
-      meta.title = 'About College Forms - College Admission Assistance Platform';
-      meta.description = 'College Forms helps students find & apply to colleges across India. We provide admission counseling, application assistance & college information since 2020.';
-      meta.keywords = 'about us, college admission help, education portal, student assistance';
+    // ======================
+    // OTHER PAGES
+    // ======================
+    else if (cleanUrl === '/colleges') {
+      meta.title = `Best Colleges in India ${currentYear} - Top Engineering, Medical, Management Colleges | College Forms`;
+      meta.description = `Find and compare the best colleges in India for ${currentYear}. Explore top engineering, medical, management, arts colleges with fee structure, placement records, admission process, and exclusive discounts.`;
+      meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees`;
+      meta.canonical = `${baseUrl}/colleges`;
     }
     
-    else if (cleanUrl === '/contact') {
-      meta.title = 'Contact College Forms - Admission Queries & Support';
-      meta.description = 'Contact College Forms team for admission queries, college information, application assistance, counseling services. Phone, email & live chat support.';
-      meta.keywords = 'contact us, admission help, college queries, support';
-      
-      meta.structuredData = {
-        "@context": "https://schema.org",
-        "@type": "ContactPage",
-        "name": "Contact College Forms",
-        "description": "Get in touch for college admission assistance"
-      };
+    else if (cleanUrl === '/courses') {
+      meta.title = `Best Courses after 12th ${currentYear} - Engineering, Medical, Arts, Commerce | College Forms`;
+      meta.description = `Explore the best courses after 12th for ${currentYear}. Get complete information about engineering, medical, arts, commerce, management courses with career scope, eligibility, and college options.`;
+      meta.keywords = `best courses after 12th ${currentYear}, engineering courses, medical courses, arts courses, career guidance, course selection`;
+      meta.canonical = `${baseUrl}/courses`;
     }
     
   } catch (error) {
     console.error('SEO Meta Tag Generation Error:', error);
-    // Fallback to defaults
+    // Keep default values
   }
   
   return meta;
 };
 
-// ======================
-// HTML GENERATOR FOR BOTS
-// ======================
-
-const generateBotHTML = (metaTags, url) => {
+// Update the generateBotHTML function to include ALL meta tags
+const generateBotHTML = (metaTags) => {
   const structuredDataHTML = metaTags.structuredData 
     ? `<script type="application/ld+json">${JSON.stringify(metaTags.structuredData, null, 2)}</script>`
     : '';
@@ -294,6 +272,20 @@ const generateBotHTML = (metaTags, url) => {
     <meta name="keywords" content="${metaTags.keywords}">
     <link rel="canonical" href="${metaTags.canonical}">
     
+    <!-- Robots -->
+    <meta name="robots" content="${metaTags.robots}">
+    <meta name="googlebot" content="${metaTags.robots}">
+    <meta name="bingbot" content="${metaTags.robots}">
+    
+    <!-- Author & Publisher -->
+    <meta name="author" content="${metaTags.author}">
+    <meta name="publisher" content="${metaTags.publisher}">
+    <meta name="copyright" content="Copyright © ${new Date().getFullYear()} College Forms. All rights reserved.">
+    
+    <!-- Language -->
+    <meta name="language" content="en">
+    <meta property="og:locale" content="en_IN">
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="${metaTags.canonical}">
@@ -302,7 +294,6 @@ const generateBotHTML = (metaTags, url) => {
     <meta property="og:image" content="${metaTags.ogImage}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="en_IN">
     <meta property="og:site_name" content="College Forms">
     
     <!-- Twitter -->
@@ -312,263 +303,185 @@ const generateBotHTML = (metaTags, url) => {
     <meta name="twitter:description" content="${metaTags.description.replace(/"/g, '&quot;')}">
     <meta name="twitter:image" content="${metaTags.twitterImage}">
     <meta name="twitter:site" content="@CollegeForms">
+    <meta name="twitter:creator" content="@CollegeForms">
     
-    <!-- SEO Meta Tags -->
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large">
-    <meta name="author" content="College Forms">
-    <meta name="copyright" content="Copyright © ${new Date().getFullYear()} College Forms. All rights reserved.">
-    <meta name="language" content="English">
+    <!-- Additional SEO Tags -->
     <meta name="geo.region" content="IN">
     <meta name="geo.placename" content="India">
-    <meta name="geo.position" content="20.5937;78.9629">
     <meta name="ICBM" content="20.5937, 78.9629">
     
     <!-- Mobile & PWA -->
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     
     <!-- Structured Data -->
     ${structuredDataHTML}
     
-    <!-- Preload & Preconnect for Performance -->
-    <link rel="preconnect" href="https://www.collegeforms.in">
-    <link rel="dns-prefetch" href="https://www.collegeforms.in">
-    <link rel="preload" href="${metaTags.ogImage}" as="image">
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* SEO-optimized content for bots */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             color: #1f2937;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            margin: 0;
             padding: 20px;
+            background: #f8fafc;
         }
         .seo-container {
             max-width: 1200px;
-            margin: 40px auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-        .seo-header {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-        .seo-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-        .seo-header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 800px;
             margin: 0 auto;
-        }
-        .seo-content {
-            padding: 40px;
-        }
-        .content-section {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: #f8fafc;
+            background: white;
             border-radius: 12px;
-            border-left: 5px solid #2563eb;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .content-section h2 {
+        h1 {
             color: #1e40af;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 15px;
         }
-        .content-section p {
+        h2 {
+            color: #1e40af;
+            font-size: 1.8rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h3 {
+            color: #374151;
+            font-size: 1.4rem;
+            margin-top: 25px;
             margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
             color: #4b5563;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid #2563eb;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
         }
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-top: 30px;
+            margin: 30px 0;
         }
         .feature-card {
-            background: white;
+            background: #f8fafc;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
             text-align: center;
-            transition: transform 0.3s ease;
         }
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-        .feature-card h3 {
+        .feature-card h4 {
             color: #2563eb;
             margin-bottom: 10px;
         }
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
-            padding: 15px 40px;
-            border-radius: 50px;
+            padding: 15px 30px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-weight: bold;
             margin-top: 20px;
-            transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            font-size: 1.1rem;
         }
         .cta-button:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
         }
-        .seo-footer {
-            text-align: center;
-            padding: 30px;
-            background: #1e293b;
-            color: white;
-            border-top: 5px solid #2563eb;
+        .content-list {
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+        .content-list li {
+            margin-bottom: 10px;
+            color: #4b5563;
         }
         @media (max-width: 768px) {
-            .seo-header h1 { font-size: 2rem; }
-            .seo-header p { font-size: 1rem; }
-            .seo-content { padding: 20px; }
-            .features-grid { grid-template-columns: 1fr; }
+            .seo-container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="seo-container">
-        <header class="seo-header">
-            <h1>${metaTags.title}</h1>
-            <p>${metaTags.description}</p>
-            <a href="${metaTags.canonical}" class="cta-button">Visit Page</a>
-        </header>
+        <h1>${metaTags.title}</h1>
+        <p>${metaTags.description}</p>
         
-        <main class="seo-content">
-            <div class="content-section">
-                <h2>About College Forms</h2>
-                <p>College Forms is India's leading platform for college admissions and application assistance. We help students find, compare, and apply to colleges across India with ease.</p>
-                <p>Our platform provides comprehensive information about colleges, courses, admission processes, fees, cutoffs, and placement records.</p>
-            </div>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>📚 5000+ Colleges</h3>
-                    <p>Extensive database of colleges across India</p>
-                </div>
-                <div class="feature-card">
-                    <h3>🎓 200+ Courses</h3>
-                    <p>Engineering, Medical, Management, Arts & more</p>
-                </div>
-                <div class="feature-card">
-                    <h3>📝 Online Applications</h3>
-                    <p>Apply to multiple colleges with single click</p>
-                </div>
-                <div class="feature-card">
-                    <h3>🎯 Admission Counseling</h3>
-                    <p>Expert guidance for college selection</p>
-                </div>
-            </div>
-            
-            <div class="content-section">
-                <h2>Why Choose College Forms?</h2>
-                <p>• 100% Free Platform - No hidden charges</p>
-                <p>• Verified College Information</p>
-                <p>• Real-time Application Tracking</p>
-                <p>• Expert Admission Guidance</p>
-                <p>• Scholarship Assistance</p>
-                <p>• Document Verification Help</p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px;">
-                <a href="${metaTags.canonical}" class="cta-button">Explore ${url.includes('college') ? 'College' : url.includes('course') ? 'Course' : 'Platform'}</a>
-            </div>
-        </main>
+        <div class="highlight-box">
+            <h2>Why Choose College Forms?</h2>
+            <p>College Forms is India's most trusted platform for college admissions, offering exclusive discounts on application forms, expert admission guidance, and comprehensive college information.</p>
+        </div>
         
-        <footer class="seo-footer">
-            <p>© ${new Date().getFullYear()} College Forms. All rights reserved.</p>
-            <p>Helping students achieve their academic dreams since 2020</p>
-        </footer>
+        <h2>Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h4>🎓 5000+ Colleges</h4>
+                <p>Extensive database of colleges across India with verified information</p>
+            </div>
+            <div class="feature-card">
+                <h4>💰 Exclusive Discounts</h4>
+                <p>Get special discounts on college application forms and scholarships</p>
+            </div>
+            <div class="feature-card">
+                <h4>📝 Easy Applications</h4>
+                <p>Apply to multiple colleges with single click application process</p>
+            </div>
+            <div class="feature-card">
+                <h4>🎯 Expert Guidance</h4>
+                <p>Professional admission counseling and career guidance</p>
+            </div>
+        </div>
+        
+        <h2>Comprehensive College Information</h2>
+        <ul class="content-list">
+            <li>Complete fee structure and scholarship details</li>
+            <li>Admission process and important dates</li>
+            <li>Placement records and company information</li>
+            <li>Course details and eligibility criteria</li>
+            <li>Campus facilities and infrastructure</li>
+            <li>Faculty information and accreditation details</li>
+        </ul>
+        
+        <h2>Admission Assistance</h2>
+        <p>Our team of admission experts helps you with:</p>
+        <ul class="content-list">
+            <li>College selection based on your profile</li>
+            <li>Application form filling assistance</li>
+            <li>Document preparation and verification</li>
+            <li>Entrance exam guidance</li>
+            <li>Scholarship application support</li>
+            <li>Admission interview preparation</li>
+        </ul>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="${metaTags.canonical}" class="cta-button">Visit College Forms for Complete Details</a>
+        </div>
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <p><strong>About College Forms:</strong> College Forms is India's leading platform for college admissions, trusted by thousands of students for authentic information, exclusive discounts, and expert guidance.</p>
+            <p><strong>Contact:</strong> For admission queries, call us at +91-XXXXXXXXXX or email at support@collegeforms.in</p>
+        </div>
     </div>
-    
-    <!-- Bot Analytics -->
-    <noscript>
-        <img src="https://www.collegeforms.in/api/track/bot?page=${encodeURIComponent(url)}" 
-             alt="" width="1" height="1" style="display:none;">
-    </noscript>
 </body>
 </html>`;
-};
-
-// ======================
-// MAIN SEO MIDDLEWARE
-// ======================
-
-export const seoMiddleware = async (req, res, next) => {
-  const userAgent = req.get('user-agent') || '';
-  const url = req.originalUrl;
-  
-  // Skip for non-HTML requests
-  if (
-    url.startsWith('/api/') ||
-    url.startsWith('/uploads/') ||
-    url.startsWith('/static/') ||
-    url.includes('.json') ||
-    url.includes('.xml') ||
-    url.includes('.txt') ||
-    url.includes('.ico') ||
-    url.includes('.png') ||
-    url.includes('.jpg') ||
-    url.includes('.jpeg') ||
-    url.includes('.gif') ||
-    url.includes('.svg') ||
-    url.includes('.css') ||
-    url.includes('.js') ||
-    url.includes('.webp')
-  ) {
-    return next();
-  }
-  
-  // Check if it's a bot request
-  if (isBotRequest(userAgent)) {
-    try {
-      console.log(`🤖 Bot detected: ${userAgent.substring(0, 60)} - URL: ${url}`);
-      
-      // Get dynamic meta tags
-      const metaTags = await getDynamicMetaTags(url);
-      
-      // Generate SEO HTML
-      const botHTML = generateBotHTML(metaTags, url);
-      
-      // Set headers for SEO
-      res.set({
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600, s-maxage=7200',
-        'Vary': 'User-Agent',
-        'X-Robots-Tag': 'index, follow',
-        'X-SEO-Page': 'true'
-      });
-      
-      return res.send(botHTML);
-      
-    } catch (error) {
-      console.error('SEO Middleware Error:', error);
-      // Fallback: serve React app
-      return next();
-    }
-  }
-  
-  // Regular users: continue to React app
-  next();
-};
+}; 

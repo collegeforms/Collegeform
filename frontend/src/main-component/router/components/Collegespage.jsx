@@ -43,9 +43,17 @@ const Collegespage = () => {
     specialization: [],
     levels: [],
   });
-    const { slug } = useParams();
-  const { title, description, canonical, ogImage, structuredData } = useCollegeSEO(slug);
-  
+   const { slug } = useParams();
+  const { 
+    title, 
+    description, 
+    canonical, 
+    ogImage, 
+    structuredData, 
+    error,
+    college 
+  } = useCollegeSEO();
+
   const [filterOptions, setFilterOptions] = useState({
     courses: [],
     locations: [],
