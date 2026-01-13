@@ -24,7 +24,7 @@ const getDynamicMetaTags = async (url) => {
     const cleanUrl = url.split('?')[0]; // Remove query parameters
     
     // ======================
-    // COLLEGE DETAIL PAGE - UPDATED WITH CORRECT FIELD NAMES
+    // COLLEGE DETAIL PAGE - FIXED
     // ======================
     if (cleanUrl.startsWith('/college/')) {
       const slug = cleanUrl.split('/college/')[1];
@@ -78,7 +78,7 @@ const getDynamicMetaTags = async (url) => {
             courseNames = college.courses.slice(0, 5).join(', ');
           }
           
-          // Generate dynamic title - CORRECTED
+          // Generate dynamic title
           meta.title = `${college.name} - Courses, Fees ${currentYear}, Placements, Admissions | College Forms`;
           
           // Generate dynamic description
@@ -95,7 +95,7 @@ const getDynamicMetaTags = async (url) => {
           // Generate keywords
           meta.keywords = `${college.name}, ${college.name} courses, ${college.name} fees ${currentYear}, ${college.name} placements, ${college.name} admission ${currentYear}, ${city} colleges, best colleges in ${state}, college admission help, discounted college forms`;
           
-          // CORRECT canonical URL - specific to this college page
+          // Correct canonical URL
           meta.canonical = `${baseUrl}/college/${slug}`;
           
           // Robots tag
@@ -109,7 +109,7 @@ const getDynamicMetaTags = async (url) => {
           meta.ogImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/college-default.jpg`;
           meta.twitterImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/twitter-default.jpg`;
           
-          // Structured Data for College - UPDATED WITH CORRECT FIELDS
+          // Structured Data for College
           const structuredData = {
             "@context": "https://schema.org",
             "@type": "EducationalOrganization",
@@ -173,9 +173,9 @@ const getDynamicMetaTags = async (url) => {
           const location = urlParts.includes('bangalore') ? 'Bangalore, Karnataka' : 
                           urlParts.includes('delhi') ? 'Delhi' : 
                           urlParts.includes('mumbai') ? 'Mumbai, Maharashtra' : 
+                          urlParts.includes('sonipat') || urlParts.includes('haryana') ? 'Sonipat, Haryana' :
                           'India';
           
-          // For example: christ-university-bangalore-courses-fees-placements-admissions-bangalore
           meta.title = `${collegeName} - Courses, Fees ${currentYear}, Placements, Admissions | College Forms`;
           meta.description = `${collegeName} in ${location}. Explore courses, fee structure ${currentYear}, placement records, admission process, scholarships, and application forms. Get expert admission guidance and exclusive discounts at College Forms.`;
           meta.keywords = `${collegeName}, ${collegeName} courses, ${collegeName} fees, ${collegeName} admission, ${location.split(',')[0]} colleges, college admission help, discounted application forms`;
@@ -206,51 +206,47 @@ const getDynamicMetaTags = async (url) => {
     // HOMEPAGE
     // ======================
     else if (cleanUrl === '/' || cleanUrl === '') {
-      meta.title = "India's most preferred and trusted online platform for discounted College Applications | College Forms";
-      meta.description = "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.";
-      meta.keywords = "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees";
+      // Default values already set, just update canonical
       meta.canonical = baseUrl;
-      meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
-      meta.author = 'College Forms';
-      meta.publisher = 'College Forms';
-      
-      // Homepage Structured Data
-      meta.structuredData = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "College Forms",
-        "url": baseUrl,
-        "description": "India's most preferred online platform for discounted college applications",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": `${baseUrl}/search?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
-      };
     }
     
     // ======================
-    // OTHER PAGES
+    // COLLEGES LISTING PAGE
     // ======================
     else if (cleanUrl === '/colleges') {
       meta.title = `Best Colleges in India ${currentYear} - Top Engineering, Medical, Management Colleges | College Forms`;
       meta.description = `Find and compare the best colleges in India for ${currentYear}. Explore top engineering, medical, management, arts colleges with fee structure, placement records, admission process, and exclusive discounts.`;
       meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees`;
       meta.canonical = `${baseUrl}/colleges`;
-    }
-
-       else if (cleanUrl === '/events') {
-      meta.title = `Events title`;
-      meta.description = `Event description`;
-      meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees`;
-      meta.canonical = `${baseUrl}/events`;
+      meta.robots = 'index, follow, max-image-preview:large';
+      meta.author = 'College Forms';
+      meta.publisher = 'College Forms';
     }
     
+    // ======================
+    // EVENTS PAGE
+    // ======================
+    else if (cleanUrl === '/events') {
+      meta.title = `College Admission Events & Webinars ${currentYear} | College Forms`;
+      meta.description = `Join free college admission events, webinars, and counseling sessions. Meet admission experts, get application guidance, and discover scholarship opportunities.`;
+      meta.keywords = `college admission events, admission webinars, free counseling, education events, college guidance sessions`;
+      meta.canonical = `${baseUrl}/events`;
+      meta.robots = 'index, follow, max-image-preview:large';
+      meta.author = 'College Forms';
+      meta.publisher = 'College Forms';
+    }
+    
+    // ======================
+    // COURSES PAGE
+    // ======================
     else if (cleanUrl === '/courses') {
       meta.title = `Best Courses after 12th ${currentYear} - Engineering, Medical, Arts, Commerce | College Forms`;
       meta.description = `Explore the best courses after 12th for ${currentYear}. Get complete information about engineering, medical, arts, commerce, management courses with career scope, eligibility, and college options.`;
       meta.keywords = `best courses after 12th ${currentYear}, engineering courses, medical courses, arts courses, career guidance, course selection`;
       meta.canonical = `${baseUrl}/courses`;
+      meta.robots = 'index, follow, max-image-preview:large';
+      meta.author = 'College Forms';
+      meta.publisher = 'College Forms';
     }
     
   } catch (error) {
@@ -261,7 +257,6 @@ const getDynamicMetaTags = async (url) => {
   return meta;
 };
 
-// Update the generateBotHTML function to include ALL meta tags
 const generateBotHTML = (metaTags) => {
   const structuredDataHTML = metaTags.structuredData 
     ? `<script type="application/ld+json">${JSON.stringify(metaTags.structuredData, null, 2)}</script>`
@@ -493,44 +488,107 @@ const generateBotHTML = (metaTags) => {
 </html>`;
 };
 
-// Add this at the VERY END of seoMiddleware.js
+// Enhanced SEO Middleware with better bot detection
 export const seoMiddleware = async (req, res, next) => {
   const userAgent = req.get('user-agent') || '';
   const url = req.originalUrl;
   
-  console.log(`🔍 SEO Middleware checking: ${url}`);
+  console.log(`🔍 SEO Middleware checking: ${url}, User-Agent: ${userAgent.substring(0, 100)}`);
   
   // Skip for non-HTML requests
-  if (
-    url.startsWith('/api/') ||
-    url.startsWith('/uploads/') ||
-    url.startsWith('/static/') ||
-    url.includes('.json') ||
-    url.includes('.xml') ||
-    url.includes('.txt') ||
-    url.includes('.ico') ||
-    url.includes('.png') ||
-    url.includes('.jpg') ||
-    url.includes('.jpeg') ||
-    url.includes('.gif') ||
-    url.includes('.svg') ||
-    url.includes('.css') ||
-    url.includes('.js')
-  ) {
+  const skipPatterns = [
+    '/api/',
+    '/uploads/',
+    '/static/',
+    '.json',
+    '.xml',
+    '.txt',
+    '.ico',
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.svg',
+    '.css',
+    '.js',
+    '.woff',
+    '.woff2',
+    '.ttf'
+  ];
+  
+  if (skipPatterns.some(pattern => url.includes(pattern))) {
+    console.log(`⏭️ Skipping SEO for non-HTML: ${url}`);
     return next();
   }
   
-  // Bot detection
+  // Enhanced bot detection
   const isBot = (ua) => {
     if (!ua) return false;
+    
     const lowerUA = ua.toLowerCase();
-    const bots = ['googlebot', 'bingbot', 'slurp', 'facebookexternalhit', 'twitterbot'];
+    
+    // Comprehensive list of bots
+    const bots = [
+      // Google
+      'googlebot',
+      'google-inspectiontool',
+      'mediapartners-google',
+      'adsbot-google',
+      
+      // Bing
+      'bingbot',
+      'msnbot',
+      'msnbot-media',
+      'bingpreview',
+      
+      // Yahoo
+      'slurp',
+      
+      // Facebook
+      'facebookexternalhit',
+      'facebot',
+      
+      // Twitter
+      'twitterbot',
+      
+      // LinkedIn
+      'linkedinbot',
+      
+      // Pinterest
+      'pinterest',
+      'pinterestbot',
+      
+      // SEO tools
+      'ahrefsbot',
+      'semrushbot',
+      'moz.com',
+      'mj12bot',
+      'dotbot',
+      'rogerbot',
+      'yandexbot',
+      'baiduspider',
+      'duckduckbot',
+      'applebot',
+      'sogou',
+      'exabot',
+      'ccbot',
+      'gptbot',
+      
+      // Generic bots
+      'bot',
+      'crawler',
+      'spider',
+      'scraper',
+      'monitor'
+    ];
+    
+    // Check if user agent contains any bot identifier
     return bots.some(bot => lowerUA.includes(bot));
   };
   
   // Check if it's a bot request
   if (isBot(userAgent)) {
-    console.log(`🤖 Bot detected: ${userAgent.substring(0, 50)}`);
+    console.log(`🤖 Bot detected for URL: ${url}`);
     
     try {
       // Get dynamic meta tags
@@ -541,9 +599,13 @@ export const seoMiddleware = async (req, res, next) => {
       
       // Set headers
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=7200');
+      res.setHeader('Vary', 'User-Agent');
       
       console.log(`✅ Serving SEO HTML for: ${url}`);
+      console.log(`📝 Title: ${metaTags.title.substring(0, 50)}...`);
+      console.log(`🔗 Canonical: ${metaTags.canonical}`);
+      
       return res.send(botHTML);
       
     } catch (error) {
@@ -556,4 +618,24 @@ export const seoMiddleware = async (req, res, next) => {
   // Regular users: continue to React app
   console.log(`👤 Regular user, passing to React: ${url}`);
   next();
+};
+
+// Debug endpoint to test SEO middleware
+export const debugSeoMiddleware = async (req, res) => {
+  const url = req.query.url || req.originalUrl;
+  console.log('Debug SEO for URL:', url);
+  
+  try {
+    const metaTags = await getDynamicMetaTags(url);
+    
+    res.json({
+      url,
+      metaTags,
+      userAgent: req.get('user-agent'),
+      isBot: isBot(req.get('user-agent')),
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

@@ -9,28 +9,7 @@ const Events = (props) => {
 
     return (
         <div>
-         <Helmet>
-    <title>College Admission Events & Education Fairs | Apply with Discounts</title>
-    <meta name="description" content="Attend college expos and MBA entrance events. Meet top colleges, grab scholarships, form fee discounts, and expert guidance on course selection and career choices." />
-    <meta name="keywords" content="college expo events, MBA admission fairs, top colleges meet, education fair India, discounts on forms, Global Education Fair, Study abroad expo, School connect programs, college counselling events, career seminars" />
-    
-    {/* Open Graph / Facebook */}
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.collegeforms.in/events" />
-    <meta property="og:title" content="College Admission Events & Education Fairs | Apply with Discounts" />
-    <meta property="og:description" content="Join our education fairs to connect with top colleges, enjoy application discounts & scholarships. MBA fairs, global expos & career seminars available." />
-    <meta property="og:image" content="https://www.collegeforms.in/images/student-events-og.jpg" />
-    
-    {/* Twitter */}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://www.collegeforms.in/events" />
-    <meta name="twitter:title" content="College Admission Events & Education Fairs | Apply with Discounts" />
-    <meta name="twitter:description" content="Exclusive MBA fairs & college expos with application discounts. Meet admissions teams from top Indian & global institutions." />
-    <meta name="twitter:image" content="https://www.collegeforms.in/images/student-events-twitter.jpg" />
-    
-    {/* Canonical URL */}
-    <link rel="canonical" href="https://www.collegeforms.in/events" />
-</Helmet>
+         
             <Navbar />
             <PageTitle pageTitle={'Educational Events'} pagesub={'Educational Events'} />
             <section className="wpo-terms-section section-padding">

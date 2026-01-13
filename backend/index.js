@@ -39,7 +39,7 @@ import bannerEnquiryRoutes from './routes/bannerEnquiries.js';
 import { startCleanupService } from './services/cleanupService.js';
 
 // ✅ IMPORTANT: Import your SEO middleware
-import { seoMiddleware } from './middleware/seoMiddleware.js';
+import { seoMiddleware , debugSeoMiddleware} from './middleware/seoMiddleware.js';
 
 // Load environment variables
 dotenv.config();
@@ -136,6 +136,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/exams", exams);
 app.use("/api/courses", courseRoutes);
 app.use("/api/locations", locationRoutes);
+
+app.get('/debug-seo', debugSeoMiddleware);
 app.use("/api/logos", LogoRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/mbanner", mbanner);
