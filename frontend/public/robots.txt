@@ -1,9 +1,30 @@
+// backend/routes/sitemap.js - Update robots.txt route
+
+router.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`# Robots.txt for College Forms
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /api/
-Disallow: /user/login
-Disallow: /user/signup
-    
-# Sitemap location
+Allow: /api/colleges/
+Allow: /uploads/
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/private/
+
+# Allow Google Analytics and Ads
+User-agent: Googlebot
+Allow: /api/colleges/
+Allow: /static/
+Allow: /uploads/
+
+User-agent: AdsBot-Google
+Allow: /
+
+# Sitemaps
 Sitemap: https://www.collegeforms.in/sitemap.xml
+
+# Host
+Host: https://www.collegeforms.in`);
+});

@@ -1,11 +1,30 @@
-# Allow all crawlers full access except sensitive folders
+// backend/routes/sitemap.js - Update robots.txt route
+
+router.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`# Robots.txt for College Forms
 User-agent: *
-Disallow: /wp-admin/
-Disallow: /wp-login.php
-Disallow: /cgi-bin/
+Allow: /
+Allow: /api/colleges/
+Allow: /uploads/
 
-# Block specific URL parameters (optional)
-Allow: / 
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/private/
 
-# Sitemap location
-Sitemap: https://www.collegeforms.in/sitemap.xml 
+# Allow Google Analytics and Ads
+User-agent: Googlebot
+Allow: /api/colleges/
+Allow: /static/
+Allow: /uploads/
+
+User-agent: AdsBot-Google
+Allow: /
+
+# Sitemaps
+Sitemap: https://www.collegeforms.in/sitemap.xml
+
+# Host
+Host: https://www.collegeforms.in`);
+});

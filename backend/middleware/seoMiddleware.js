@@ -238,6 +238,13 @@ const getDynamicMetaTags = async (url) => {
       meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees`;
       meta.canonical = `${baseUrl}/colleges`;
     }
+
+       else if (cleanUrl === '/events') {
+      meta.title = `Events title`;
+      meta.description = `Event description`;
+      meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees`;
+      meta.canonical = `${baseUrl}/events`;
+    }
     
     else if (cleanUrl === '/courses') {
       meta.title = `Best Courses after 12th ${currentYear} - Engineering, Medical, Arts, Commerce | College Forms`;
