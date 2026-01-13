@@ -197,7 +197,6 @@ router.get("/sitemap.xml", async (req, res) => {
     }
 });
 
-// Optional: Create separate sitemaps for better organization
 
 
 
