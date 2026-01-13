@@ -12,7 +12,7 @@
     "seo:audit": "node scripts/seo-audit.js",
     "sitemap:generate": "node scripts/generate-sitemap.js"
   },
-  "author": "",
+  "author": "", 
   "type": "module",
   "license": "ISC",
   "dependencies": {

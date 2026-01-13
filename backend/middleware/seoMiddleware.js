@@ -484,4 +484,69 @@ const generateBotHTML = (metaTags) => {
     </div>
 </body>
 </html>`;
-}; 
+};
+
+// Add this at the VERY END of seoMiddleware.js
+export const seoMiddleware = async (req, res, next) => {
+  const userAgent = req.get('user-agent') || '';
+  const url = req.originalUrl;
+  
+  console.log(`🔍 SEO Middleware checking: ${url}`);
+  
+  // Skip for non-HTML requests
+  if (
+    url.startsWith('/api/') ||
+    url.startsWith('/uploads/') ||
+    url.startsWith('/static/') ||
+    url.includes('.json') ||
+    url.includes('.xml') ||
+    url.includes('.txt') ||
+    url.includes('.ico') ||
+    url.includes('.png') ||
+    url.includes('.jpg') ||
+    url.includes('.jpeg') ||
+    url.includes('.gif') ||
+    url.includes('.svg') ||
+    url.includes('.css') ||
+    url.includes('.js')
+  ) {
+    return next();
+  }
+  
+  // Bot detection
+  const isBot = (ua) => {
+    if (!ua) return false;
+    const lowerUA = ua.toLowerCase();
+    const bots = ['googlebot', 'bingbot', 'slurp', 'facebookexternalhit', 'twitterbot'];
+    return bots.some(bot => lowerUA.includes(bot));
+  };
+  
+  // Check if it's a bot request
+  if (isBot(userAgent)) {
+    console.log(`🤖 Bot detected: ${userAgent.substring(0, 50)}`);
+    
+    try {
+      // Get dynamic meta tags
+      const metaTags = await getDynamicMetaTags(url);
+      
+      // Generate HTML for bots
+      const botHTML = generateBotHTML(metaTags);
+      
+      // Set headers
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      
+      console.log(`✅ Serving SEO HTML for: ${url}`);
+      return res.send(botHTML);
+      
+    } catch (error) {
+      console.error('SEO Middleware Error:', error);
+      // Fallback: serve React app
+      return next();
+    }
+  }
+  
+  // Regular users: continue to React app
+  console.log(`👤 Regular user, passing to React: ${url}`);
+  next();
+};
