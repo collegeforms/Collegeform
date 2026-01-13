@@ -37,7 +37,7 @@ const Footer = (props) => {
     </a>
   </li>
   <li>
-    <a href="https://www.instagram.com/collegeforms.in/" target="_blank" rel="noopener noreferrer" onClick={ClickHandler}>
+    <a href="https://www.instagram.com/collegeforms_official?igsh=NmxmaTFudHV3cHFv" target="_blank" rel="noopener noreferrer" onClick={ClickHandler}>
       <i className="ti-instagram"></i>
     </a>
   </li>
