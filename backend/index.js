@@ -156,6 +156,16 @@ app.use('/api/banner-enquiries', bannerEnquiryRoutes);
 
 // ✅ Sitemap route
 app.use('/', sitemapRouter);
+app.use((req, res, next) => {
+  if (
+    req.method === "GET" &&
+    req.path.startsWith("/college/") &&
+    !req.path.endsWith("/")
+  ) {
+    return res.redirect(301, req.path + "/" + (req.url.includes("?") ? "?" + req.url.split("?")[1] : ""));
+  }
+  next();
+});
 
 // Health check endpoints
 app.get("/start", (req, res) => {
