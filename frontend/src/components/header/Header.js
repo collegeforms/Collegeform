@@ -253,7 +253,7 @@ const Header = (props) => {
 
 
     <li>
-                      <Link to={"https://thecounselingcafe.in/"}>
+                      <Link to={"https://thecounselingcafe.in/student/career-counseling/"}>
                         Course Counseling
                       </Link>
                     </li>
