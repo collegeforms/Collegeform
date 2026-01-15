@@ -113,6 +113,13 @@ const Signup = () => {
     
     if (result.success) {
       setSuccessMessage("Account created successfully! Redirecting...");
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "lead_submit",
+        lead_type: "mba_lead",
+        page: window.location.pathname,
+      });
       
       // 🔴 GOOGLE ADS CONVERSION TRACKING - SIGNUP SUCCESS
       // Only track conversion if not already tracked in this session
