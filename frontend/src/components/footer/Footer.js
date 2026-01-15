@@ -27,7 +27,7 @@ const Footer = (props) => {
     </a>
   </li>
   <li>
-    <a href="https://www.linkedin.com/in/college-forms-909606376/" target="_blank" rel="noopener noreferrer" onClick={ClickHandler}>
+    <a href="https://www.linkedin.com/company/collegeformsin" target="_blank" rel="noopener noreferrer" onClick={ClickHandler}>
       <i className="ti-linkedin"></i>
     </a>
   </li>
