@@ -81,7 +81,7 @@ const menus = [
       },
     ],
   },
-  { id: 4, title: "Course Counseling", link: "https://thecounselingcafe.in/", icon: <FiBook /> },
+  { id: 4, title: "Course Counseling", link: "https://thecounselingcafe.in/student/career-counseling/", icon: <FiBook /> },
 
   { id: 5, title: "Top B Schools", link: "/education/Top-B-Schools", icon: <FiBook /> },
 ];
