@@ -54,60 +54,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// ========== GLOBAL REDIRECT MIDDLEWARE ==========
-// This should be BEFORE static files and other routes
-const shouldRedirectAll = process.env.REDIRECT_ALL === 'true';
-
-if (shouldRedirectAll) {
-  app.use((req, res, next) => {
-    // Skip if it's the homepage
-    if (req.path === '/' || req.path === '/index.html') {
-      return next();
-    }
-    
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-      return next();
-    }
-    
-    // Skip static files and assets
-    if (
-      req.path.startsWith('/uploads/') ||
-      req.path.startsWith('/static/') ||
-      req.path.includes('.') // Files with extensions
-    ) {
-      return next();
-    }
-    
-    // Skip sitemap and robots
-    if (
-      req.path === '/sitemap.xml' ||
-      req.path === '/robots.txt' ||
-      req.path === '/sitemap-index.xml'
-    ) {
-      return next();
-    }
-    
-    // Skip health checks
-    if (
-      req.path === '/start' ||
-      req.path === '/ping' ||
-      req.path === '/api/health'
-    ) {
-      return next();
-    }
-    
-    // Skip SEO debug route
-    if (req.path === '/debug-seo') {
-      return next();
-    }
-    
-    // ✅ REDIRECT EVERYTHING ELSE TO HOME PAGE
-    console.log(`🌐 Redirecting: ${req.originalUrl} -> /`);
-    return res.redirect(301, '/');
-  });
-}
-
 // Enhanced CORS configuration
 const allowedOrigins = [
   "http://localhost:3000",
@@ -172,23 +118,8 @@ app.use(bodyParser.urlencoded({
 // Serve static files from uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Serve React build files
+// ✅ CRITICAL: Serve React build files BEFORE SEO middleware
 app.use(express.static(path.join(__dirname, "../frontend/build")));
-
-// ========== TRAILING SLASH REDIRECTS ==========
-app.use((req, res, next) => {
-  // Add trailing slash for college and blog routes (if not redirecting all)
-  if (!shouldRedirectAll) {
-    if (
-      req.method === "GET" &&
-      (req.path.startsWith("/college/") || req.path.startsWith("/blogs/")) &&
-      !req.path.endsWith("/")
-    ) {
-      return res.redirect(301, req.path + "/" + (req.query ? "?" + new URLSearchParams(req.query).toString() : ""));
-    }
-  }
-  next();
-});
 
 // API Routes
 app.use("/api/colleges", collegeRoutes);
@@ -223,10 +154,20 @@ app.use("/api/managexams", managexams);
 app.use('/api', examEnquiryRoutes);
 app.use('/api/banner-enquiries', bannerEnquiryRoutes);
 
-// ✅ Sitemap and robots routes (excluded from redirect)
+// ✅ Sitemap route
 app.use('/', sitemapRouter);
+app.use((req, res, next) => {
+  if (
+    req.method === "GET" &&
+    req.path.startsWith("/college/") &&
+    !req.path.endsWith("/")
+  ) {
+    return res.redirect(301, req.path + "/" + (req.url.includes("?") ? "?" + req.url.split("?")[1] : ""));
+  }
+  next();
+});
 
-// Health check endpoints (excluded from redirect)
+// Health check endpoints
 app.get("/start", (req, res) => {
   res.status(200).json({ 
     status: "healthy",
@@ -252,10 +193,10 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ✅ Apply SEO Middleware (for bots)
+// ✅ Apply SEO Middleware BEFORE catch-all route
 app.use(seoMiddleware);
 
-// ✅ Catch-all route for React app
+// ✅ Catch-all route for React app (will be used for normal users)
 app.get("*", (req, res) => {
   const indexPath = path.join(__dirname, "../frontend/build/index.html");
   res.sendFile(indexPath);
@@ -297,5 +238,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🗺️  Sitemap available at: /sitemap.xml`);
   console.log(`🤖 SEO Bot detection: ENABLED`);
   console.log(`🎯 Bot detection will serve meta tags, normal users get React app`);
-  console.log(`🔄 Redirect all pages to home: ${shouldRedirectAll ? 'ENABLED' : 'DISABLED'}`);
 });
