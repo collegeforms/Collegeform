@@ -71,10 +71,35 @@ import BannerInquiry from './admin/BannerInquiry.jsx';
 import ExamEnquiries from './admin/ExamEnquiries.jsx';
 import DefaultSEO from '../../components/DefaultSEO.jsx';
 import Universalform from './components/Universalform.jsx';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 const AllRoute = () => {
+
+
+    const location = useLocation();
+  
+  useEffect(() => {
+    // If you want frontend redirection too
+    const currentPath = location.pathname;
+    const allowedPaths = ['/', '/home', '/index'];
+    
+    if (!allowedPaths.includes(currentPath)) {
+      // Option 1: Redirect using window.location
+      // window.location.href = '/';
+      
+      // Option 2: Use React Router (if you have router setup)
+      // navigate('/');
+      
+      console.log(`Frontend redirecting from ${currentPath} to /`);
+    }
+  }, [location]);
   const theme = createTheme();
 
   return (
+
+
+
+
     <div className="App">
 
       <DefaultSEO/>

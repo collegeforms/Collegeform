@@ -26,6 +26,20 @@ const formatDate = (date) => {
     return new Date(date).toISOString().split('T')[0];
 };
 
+// Helper to ensure URL has trailing slash
+const ensureTrailingSlash = (url) => {
+    // Remove any existing trailing slash first
+    const cleanUrl = url.replace(/\/+$/, '');
+    // Add exactly one trailing slash
+    return cleanUrl + '/';
+};
+
+// Helper to clean slug - remove trailing slashes from slug itself
+const cleanSlug = (slug) => {
+    if (!slug) return '';
+    return slug.replace(/\/+$/, '');
+};
+
 router.get("/sitemap.xml", async (req, res) => {
     try {
         console.log("🔄 Generating comprehensive XML sitemap...");
@@ -35,37 +49,35 @@ router.get("/sitemap.xml", async (req, res) => {
         
         const staticPages = [
             { url: '/', priority: '1.0', changefreq: 'daily' },
-            { url: '/home', priority: '1.0', changefreq: 'daily' },
             
-            { url: '/colleges', priority: '0.9', changefreq: 'daily' },
-            { url: '/step', priority: '0.7', changefreq: 'weekly' },
-            { url: '/offer', priority: '0.7', changefreq: 'weekly' },
-            { url: '/education/education-loan', priority: '0.6', changefreq: 'monthly' },
-            { url: '/education/accommodation', priority: '0.6', changefreq: 'monthly' },
-            { url: '/CompetitiveExams', priority: '0.7', changefreq: 'weekly' },
+            { url: '/colleges/', priority: '0.9', changefreq: 'daily' },
+            { url: '/step/', priority: '0.7', changefreq: 'weekly' },
+            { url: '/offer/', priority: '0.7', changefreq: 'weekly' },
+            { url: '/education/education-loan/', priority: '0.6', changefreq: 'monthly' },
+            { url: '/education/accommodation/', priority: '0.6', changefreq: 'monthly' },
+            { url: '/CompetitiveExams/', priority: '0.7', changefreq: 'weekly' },
             
-            { url: '/studyabroad', priority: '0.8', changefreq: 'weekly' },
+            { url: '/studyabroad/', priority: '0.8', changefreq: 'weekly' },
             
-            { url: '/students/tests', priority: '0.7', changefreq: 'weekly' },
+            { url: '/students/tests/', priority: '0.7', changefreq: 'weekly' },
             
-            { url: '/blogs', priority: '0.8', changefreq: 'daily' },
+            { url: '/blogs/', priority: '0.8', changefreq: 'daily' },
             
-            { url: '/events', priority: '0.7', changefreq: 'weekly' },
+            { url: '/events/', priority: '0.7', changefreq: 'weekly' },
             
+            { url: '/contactus/', priority: '0.7', changefreq: 'monthly' },
             
-            { url: '/contactus', priority: '0.7', changefreq: 'monthly' },
+            { url: '/privacy/', priority: '0.3', changefreq: 'yearly' },
+            { url: '/terms/', priority: '0.3', changefreq: 'yearly' },
             
-            { url: '/privacy', priority: '0.3', changefreq: 'yearly' },
-            { url: '/terms', priority: '0.3', changefreq: 'yearly' },
-            
-            
-            { url: '/education/overseas', priority: '0.7', changefreq: 'weekly' },
+            { url: '/education/overseas/', priority: '0.7', changefreq: 'weekly' },
         ];
         
-        // Add static pages
+        // Add static pages with consistent trailing slashes
         staticPages.forEach(page => {
+            const fullUrl = ensureTrailingSlash(`${BASE_URL}${page.url}`);
             xml += `  <url>\n`;
-            xml += `    <loc>${BASE_URL}${page.url}</loc>\n`;
+            xml += `    <loc>${fullUrl}</loc>\n`;
             xml += `    <lastmod>${formatDate(new Date())}</lastmod>\n`;
             xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
             xml += `    <priority>${page.priority}</priority>\n`;
@@ -86,11 +98,15 @@ router.get("/sitemap.xml", async (req, res) => {
             console.log(`📊 Found ${colleges.length} colleges with slugs`);
             
             colleges.forEach(college => {
-                // Double-check slug exists and is valid
-                if (college.slug && college.slug.trim()) {
-                    const escapedSlug = escapeXml(college.slug.trim());
+                // Clean the slug (remove any trailing slashes from the slug itself)
+                const cleanedSlug = cleanSlug(college.slug);
+                
+                if (cleanedSlug && cleanedSlug.trim()) {
+                    const escapedSlug = escapeXml(cleanedSlug.trim());
+                    // Build URL with consistent trailing slash
+                    const collegeUrl = ensureTrailingSlash(`${BASE_URL}/college/${escapedSlug}`);
                     xml += `  <url>\n`;
-                    xml += `    <loc>${BASE_URL}/college/${escapedSlug}</loc>\n`;
+                    xml += `    <loc>${collegeUrl}</loc>\n`;
                     xml += `    <lastmod>${formatDate(college.updatedAt)}</lastmod>\n`;
                     xml += `    <changefreq>weekly</changefreq>\n`;
                     xml += `    <priority>0.8</priority>\n`;
@@ -117,10 +133,15 @@ router.get("/sitemap.xml", async (req, res) => {
             console.log(`📊 Found ${blogs.length} blogs with slugs`);
             
             blogs.forEach(blog => {
-                if (blog.slug && blog.slug.trim()) {
-                    const escapedSlug = escapeXml(blog.slug.trim());
+                // Clean the slug (remove any trailing slashes from the slug itself)
+                const cleanedSlug = cleanSlug(blog.slug);
+                
+                if (cleanedSlug && cleanedSlug.trim()) {
+                    const escapedSlug = escapeXml(cleanedSlug.trim());
+                    // Build URL with consistent trailing slash
+                    const blogUrl = ensureTrailingSlash(`${BASE_URL}/blogs/${escapedSlug}`);
                     xml += `  <url>\n`;
-                    xml += `    <loc>${BASE_URL}/blogs/${escapedSlug}</loc>\n`;
+                    xml += `    <loc>${blogUrl}</loc>\n`;
                     xml += `    <lastmod>${formatDate(blog.updatedAt)}</lastmod>\n`;
                     xml += `    <changefreq>monthly</changefreq>\n`;
                     xml += `    <priority>0.8</priority>\n`;
@@ -135,16 +156,14 @@ router.get("/sitemap.xml", async (req, res) => {
         }
         
         // =============== ADDITIONAL PAGES ===============
-        // Add pages with specific IDs/categories if needed
         const additionalPages = [
-            // Example: Specific education categories
-            '/education/engineering',
-          
+            '/education/engineering/',
         ];
         
         additionalPages.forEach(page => {
+            const fullUrl = ensureTrailingSlash(`${BASE_URL}${page}`);
             xml += `  <url>\n`;
-            xml += `    <loc>${BASE_URL}${page}</loc>\n`;
+            xml += `    <loc>${fullUrl}</loc>\n`;
             xml += `    <lastmod>${formatDate(new Date())}</lastmod>\n`;
             xml += `    <changefreq>monthly</changefreq>\n`;
             xml += `    <priority>0.5</priority>\n`;
@@ -167,21 +186,24 @@ router.get("/sitemap.xml", async (req, res) => {
     } catch (error) {
         console.error("❌ Sitemap generation failed:", error);
         
-        // Simple fallback sitemap
+        // Simple fallback sitemap with trailing slashes
         const fallbackXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${BASE_URL}/</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${BASE_URL}/colleges</loc>
+    <loc>${BASE_URL}/colleges/</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${BASE_URL}/blogs</loc>
+    <loc>${BASE_URL}/blogs/</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -191,8 +213,5 @@ router.get("/sitemap.xml", async (req, res) => {
         res.send(fallbackXml);
     }
 });
-
-
-
 
 export default router;
