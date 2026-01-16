@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -71,123 +71,148 @@ import BannerInquiry from './admin/BannerInquiry.jsx';
 import ExamEnquiries from './admin/ExamEnquiries.jsx';
 import DefaultSEO from '../../components/DefaultSEO.jsx';
 import Universalform from './components/Universalform.jsx';
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-const AllRoute = () => {
 
-
-    const location = useLocation();
+// ========== REDIRECT WRAPPER COMPONENT ==========
+const RedirectWrapper = ({ children }) => {
+  const location = useLocation();
   
-  useEffect(() => {
-    // If you want frontend redirection too
-    const currentPath = location.pathname;
-    const allowedPaths = ['/', '/home', '/index'];
+  React.useEffect(() => {
+    // Skip redirect for development or specific routes
+    const shouldRedirect =  'true';
     
-    if (!allowedPaths.includes(currentPath)) {
-      // Option 1: Redirect using window.location
-      // window.location.href = '/';
-      
-      // Option 2: Use React Router (if you have router setup)
-      // navigate('/');
-      
+    if (!shouldRedirect) {
+      return;
+    }
+    
+    const currentPath = location.pathname;
+    
+    // Paths that should NOT redirect
+    const allowedPaths = [
+      '/',
+      '/home',
+      '/index',
+      '/index.html',
+      '/admin',
+      '/admin/login',
+      '/admin/*',
+      '/api/',
+      '/uploads/',
+      '/static/',
+      '/sitemap.xml',
+      '/robots.txt',
+      '/start',
+      '/ping',
+      '/api/health',
+      '/debug-seo'
+    ];
+    
+    // Check if current path should be redirected
+    const shouldRedirectPath = !allowedPaths.some(allowed => {
+      if (allowed.endsWith('/*')) {
+        return currentPath.startsWith(allowed.replace('/*', ''));
+      }
+      return currentPath === allowed || currentPath.startsWith(allowed);
+    });
+    
+    if (shouldRedirectPath && currentPath !== '/') {
       console.log(`Frontend redirecting from ${currentPath} to /`);
+      // Only use client-side redirect as fallback
+      // Primary redirect should be handled by backend
+      window.location.href = '/';
     }
   }, [location]);
+  
+  return children;
+};
+
+const AllRoute = () => {
   const theme = createTheme();
 
   return (
-
-
-
-
     <div className="App">
-
       <DefaultSEO/>
       <ThemeProvider theme={theme}>
         <Router>
           {/* 🔝 ScrollToTop ensures every route opens from top */}
           <ScrollToTop />
+          
+          {/* Wrap with RedirectWrapper */}
+          <RedirectWrapper>
+            <Routes>
 
-          <Routes>
+              {/* ===== Admin Routes ===== */}
+              <Route
+                path="/admin/*"
+                element={
+                  <AdminProtected>
+                    <AdminLayout>
+                      <Routes>
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="settings" element={<AdminSettings />} />
+                        <Route path="colleges" element={<AdminColleges />} />
+                        <Route path="bannerinq" element={<BannerInquiry />} />
+                        <Route path="examinq" element={<ExamEnquiries />} />
+                        <Route path="other-colleges" element={<OtherColleges />} />
+                        <Route path="addfaq" element={<Addfaq />} />
+                        <Route path="inquiry" element={<AdminInquiry />} />
+                        <Route path="addbanner" element={<Addbanner />} />
+                        <Route path="addBlogs" element={<AdminBlogs />} />
+                        <Route path="slidermanager" element={<SliderManager />} />
+                        <Route path="addreview" element={<AdminReviews />} />
+                        <Route path="addlogo" element={<AddLogo />} />
+                        <Route path="upload" element={<Adminupload />} />
+                        <Route path="users" element={<Adminusers />} />
+                        <Route path="specialization" element={<AdminSpecialization />} />
+                        <Route path="exams" element={<AdminExams />} />
+                        <Route path="manage-exams" element={<Admincourseexams />} />
+                        <Route path="tests" element={<AdminTests />} />
+                        <Route path="verifydocs" element={<Admindocs />} />
+                        <Route path="students" element={<Students />} />
+                        <Route path="applications" element={<Adminapplications />} />
+                        <Route path="/edit-college/:id" element={<EditCollege />} />
+                        <Route path="/colleges/add" element={<AddCollegePage />} />
+                        <Route path="/callbacks" element={<Requestcallback />} />
+                      </Routes>
+                    </AdminLayout>
+                  </AdminProtected>
+                }
+              />
 
-            {/* ===== Admin Routes ===== */}
-            <Route
-              path="/admin/*"
-              element={
-                <AdminProtected>
-                  <AdminLayout>
-                    <Routes>
-                      <Route path="dashboard" element={<AdminDashboard />} />
-                      <Route path="settings" element={<AdminSettings />} />
-                      <Route path="colleges" element={<AdminColleges />} />
-                      <Route path="bannerinq" element={<BannerInquiry />} />
-                      <Route path="examinq" element={<ExamEnquiries />} />
+              {/* Admin Login */}
+              <Route path="/admin/login" element={<AuthLogin />} />
 
-                      <Route path="other-colleges" element={<OtherColleges />} />
-                      <Route path="addfaq" element={<Addfaq />} />
-                      <Route path="inquiry" element={<AdminInquiry />} />
-                      <Route path="addbanner" element={<Addbanner />} />
-                      <Route path="addBlogs" element={<AdminBlogs />} />
-                      <Route path="slidermanager" element={<SliderManager />} />
-                      <Route path="addreview" element={<AdminReviews />} />
-                      <Route path="addlogo" element={<AddLogo />} />
-                      <Route path="upload" element={<Adminupload />} />
-                      <Route path="users" element={<Adminusers />} />
-                      <Route path="specialization" element={<AdminSpecialization />} />
-                      <Route path="exams" element={<AdminExams />} />
-                      <Route path="manage-exams" element={<Admincourseexams />} />
-
-                      <Route path="tests" element={<AdminTests />} />
-                      <Route path="verifydocs" element={<Admindocs />} />
-                      <Route path="students" element={<Students />} />
-                      <Route path="applications" element={<Adminapplications />} />
-                      <Route path="/edit-college/:id" element={<EditCollege />} />
-                      <Route path="/colleges/add" element={<AddCollegePage />} />
-
-<Route path="/callbacks" element={<Requestcallback />} />
-                    </Routes>
-                  </AdminLayout>
-                </AdminProtected>
-              }
-            />
-
-            {/* Admin Login */}
-            <Route path="/admin/login" element={<AuthLogin />} />
-
-            {/* ===== User Routes ===== */}
-            <Route path="/" element={<Homepage />} />
-            <Route path="/video" element={<VideoCarousel />} />
-            <Route path="/myaccount" element={<MyAccount />} />
-            <Route path="/contactus" element={<ContactUs />} />
-            <Route path="/education/education-loan" element={<Educationloan />} />
-            <Route path="/education/accommodation" element={<Accommodation />} />
-            <Route path="/CompetitiveExams" element={<CompetitiveExams />} />
-            <Route path="/universal-form" element={<Universalform />} />
-
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/studyabroad" element={<PrivacyPage />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/students/tests" element={<StudentTests />} />
-            <Route path="/home" element={<Homepage />} />
-            <Route path="/old" element={<Home />} />
-            <Route path="/colleges" element={<Collegespage />} />
-            <Route path="/user/forgot-password" element={<ForgotPassword />} />
-            <Route path="/user/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/user/signup" element={<Signup />} />
-            <Route path="/offer" element={<OffersPage />} />
-            <Route path="/user/login" element={<Login />} />
-            <Route path="/step" element={<Bigform />} />
-            <Route path="/FAQ" element={<FAQ />} />
-            <Route path="/change-password" element={<ChangePassword />} />
-            <Route path="/education/:category" element={<OverseasEducation />} />
-            <Route path="/college/:id?" element={<TeamSinglePage />} />
-            <Route path="/blogs" element={<BlogPageFullwidth />} />
-            <Route path="/blogs/:slug" element={<BlogDetails />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-
-
-          </Routes>
+              {/* ===== User Routes ===== */}
+              <Route path="/" element={<Homepage />} />
+              <Route path="/video" element={<VideoCarousel />} />
+              <Route path="/myaccount" element={<MyAccount />} />
+              <Route path="/contactus" element={<ContactUs />} />
+              <Route path="/education/education-loan" element={<Educationloan />} />
+              <Route path="/education/accommodation" element={<Accommodation />} />
+              <Route path="/CompetitiveExams" element={<CompetitiveExams />} />
+              <Route path="/universal-form" element={<Universalform />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/studyabroad" element={<PrivacyPage />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/students/tests" element={<StudentTests />} />
+              <Route path="/home" element={<Homepage />} />
+              <Route path="/old" element={<Home />} />
+              <Route path="/colleges" element={<Collegespage />} />
+              <Route path="/user/forgot-password" element={<ForgotPassword />} />
+              <Route path="/user/reset-password/:token" element={<ResetPassword />} />
+              <Route path="/user/signup" element={<Signup />} />
+              <Route path="/offer" element={<OffersPage />} />
+              <Route path="/user/login" element={<Login />} />
+              <Route path="/step" element={<Bigform />} />
+              <Route path="/FAQ" element={<FAQ />} />
+              <Route path="/change-password" element={<ChangePassword />} />
+              <Route path="/education/:category" element={<OverseasEducation />} />
+              <Route path="/college/:id?" element={<TeamSinglePage />} />
+              <Route path="/blogs" element={<BlogPageFullwidth />} />
+              <Route path="/blogs/:slug" element={<BlogDetails />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+            </Routes>
+          </RedirectWrapper>
         </Router>
       </ThemeProvider>
     </div>
