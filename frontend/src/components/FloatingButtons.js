@@ -2,7 +2,7 @@ import React from "react";
 import "../css/font-awesome.min.css";
 import "./FloatingButtons.css";
 
-const WHATSAPP_NUMBER = "917049688510"; // update this to your number (country code + number)
+const WHATSAPP_NUMBER = "910000000000"; // update this to your number (country code + number)
 const WHATSAPP_TEXT = encodeURIComponent(
   "Hello! I would like to get in touch.",
 );
@@ -50,3 +50,4 @@ export default function FloatingButtons() {
     </>
   );
 }
+
