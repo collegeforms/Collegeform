@@ -2,11 +2,6 @@ import React from "react";
 import "../css/font-awesome.min.css";
 import "./FloatingButtons.css";
 
-const WHATSAPP_NUMBER = "910000000000"; // update this to your number (country code + number)
-const WHATSAPP_TEXT = encodeURIComponent(
-  "Hello! I would like to get in touch.",
-);
-
 export default function FloatingButtons() {
   return (
     <>
@@ -25,7 +20,7 @@ export default function FloatingButtons() {
 
         <li>
           <a
-            href="https://www.instagram.com/collegeforms_official?igsh=NmxmaTFudHV3cHFv"
+            href="https://www.instagram.com/collegeforms_official"
             target="_blank"
             rel="noopener noreferrer"
             className="social-instagram"
@@ -35,9 +30,21 @@ export default function FloatingButtons() {
           </a>
         </li>
 
+              <li>
+          <a
+            href="https://www.youtube.com/@CollegeForms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="social-youtube"
+            aria-label="Youtube"
+          >
+            <i className="fa fa-youtube"></i>
+          </a>
+        </li>
+
         <li>
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_TEXT}`}
+            href="https://wa.me/message/SZZ4HG2V6RF7K1"
             target="_blank"
             rel="noopener noreferrer"
             className="social-whatsapp"
@@ -50,4 +57,5 @@ export default function FloatingButtons() {
     </>
   );
 }
+
 
