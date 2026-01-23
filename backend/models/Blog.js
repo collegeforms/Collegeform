@@ -10,7 +10,8 @@ const blogSchema = new mongoose.Schema({
     type: String,
     unique: true,
     lowercase: true,
-    sparse: true // Allow null for drafts
+    sparse: true,
+    default: null // Explicitly set default to null
   },
   content: {
     type: String,
@@ -21,7 +22,7 @@ const blogSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: true
+    required: false
   },
   publicId: {
     type: String
@@ -56,12 +57,13 @@ const blogSchema = new mongoose.Schema({
 
 // Generate slug before saving (only for published blogs)
 blogSchema.pre('save', function(next) {
-  if (this.status === 'published' && !this.slug) {
-    this.slug = this.title
+  if (this.status === 'published' && (!this.slug || this.slug === null)) {
+    // Generate unique slug with timestamp to avoid duplicates
+    const baseSlug = this.title
       .toLowerCase()
-      .replace(/[^a-zA-Z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .replace(/\s+/g, '-');
+    this.slug = `${baseSlug}-${Date.now().toString(36)}`;
   }
   
   // Set publishedAt when status changes to published

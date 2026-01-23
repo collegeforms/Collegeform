@@ -36,9 +36,10 @@ const BlogList = (props) => {
         }
         
         const response = await axios.get(url);
+        console.log(response.data.blogs);
         
         // 也可以在客户端进行额外的过滤（双重保障）
-        const publishedBlogs = response.data.filter(blog => blog.status === 'published');
+        const publishedBlogs = response.data.blogs.filter(blog => blog.status === 'published');
         
         setBlogs(publishedBlogs);
         setLoading(false);

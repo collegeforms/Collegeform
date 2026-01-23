@@ -98,7 +98,7 @@ const HomeBlogs = () => {
         console.log(response.data);
         
         // 双重保障：客户端也进行过滤
-        const publishedBlogs = response.data.filter(blog => blog.status === 'published');
+        const publishedBlogs = response.data.blogs.filter(blog => blog.status === 'published');
         setBlogs(publishedBlogs);
         setLoading(false);
       } catch (error) {

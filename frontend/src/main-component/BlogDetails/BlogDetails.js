@@ -128,6 +128,7 @@ const BlogDetails = () => {
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [expandedFAQ, setExpandedFAQ] = useState(false);
   const [ssrData, setSsrData] = useState(null);
+  const [error, setError] = useState(null);
   const API_URL = "https://www.collegeforms.in";
   
   // Check for SSR data on component mount
@@ -153,7 +154,7 @@ const BlogDetails = () => {
       });
       
       // Fetch related blogs
-      fetchRelatedBlogs(window.__INITIAL_BLOG__.category);
+      fetchRelatedBlogs(window.__INITIAL_BLOG__.category, window.__INITIAL_BLOG__._id);
       
       return;
     }
@@ -165,32 +166,52 @@ const BlogDetails = () => {
   const fetchBlogData = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log(`📡 Fetching blog from API: ${slug}`);
       
       const response = await axios.get(`${API_URL}/api/blogs/${slug}`);
       
-      if (!response.data) {
-        throw new Error('Blog not found');
+      if (!response.data || !response.data.success) {
+        throw new Error(response.data?.message || 'Blog not found');
       }
       
-      setBlog(response.data);
-      fetchRelatedBlogs(response.data.category);
+      const blogData = response.data.blog;
+      if (!blogData) {
+        throw new Error('Blog data not found');
+      }
+      
+      setBlog(blogData);
+      fetchRelatedBlogs(blogData.category, blogData._id);
     } catch (error) {
       console.error('Error fetching blog:', error);
-      // Don't set loading to false immediately - show error state
+      setError(error.message || 'Failed to load blog');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchRelatedBlogs = async (category) => {
+  const fetchRelatedBlogs = async (category, excludeId) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/api/blogs?category=${category}&limit=3&exclude=${blog?._id || ''}`
-      );
-      setRelatedBlogs(response.data.filter(b => b.slug !== slug));
+      // Updated to use correct API response structure
+      const response = await axios.get(`${API_URL}/api/blogs`, {
+        params: {
+          category: category,
+          status: 'published',
+          limit: 3
+        }
+      });
+      
+      if (response.data && response.data.success) {
+        const blogs = response.data.blogs || [];
+        // Filter out current blog and ensure we have an array
+        const filteredBlogs = Array.isArray(blogs) 
+          ? blogs.filter(b => b._id !== excludeId && b.slug !== slug)
+          : [];
+        setRelatedBlogs(filteredBlogs);
+      }
     } catch (err) {
       console.error('Error fetching related blogs:', err);
+      setRelatedBlogs([]);
     }
   };
 
@@ -201,7 +222,7 @@ const BlogDetails = () => {
 
   // Function to generate meta description from content
   const generateMetaDescription = (content, maxLength = 160) => {
-    if (!content) return '';
+    if (!content || typeof content !== 'string') return '';
     
     // Remove HTML tags and get plain text
     const plainText = content.replace(/<[^>]*>/g, '');
@@ -219,7 +240,9 @@ const BlogDetails = () => {
 
   // Dynamic meta tags based on blog data
   const metaTitle = blog ? generateMetaTitle(blog.title) : 'Blog | CollegeForm';
-  const metaDescription = blog ? generateMetaDescription(blog.content) : 'Read our latest blog posts and articles about education, colleges, and career guidance.';
+  const metaDescription = blog && blog.content 
+    ? generateMetaDescription(blog.content) 
+    : 'Read our latest blog posts and articles about education, colleges, and career guidance.';
   const metaImage = blog?.image 
     ? (blog.image.startsWith('http') ? blog.image : `${API_URL}${blog.image}`)
     : `${API_URL}/default-blog-image.jpg`;
@@ -266,7 +289,7 @@ const BlogDetails = () => {
     );
   }
 
-  if (!blog && !loading) {
+  if (error || !blog) {
     return (
       <>
         <Helmet>
@@ -276,7 +299,7 @@ const BlogDetails = () => {
         <Navbar hclass={'wpo-header-style-4'}/>
         <Container maxWidth="md" sx={{ py: 6, textAlign: 'center' }}>
           <Alert severity="error" sx={{ mb: 4 }}>
-            Blog not found or has been removed.
+            {error || 'Blog not found or has been removed.'}
           </Alert>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
             Blog Not Found
@@ -297,6 +320,10 @@ const BlogDetails = () => {
       </>
     );
   }
+
+  // Ensure content is a string before parsing
+  const blogContent = typeof blog.content === 'string' ? blog.content : '';
+  const parsedContent = blogContent ? parse(blogContent) : null;
 
   return (
     <>
@@ -355,7 +382,7 @@ const BlogDetails = () => {
               lineHeight: 1.3
             }}
           >
-            {blog.title}
+            {blog.title || 'Untitled Blog'}
           </Typography>
           <Typography 
             variant="subtitle1" 
@@ -369,7 +396,7 @@ const BlogDetails = () => {
             }}
           >
             <CalendarMonth fontSize="small" />
-            {moment(blog.createdAt).format('MMMM D, YYYY')}
+            {blog.createdAt ? moment(blog.createdAt).format('MMMM D, YYYY') : 'Unknown date'}
             {blog.author && (
               <>
                 <span>•</span>
@@ -388,8 +415,11 @@ const BlogDetails = () => {
         {blog.image && (
           <BlogImage 
             src={blog.image.startsWith('http') ? blog.image : `${API_URL}${blog.image}`} 
-            alt={blog.title}
+            alt={blog.title || 'Blog image'}
             loading="lazy"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
           />
         )}
 
@@ -433,18 +463,23 @@ const BlogDetails = () => {
             variant="outlined" 
             startIcon={<Bookmark />}
             onClick={() => {
-              const savedBlogs = JSON.parse(localStorage.getItem('savedBlogs') || '[]');
-              if (!savedBlogs.find(b => b._id === blog._id)) {
-                savedBlogs.push({
-                  _id: blog._id,
-                  title: blog.title,
-                  slug: blog.slug,
-                  savedAt: new Date().toISOString()
-                });
-                localStorage.setItem('savedBlogs', JSON.stringify(savedBlogs));
-                alert('Blog saved for later!');
-              } else {
-                alert('Already saved!');
+              try {
+                const savedBlogs = JSON.parse(localStorage.getItem('savedBlogs') || '[]');
+                if (!savedBlogs.find(b => b._id === blog._id)) {
+                  savedBlogs.push({
+                    _id: blog._id,
+                    title: blog.title,
+                    slug: blog.slug,
+                    savedAt: new Date().toISOString()
+                  });
+                  localStorage.setItem('savedBlogs', JSON.stringify(savedBlogs));
+                  alert('Blog saved for later!');
+                } else {
+                  alert('Already saved!');
+                }
+              } catch (e) {
+                console.error('Error saving blog:', e);
+                alert('Error saving blog');
               }
             }}
             sx={{
@@ -530,11 +565,15 @@ const BlogDetails = () => {
             }
           }
         }}>
-          {parse(blog.content)}
+          {parsedContent || (
+            <Alert severity="info">
+              No content available for this blog.
+            </Alert>
+          )}
         </Box>
 
         {/* FAQ Section */}
-        {blog.faqs && blog.faqs.length > 0 && (
+        {blog.faqs && Array.isArray(blog.faqs) && blog.faqs.length > 0 && (
           <FAQSection>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <QuestionAnswer 
@@ -594,7 +633,7 @@ const BlogDetails = () => {
                         fontSize: '1.1rem'
                       }}
                     >
-                      {faq.question}
+                      {faq.question || 'Untitled FAQ'}
                     </Typography>
                   </Box>
                 </AccordionSummary>
@@ -608,7 +647,7 @@ const BlogDetails = () => {
                         fontSize: '1rem'
                       }}
                     >
-                      {faq.answer}
+                      {faq.answer || 'No answer provided'}
                     </Typography>
                   </Box>
                 </AccordionDetails>
@@ -669,12 +708,15 @@ const BlogDetails = () => {
                     }}>
                       <img
                         src={relatedBlog.image}
-                        alt={relatedBlog.title}
+                        alt={relatedBlog.title || 'Related blog'}
                         style={{
                           width: '100%',
                           height: '180px',
                           objectFit: 'cover',
                           transition: 'transform 0.3s ease'
+                        }}
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/300x180?text=No+Image';
                         }}
                       />
                     </Box>
@@ -688,7 +730,7 @@ const BlogDetails = () => {
                         letterSpacing: '0.5px'
                       }}
                     >
-                      {relatedBlog.category}
+                      {relatedBlog.category || 'Uncategorized'}
                     </Typography>
                     <Typography 
                       variant="h6" 
@@ -701,7 +743,7 @@ const BlogDetails = () => {
                         mb: 1
                       }}
                     >
-                      {relatedBlog.title}
+                      {relatedBlog.title || 'Untitled Blog'}
                     </Typography>
                     <Typography 
                       variant="body2" 
@@ -714,7 +756,7 @@ const BlogDetails = () => {
                       }}
                     >
                       <CalendarMonth fontSize="inherit" />
-                      {moment(relatedBlog.createdAt).format('MMM D, YYYY')}
+                      {relatedBlog.createdAt ? moment(relatedBlog.createdAt).format('MMM D, YYYY') : 'Unknown date'}
                     </Typography>
                   </Paper>
                 </Grid>
