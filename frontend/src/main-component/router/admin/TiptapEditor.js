@@ -338,8 +338,30 @@ const TiptapEditor = ({ content, onUpdate, onImageUpload }) => {
           '&:focus': {
             outline: 'none'
           },
-          '& ul, & ol': {
-            paddingLeft: '24px'
+          // Fix for bullet lists
+          '& ul': {
+            listStyleType: 'disc',
+            paddingLeft: '2rem',
+            margin: '1rem 0',
+          },
+          '& ol': {
+            listStyleType: 'decimal',
+            paddingLeft: '2rem',
+            margin: '1rem 0',
+          },
+          '& li': {
+            marginBottom: '0.5rem',
+            paddingLeft: '0.5rem',
+            '& p': {
+              margin: 0,
+            }
+          },
+          // Nested lists
+          '& ul ul, & ol ul': {
+            listStyleType: 'circle',
+          },
+          '& ol ol, & ul ol': {
+            listStyleType: 'lower-alpha',
           },
           '& h1': { 
             fontSize: '2em',

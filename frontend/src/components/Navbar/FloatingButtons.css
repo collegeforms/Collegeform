@@ -179,6 +179,10 @@
   background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #833ab4, #405de6);
 }
 
+.social-linkedin {
+  background: linear-gradient(135deg, #0A66C2, #004182);
+}
+
 .social-youtube {
   background: linear-gradient(135deg, #FF0000, #CC0000);
 }
@@ -262,6 +266,10 @@
 
 .floating-social li:nth-child(3) a.visible {
   animation: slideInRight 0.5s 0.3s both;
+}
+
+.floating-social li:nth-child(4) a.visible {
+  animation: slideInRight 0.5s 0.4s both;
 }
 
 @keyframes slideInRight {

@@ -21,8 +21,14 @@ const router = express.Router();
 // Create a new blog
 router.post("/", uploadBlogImage.single("image"), createBlog);
 
-// Save draft (auto-save)
-router.post("/draft", uploadBlogImage.single("image"), saveDraft);
+// Save draft (auto-save) - Allow no image for drafts
+router.post("/draft", (req, res, next) => {
+  if (!req.headers['content-type']?.includes('multipart/form-data')) {
+    // If no file is being uploaded, skip multer
+    return next();
+  }
+  uploadBlogImage.single("image")(req, res, next);
+}, saveDraft);
 
 // Get all blogs
 router.get("/", getAllBlogs);

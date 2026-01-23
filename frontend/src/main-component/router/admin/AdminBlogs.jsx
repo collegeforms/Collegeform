@@ -40,7 +40,8 @@ import {
   Tooltip,
   Stack,
   Snackbar,
-  Alert
+  Alert,
+  LinearProgress
 } from "@mui/material";
 import { 
   Delete, 
@@ -56,7 +57,7 @@ import {
   Schedule,
   Article,
   AutoAwesome,
-  WarningAmber
+  Save
 } from "@mui/icons-material";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -69,7 +70,7 @@ const AdminBlogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [drafts, setDrafts] = useState([]);
   const [publishedBlogs, setPublishedBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -87,6 +88,7 @@ const AdminBlogs = () => {
     featured: 0
   });
   const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const autoSaveTimerRef = useRef(null);
 
   // Form state
@@ -113,19 +115,19 @@ const AdminBlogs = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const [allBlogs, draftBlogs, publishedBlogs] = await Promise.all([
+      const [allBlogsRes, draftBlogsRes, publishedBlogsRes] = await Promise.all([
         axios.get(`${API_URL}/api/blogs`),
         axios.get(`${API_URL}/api/blogs/drafts`),
         axios.get(`${API_URL}/api/blogs/published`)
       ]);
       
-      setBlogs(allBlogs.data);
-      setDrafts(draftBlogs.data);
-      setPublishedBlogs(publishedBlogs.data);
-      setLoading(false);
+      setBlogs(allBlogsRes.data.blogs || []);
+      setDrafts(draftBlogsRes.data.blogs || []);
+      setPublishedBlogs(publishedBlogsRes.data.blogs || []);
     } catch (error) {
       console.error("Error fetching blogs:", error);
       enqueueSnackbar("Failed to fetch blogs", { variant: "error" });
+    } finally {
       setLoading(false);
     }
   };
@@ -133,7 +135,9 @@ const AdminBlogs = () => {
   const fetchBlogStats = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/blogs/stats`);
-      setBlogStats(response.data);
+      if (response.data.success) {
+        setBlogStats(response.data);
+      }
     } catch (error) {
       console.error("Error fetching blog stats:", error);
     }
@@ -203,7 +207,10 @@ const AdminBlogs = () => {
         
         // Show snackbar only if not already saving
         if (!isAutoSaving) {
-          enqueueSnackbar("Draft auto-saved", { variant: "info", autoHideDuration: 2000 });
+          enqueueSnackbar("Draft auto-saved", { 
+            variant: "info", 
+            autoHideDuration: 2000 
+          });
         }
         
         // Refresh the drafts list
@@ -211,7 +218,9 @@ const AdminBlogs = () => {
       }
     } catch (error) {
       console.error("Error auto-saving draft:", error);
-      enqueueSnackbar("Failed to auto-save draft", { variant: "error" });
+      enqueueSnackbar(error.response?.data?.message || "Failed to auto-save draft", { 
+        variant: "error" 
+      });
     } finally {
       setIsAutoSaving(false);
     }
@@ -323,8 +332,9 @@ const AdminBlogs = () => {
       isFeatured: blog.isFeatured,
       status: blog.status
     });
-    setPreviewImage(blog.image);
+    setPreviewImage(blog.image || "");
     setFaqs(blog.faqs || []);
+    setSelectedFile(null);
     setHasUnsavedChanges(false);
     setOpenDialog(true);
   };
@@ -345,7 +355,7 @@ const AdminBlogs = () => {
   // Manual save as draft
   const handleSaveDraft = async () => {
     try {
-      setLoading(true);
+      setIsSaving(true);
       const formDataToSend = new FormData();
       
       formDataToSend.append("title", formData.title || "Untitled Draft");
@@ -383,9 +393,11 @@ const AdminBlogs = () => {
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      enqueueSnackbar("Failed to save draft", { variant: "error" });
+      enqueueSnackbar(error.response?.data?.message || "Failed to save draft", { 
+        variant: "error" 
+      });
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -393,12 +405,16 @@ const AdminBlogs = () => {
   const handlePublishBlog = async (id) => {
     try {
       setLoading(true);
-      await axios.put(`${API_URL}/api/blogs/${id}/publish`);
-      enqueueSnackbar("Blog published successfully", { variant: "success" });
-      fetchBlogs();
+      const response = await axios.put(`${API_URL}/api/blogs/${id}/publish`);
+      if (response.data.success) {
+        enqueueSnackbar("Blog published successfully", { variant: "success" });
+        fetchBlogs();
+      }
     } catch (error) {
       console.error("Error publishing blog:", error);
-      enqueueSnackbar("Failed to publish blog", { variant: "error" });
+      enqueueSnackbar(error.response?.data?.message || "Failed to publish blog", { 
+        variant: "error" 
+      });
     } finally {
       setLoading(false);
     }
@@ -408,12 +424,16 @@ const AdminBlogs = () => {
   const handleUnpublishBlog = async (id) => {
     try {
       setLoading(true);
-      await axios.put(`${API_URL}/api/blogs/${id}/unpublish`);
-      enqueueSnackbar("Blog moved to drafts", { variant: "info" });
-      fetchBlogs();
+      const response = await axios.put(`${API_URL}/api/blogs/${id}/unpublish`);
+      if (response.data.success) {
+        enqueueSnackbar("Blog moved to drafts", { variant: "info" });
+        fetchBlogs();
+      }
     } catch (error) {
       console.error("Error unpublishing blog:", error);
-      enqueueSnackbar("Failed to unpublish blog", { variant: "error" });
+      enqueueSnackbar(error.response?.data?.message || "Failed to unpublish blog", { 
+        variant: "error" 
+      });
     } finally {
       setLoading(false);
     }
@@ -422,7 +442,7 @@ const AdminBlogs = () => {
   // Submit blog form (create or update)
   const handleSubmit = async () => {
     try {
-      setLoading(true);
+      setIsSaving(true);
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
       formDataToSend.append("content", formData.content);
@@ -447,9 +467,6 @@ const AdminBlogs = () => {
             }
           }
         );
-        enqueueSnackbar("Blog published successfully", { 
-          variant: "success" 
-        });
       } else {
         response = await axios.post(
           `${API_URL}/api/blogs`,
@@ -460,21 +477,23 @@ const AdminBlogs = () => {
             }
           }
         );
+      }
+
+      if (response.data.success) {
         enqueueSnackbar("Blog published successfully", { 
           variant: "success" 
         });
+        setOpenDialog(false);
+        setHasUnsavedChanges(false);
+        fetchBlogs();
       }
-
-      setOpenDialog(false);
-      setHasUnsavedChanges(false);
-      fetchBlogs();
-      setLoading(false);
     } catch (error) {
       console.error("Error submitting blog:", error);
       enqueueSnackbar(error.response?.data?.message || "Failed to publish blog", {
         variant: "error"
       });
-      setLoading(false);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -483,13 +502,17 @@ const AdminBlogs = () => {
     if (window.confirm("Are you sure you want to delete this blog?")) {
       try {
         setLoading(true);
-        await axios.delete(`${API_URL}/api/blogs/${id}`);
-        enqueueSnackbar("Blog deleted successfully", { variant: "success" });
-        fetchBlogs();
-        setLoading(false);
+        const response = await axios.delete(`${API_URL}/api/blogs/${id}`);
+        if (response.data.success) {
+          enqueueSnackbar("Blog deleted successfully", { variant: "success" });
+          fetchBlogs();
+        }
       } catch (error) {
         console.error("Error deleting blog:", error);
-        enqueueSnackbar("Failed to delete blog", { variant: "error" });
+        enqueueSnackbar(error.response?.data?.message || "Failed to delete blog", { 
+          variant: "error" 
+        });
+      } finally {
         setLoading(false);
       }
     }
@@ -524,10 +547,10 @@ const AdminBlogs = () => {
 
   // Filter blogs based on search term
   const filteredBlogs = currentBlogs.filter(blog =>
-    blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (blog.content && blog.content.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    blog.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    blog.author.toLowerCase().includes(searchTerm.toLowerCase())
+    blog?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (blog?.content && blog.content.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    blog?.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    blog?.author?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -595,6 +618,11 @@ const AdminBlogs = () => {
         </Tabs>
       </Paper>
 
+      {/* Loading indicator */}
+      {(loading || isAutoSaving) && (
+        <LinearProgress sx={{ mb: 2 }} />
+      )}
+
       {loading && !isAutoSaving ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
@@ -617,116 +645,126 @@ const AdminBlogs = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredBlogs
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((blog) => (
-                    <TableRow key={blog._id}>
-                      <TableCell>
-                        {blog.image ? (
-                          <CardMedia
-                            component="img"
-                            sx={{ width: 80, height: 60, objectFit: "cover", borderRadius: 1 }}
-                            image={blog.image}
-                            alt={blog.title}
-                          />
-                        ) : (
-                          <Box sx={{ 
-                            width: 80, 
-                            height: 60, 
-                            bgcolor: 'grey.100',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: 1
-                          }}>
-                            <Typography variant="caption" color="text.secondary">
-                              No image
-                            </Typography>
-                          </Box>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle1">
-                          {blog.title || "Untitled Draft"}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {blog.status === 'published' 
-                            ? new Date(blog.publishedAt || blog.createdAt).toLocaleDateString()
-                            : new Date(blog.updatedAt).toLocaleDateString()
-                          }
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip label={blog.category} color="primary" size="small" />
-                      </TableCell>
-                      <TableCell>{blog.author || "Not set"}</TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={blog.status === 'published' ? 'Published' : 'Draft'} 
-                          color={blog.status === 'published' ? 'success' : 'warning'} 
-                          size="small" 
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {blog.isFeatured ? (
-                          <Chip label="Featured" color="success" size="small" />
-                        ) : null}
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={`${blog.faqs?.length || 0} FAQs`} 
-                          variant="outlined" 
-                          size="small" 
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {new Date(blog.updatedAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <Tooltip title="Edit">
-                            <IconButton 
-                              onClick={() => handleOpenEditDialog(blog)} 
-                              size="small"
-                              disabled={loading}
-                            >
-                              <Edit color="primary" />
-                            </IconButton>
-                          </Tooltip>
-                          {blog.status === 'draft' ? (
-                            <Tooltip title="Publish">
-                              <IconButton 
-                                onClick={() => handlePublishBlog(blog._id)} 
-                                size="small"
-                                disabled={loading}
-                              >
-                                <PublishIcon color="success" />
-                              </IconButton>
-                            </Tooltip>
+                {filteredBlogs.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} align="center">
+                      <Typography color="text.secondary" sx={{ py: 3 }}>
+                        No blogs found
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredBlogs
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((blog) => (
+                      <TableRow key={blog._id}>
+                        <TableCell>
+                          {blog.image ? (
+                            <CardMedia
+                              component="img"
+                              sx={{ width: 80, height: 60, objectFit: "cover", borderRadius: 1 }}
+                              image={blog.image}
+                              alt={blog.title}
+                            />
                           ) : (
-                            <Tooltip title="Move to Drafts">
+                            <Box sx={{ 
+                              width: 80, 
+                              height: 60, 
+                              bgcolor: 'grey.100',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: 1
+                            }}>
+                              <Typography variant="caption" color="text.secondary">
+                                No image
+                              </Typography>
+                            </Box>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="subtitle1">
+                            {blog.title || "Untitled Draft"}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {blog.status === 'published' 
+                              ? new Date(blog.publishedAt || blog.createdAt).toLocaleDateString()
+                              : new Date(blog.updatedAt).toLocaleDateString()
+                            }
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip label={blog.category} color="primary" size="small" />
+                        </TableCell>
+                        <TableCell>{blog.author || "Not set"}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={blog.status === 'published' ? 'Published' : 'Draft'} 
+                            color={blog.status === 'published' ? 'success' : 'warning'} 
+                            size="small" 
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {blog.isFeatured ? (
+                            <Chip label="Featured" color="success" size="small" />
+                          ) : null}
+                        </TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={`${blog.faqs?.length || 0} FAQs`} 
+                            variant="outlined" 
+                            size="small" 
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {new Date(blog.updatedAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={1}>
+                            <Tooltip title="Edit">
                               <IconButton 
-                                onClick={() => handleUnpublishBlog(blog._id)} 
+                                onClick={() => handleOpenEditDialog(blog)} 
                                 size="small"
                                 disabled={loading}
                               >
-                                <Schedule color="warning" />
+                                <Edit color="primary" />
                               </IconButton>
                             </Tooltip>
-                          )}
-                          <Tooltip title="Delete">
-                            <IconButton 
-                              onClick={() => handleDelete(blog._id)} 
-                              size="small"
-                              disabled={loading}
-                            >
-                              <Delete color="error" />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            {blog.status === 'draft' ? (
+                              <Tooltip title="Publish">
+                                <IconButton 
+                                  onClick={() => handlePublishBlog(blog._id)} 
+                                  size="small"
+                                  disabled={loading}
+                                >
+                                  <PublishIcon color="success" />
+                                </IconButton>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip title="Move to Drafts">
+                                <IconButton 
+                                  onClick={() => handleUnpublishBlog(blog._id)} 
+                                  size="small"
+                                  disabled={loading}
+                                >
+                                  <Schedule color="warning" />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                            <Tooltip title="Delete">
+                              <IconButton 
+                                onClick={() => handleDelete(blog._id)} 
+                                size="small"
+                                disabled={loading}
+                              >
+                                <Delete color="error" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -748,8 +786,8 @@ const AdminBlogs = () => {
         open={openDialog} 
         onClose={handleCloseDialog} 
         fullWidth 
-        maxWidth="lg"
-        fullScreen={window.innerWidth < 900}
+        maxWidth="xll"
+        fullScreen={window.innerWidth < 1900}
       >
         <DialogTitle>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -778,7 +816,7 @@ const AdminBlogs = () => {
                   variant="outlined"
                   startIcon={<SaveIcon />}
                   onClick={handleSaveDraft}
-                  disabled={!hasUnsavedChanges || loading || isAutoSaving}
+                  disabled={!hasUnsavedChanges || isSaving || isAutoSaving}
                   size="small"
                 >
                   Save Draft
@@ -799,7 +837,7 @@ const AdminBlogs = () => {
                 margin="normal"
                 required
                 placeholder="Enter blog title"
-                disabled={loading}
+                disabled={isSaving}
                 error={!formData.title.trim()}
                 helperText={!formData.title.trim() ? "Title is required" : ""}
               />
@@ -810,7 +848,7 @@ const AdminBlogs = () => {
                   value={formData.category}
                   onChange={handleInputChange}
                   label="Category"
-                  disabled={loading}
+                  disabled={isSaving}
                 >
                   <MenuItem value="Technology">Technology</MenuItem>
                   <MenuItem value="Education">Education</MenuItem>
@@ -819,6 +857,8 @@ const AdminBlogs = () => {
                   <MenuItem value="Entertainment">Entertainment</MenuItem>
                   <MenuItem value="Lifestyle">Lifestyle</MenuItem>
                   <MenuItem value="Sports">Sports</MenuItem>
+                  <MenuItem value="Science">Science</MenuItem>
+                  <MenuItem value="Travel">Travel</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -829,7 +869,7 @@ const AdminBlogs = () => {
                 onChange={handleInputChange}
                 margin="normal"
                 placeholder="Enter author name"
-                disabled={loading}
+                disabled={isSaving}
               />
               <FormControlLabel
                 control={
@@ -838,7 +878,7 @@ const AdminBlogs = () => {
                     checked={formData.isFeatured}
                     onChange={handleInputChange}
                     color="primary"
-                    disabled={loading}
+                    disabled={isSaving}
                   />
                 }
                 label="Featured Blog"
@@ -850,14 +890,14 @@ const AdminBlogs = () => {
                   id="blog-image-upload"
                   type="file"
                   onChange={handleFileChange}
-                  disabled={loading}
+                  disabled={isSaving}
                 />
                 <label htmlFor="blog-image-upload">
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     component="span"
                     startIcon={<CloudUpload />}
-                    disabled={loading}
+                    disabled={isSaving}
                   >
                     {previewImage ? "Change Cover Image" : "Upload Cover Image"}
                   </Button>
@@ -884,7 +924,7 @@ const AdminBlogs = () => {
                 expanded={faqExpanded} 
                 onChange={() => setFaqExpanded(!faqExpanded)}
                 sx={{ mt: 3 }}
-                disabled={loading}
+                disabled={isSaving}
               >
                 <AccordionSummary expandIcon={<ExpandMore />}>
                   <Typography variant="h6">Blog FAQs ({faqs.length})</Typography>
@@ -899,7 +939,7 @@ const AdminBlogs = () => {
                       onChange={handleFaqChange}
                       margin="normal"
                       placeholder="Enter a question"
-                      disabled={loading}
+                      disabled={isSaving}
                     />
                     <TextField
                       fullWidth
@@ -911,14 +951,14 @@ const AdminBlogs = () => {
                       multiline
                       rows={2}
                       placeholder="Enter the answer"
-                      disabled={loading}
+                      disabled={isSaving}
                     />
                     <Button
                       variant="outlined"
                       onClick={handleAddFaq}
                       sx={{ mt: 1 }}
                       startIcon={<AddIcon />}
-                      disabled={loading || !currentFaq.question.trim() || !currentFaq.answer.trim()}
+                      disabled={isSaving || !currentFaq.question.trim() || !currentFaq.answer.trim()}
                     >
                       Add FAQ
                     </Button>
@@ -936,7 +976,7 @@ const AdminBlogs = () => {
                             edge="end" 
                             onClick={() => handleRemoveFaq(faq.id)}
                             color="error"
-                            disabled={loading}
+                            disabled={isSaving}
                           >
                             <RemoveIcon />
                           </IconButton>
@@ -972,7 +1012,7 @@ const AdminBlogs = () => {
           <Button 
             onClick={handleCloseDialog} 
             color="inherit"
-            disabled={loading || isAutoSaving}
+            disabled={isSaving || isAutoSaving}
           >
             Cancel
           </Button>
@@ -980,20 +1020,20 @@ const AdminBlogs = () => {
             onClick={handleSaveDraft}
             variant="outlined"
             color="secondary"
-            disabled={loading || !formData.title.trim() || isAutoSaving}
+            disabled={isSaving || !formData.title.trim() || isAutoSaving}
             startIcon={<SaveIcon />}
           >
-            Save as Draft
+            {isSaving ? <CircularProgress size={20} /> : 'Save as Draft'}
           </Button>
           <Button
             onClick={handleSubmit}
             variant="contained"
             color="success"
-            disabled={loading || !formData.title.trim() || !formData.content.trim() || isAutoSaving}
+            disabled={isSaving || !formData.title.trim() || !formData.content.trim() || isAutoSaving}
             startIcon={<PublishIcon />}
           >
-            {loading ? (
-              <CircularProgress size={24} />
+            {isSaving ? (
+              <CircularProgress size={24} color="inherit" />
             ) : isEditMode ? (
               'Update & Publish'
             ) : (

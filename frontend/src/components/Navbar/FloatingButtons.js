@@ -6,7 +6,8 @@ import {
   RiWhatsappFill,
   RiFacebookFill,
   RiInstagramFill,
-  RiYoutubeFill
+  RiYoutubeFill,
+  RiLinkedinFill
 } from "react-icons/ri";
 
 export default function FloatingButtons() {
@@ -115,6 +116,19 @@ export default function FloatingButtons() {
             onClick={handleButtonClick}
           >
             <RiInstagramFill className="ri-icon" />
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="https://www.linkedin.com/company/collegeformsin/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="social-linkedin"
+            aria-label="LinkedIn"
+            onClick={handleButtonClick}
+          >
+            <RiLinkedinFill className="ri-icon" />
           </a>
         </li>
 
