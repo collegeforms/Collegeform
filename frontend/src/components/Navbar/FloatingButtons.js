@@ -81,7 +81,7 @@ export default function FloatingButtons() {
     <>
       {/* WhatsApp Floating Button (Left Side) */}
       <a
-        href="https://wa.me/message/SZZ4HG2V6RF7K1"
+        href="https://api.whatsapp.com/send/?phone=919575444470&text&type=phone_number&app_absent=0"
         target="_blank"
         rel="noopener noreferrer"
         className={`floating-whatsapp ${isVisible ? 'visible' : 'hidden'}`}
