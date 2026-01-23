@@ -125,7 +125,7 @@ app.use(express.static(path.join(__dirname, "../frontend/build")));
 app.use("/api/colleges", collegeRoutes);
 app.use("/api/banners", bannerRoutes);
 app.use("/api/slider", sliderRoutes);
-app.use("/api", blogRoutes);
+app.use("/api/blogs", blogRoutes);
 app.use("/api/upload", upload);
 app.use("/api/cart", cartRoutes);
 app.use("/api/documents", documents);
