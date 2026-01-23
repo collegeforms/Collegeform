@@ -52,6 +52,10 @@ export const createBlog = async (req, res) => {
 
 // @desc    Save draft (auto-save)
 // @route   POST /api/blogs/draft
+// In blogController.js, update the saveDraft function:
+
+// @desc    Save draft (auto-save)
+// @route   POST /api/blogs/draft
 export const saveDraft = async (req, res) => {
   try {
     const { id, ...blogData } = req.body;
@@ -91,19 +95,24 @@ export const saveDraft = async (req, res) => {
       
       const updatedBlog = await Blog.findByIdAndUpdate(id, updateData, { new: true });
       return res.json({ 
+        success: true,
         message: "Draft saved successfully",
         blog: updatedBlog
       });
     } 
     // Create new draft
     else {
-      if (!req.file) {
-        return res.status(400).json({ message: "No image uploaded" });
-      }
+      // Don't require image for drafts initially
+      let imageUrl = "";
+      let publicId = "";
       
-      const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
-        folder: "blog_images",
-      });
+      if (req.file) {
+        const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
+          folder: "blog_images",
+        });
+        imageUrl = uploadedImage.secure_url;
+        publicId = uploadedImage.public_id;
+      }
       
       // Parse FAQs
       let faqs = [];
@@ -116,19 +125,28 @@ export const saveDraft = async (req, res) => {
       }
       
       const newDraft = new Blog({
-        ...blogData,
-        image: uploadedImage.secure_url,
-        publicId: uploadedImage.public_id,
+        title: blogData.title || "Untitled Draft",
+        content: blogData.content || "",
+        image: imageUrl,
+        publicId: publicId,
+        category: blogData.category || "Technology",
+        author: blogData.author || "",
+        isFeatured: blogData.isFeatured === 'true',
         status: 'draft',
         faqs: faqs
       });
       
       const savedDraft = await newDraft.save();
-      return res.status(201).json(savedDraft);
+      return res.status(201).json({
+        success: true,
+        message: "Draft created successfully",
+        blog: savedDraft
+      });
     }
   } catch (error) {
     console.error("Error saving draft:", error);
     res.status(500).json({ 
+      success: false,
       message: "Error saving draft", 
       error: error.message 
     });

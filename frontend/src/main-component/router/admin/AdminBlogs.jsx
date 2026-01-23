@@ -1,15 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Button,
   IconButton,
   Typography,
   Grid,
-  Card,
   CardMedia,
-  CardContent,
-  CardActions,
-  Divider,
   TextField,
   Select,
   MenuItem,
@@ -40,12 +36,11 @@ import {
   ListItemSecondaryAction,
   Tabs,
   Tab,
-  Alert,
-  Snackbar,
   Badge,
   Tooltip,
-  Switch,
-  Stack
+  Stack,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import { 
   Delete, 
@@ -57,22 +52,19 @@ import {
   Add as AddIcon,
   Remove as RemoveIcon,
   Save as SaveIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  PublishedWithChanges,
+  Publish as PublishIcon,
   Schedule,
   Article,
-  Dashboard
+  AutoAwesome,
+  WarningAmber
 } from "@mui/icons-material";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import { useNavigate } from "react-router-dom";
 import TiptapEditor from './TiptapEditor';
 
 const AdminBlogs = () => {
   const API_URL = "https://www.collegeforms.in";
   const { enqueueSnackbar } = useSnackbar();
-  const navigate = useNavigate();
 
   const [blogs, setBlogs] = useState([]);
   const [drafts, setDrafts] = useState([]);
@@ -87,7 +79,6 @@ const AdminBlogs = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [activeTab, setActiveTab] = useState(0);
-  const [autoSaveTimer, setAutoSaveTimer] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [blogStats, setBlogStats] = useState({
     total: 0,
@@ -95,6 +86,8 @@ const AdminBlogs = () => {
     drafts: 0,
     featured: 0
   });
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const autoSaveTimerRef = useRef(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -103,7 +96,7 @@ const AdminBlogs = () => {
     category: "Technology",
     author: "",
     isFeatured: false,
-    status: "draft" // default to draft
+    status: "draft"
   });
 
   // FAQ state
@@ -148,48 +141,79 @@ const AdminBlogs = () => {
 
   // Auto-save functionality
   useEffect(() => {
-    if (hasUnsavedChanges && formData.title) {
-      const timer = setTimeout(async () => {
-        await handleAutoSave();
-      }, 5000); // Auto-save every 5 seconds after changes
+    if (hasUnsavedChanges && formData.title && openDialog) {
+      // Clear any existing timer
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
       
-      setAutoSaveTimer(timer);
-      return () => clearTimeout(timer);
+      // Set new timer for 3 seconds
+      autoSaveTimerRef.current = setTimeout(async () => {
+        await handleAutoSave();
+      }, 3000);
+      
+      return () => {
+        if (autoSaveTimerRef.current) {
+          clearTimeout(autoSaveTimerRef.current);
+        }
+      };
     }
-  }, [formData, faqs, selectedFile, hasUnsavedChanges]);
+  }, [formData, faqs, selectedFile, hasUnsavedChanges, openDialog]);
 
   const handleAutoSave = async () => {
+    if (!formData.title.trim()) {
+      return; // Don't auto-save empty drafts
+    }
+    
     try {
+      setIsAutoSaving(true);
       const formDataToSend = new FormData();
-      formDataToSend.append("title", formData.title);
-      formDataToSend.append("content", formData.content);
+      
+      // Only send necessary data
+      formDataToSend.append("title", formData.title || "Untitled Draft");
+      formDataToSend.append("content", formData.content || "");
       formDataToSend.append("category", formData.category);
-      formDataToSend.append("author", formData.author);
+      formDataToSend.append("author", formData.author || "");
       formDataToSend.append("isFeatured", formData.isFeatured.toString());
-      formDataToSend.append("status", formData.status);
       formDataToSend.append("faqs", JSON.stringify(faqs));
-
-      if (currentBlog?._id) {
+      
+      // If editing existing draft, send the ID
+      if (isEditMode && currentBlog?._id && currentBlog.status === 'draft') {
         formDataToSend.append("id", currentBlog._id);
       }
-
+      
+      // If there's a new file, append it
       if (selectedFile) {
         formDataToSend.append("image", selectedFile);
-      } else if (previewImage && !previewImage.startsWith('blob:')) {
-        // If no new file but existing image, we still need to save the image URL
-        formDataToSend.append("existingImage", previewImage);
       }
 
-      await axios.post(`${API_URL}/api/blogs/draft`, formDataToSend, {
+      const response = await axios.post(`${API_URL}/api/blogs/draft`, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
       });
       
-      setHasUnsavedChanges(false);
-      enqueueSnackbar("Draft auto-saved", { variant: "info" });
+      if (response.data.success) {
+        setHasUnsavedChanges(false);
+        
+        // Update current blog if editing
+        if (isEditMode && currentBlog) {
+          setCurrentBlog(response.data.blog);
+        }
+        
+        // Show snackbar only if not already saving
+        if (!isAutoSaving) {
+          enqueueSnackbar("Draft auto-saved", { variant: "info", autoHideDuration: 2000 });
+        }
+        
+        // Refresh the drafts list
+        fetchBlogs();
+      }
     } catch (error) {
       console.error("Error auto-saving draft:", error);
+      enqueueSnackbar("Failed to auto-save draft", { variant: "error" });
+    } finally {
+      setIsAutoSaving(false);
     }
   };
 
@@ -232,16 +256,6 @@ const AdminBlogs = () => {
     setHasUnsavedChanges(true);
   };
 
-  // Handle status change
-  const handleStatusChange = (e) => {
-    const newStatus = e.target.checked ? 'published' : 'draft';
-    setFormData(prev => ({
-      ...prev,
-      status: newStatus
-    }));
-    setHasUnsavedChanges(true);
-  };
-
   // Handle FAQ input changes
   const handleFaqChange = (e) => {
     const { name, value } = e.target;
@@ -249,6 +263,7 @@ const AdminBlogs = () => {
       ...prev,
       [name]: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Add FAQ to the list
@@ -257,9 +272,6 @@ const AdminBlogs = () => {
       setFaqs(prev => [...prev, { ...currentFaq, id: Date.now() }]);
       setCurrentFaq({ question: "", answer: "" });
       setHasUnsavedChanges(true);
-      enqueueSnackbar("FAQ added successfully", { variant: "success" });
-    } else {
-      enqueueSnackbar("Please fill both question and answer", { variant: "warning" });
     }
   };
 
@@ -267,7 +279,6 @@ const AdminBlogs = () => {
   const handleRemoveFaq = (id) => {
     setFaqs(prev => prev.filter(faq => faq.id !== id));
     setHasUnsavedChanges(true);
-    enqueueSnackbar("FAQ removed", { variant: "info" });
   };
 
   // Handle content change from RichTextEditor
@@ -319,56 +330,97 @@ const AdminBlogs = () => {
   };
 
   // Close dialog with confirmation if unsaved changes
-  const handleCloseDialog = () => {
-    if (hasUnsavedChanges) {
-      if (window.confirm("You have unsaved changes. Do you want to save as draft?")) {
-        handleAutoSave().then(() => {
-          setOpenDialog(false);
-          fetchBlogs();
-        });
-      } else {
-        setOpenDialog(false);
+  const handleCloseDialog = async () => {
+    if (hasUnsavedChanges && formData.title.trim()) {
+      const shouldSave = window.confirm(
+        "You have unsaved changes. Do you want to save as draft before closing?"
+      );
+      if (shouldSave) {
+        await handleSaveDraft();
       }
-    } else {
-      setOpenDialog(false);
     }
+    setOpenDialog(false);
   };
 
   // Manual save as draft
   const handleSaveDraft = async () => {
     try {
-      await handleAutoSave();
-      enqueueSnackbar("Draft saved successfully", { variant: "success" });
-      fetchBlogs();
+      setLoading(true);
+      const formDataToSend = new FormData();
+      
+      formDataToSend.append("title", formData.title || "Untitled Draft");
+      formDataToSend.append("content", formData.content || "");
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("author", formData.author || "");
+      formDataToSend.append("isFeatured", formData.isFeatured.toString());
+      formDataToSend.append("faqs", JSON.stringify(faqs));
+      
+      // If editing existing draft, send the ID
+      if (isEditMode && currentBlog?._id && currentBlog.status === 'draft') {
+        formDataToSend.append("id", currentBlog._id);
+      }
+      
+      if (selectedFile) {
+        formDataToSend.append("image", selectedFile);
+      }
+
+      const response = await axios.post(`${API_URL}/api/blogs/draft`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      
+      if (response.data.success) {
+        setHasUnsavedChanges(false);
+        enqueueSnackbar("Draft saved successfully", { variant: "success" });
+        
+        // Update current blog if editing
+        if (isEditMode && currentBlog) {
+          setCurrentBlog(response.data.blog);
+        }
+        
+        fetchBlogs();
+      }
     } catch (error) {
+      console.error("Error saving draft:", error);
       enqueueSnackbar("Failed to save draft", { variant: "error" });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Publish a blog
+  // Publish a draft
   const handlePublishBlog = async (id) => {
     try {
+      setLoading(true);
       await axios.put(`${API_URL}/api/blogs/${id}/publish`);
       enqueueSnackbar("Blog published successfully", { variant: "success" });
       fetchBlogs();
     } catch (error) {
+      console.error("Error publishing blog:", error);
       enqueueSnackbar("Failed to publish blog", { variant: "error" });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Unpublish a blog (move to drafts)
   const handleUnpublishBlog = async (id) => {
     try {
+      setLoading(true);
       await axios.put(`${API_URL}/api/blogs/${id}/unpublish`);
       enqueueSnackbar("Blog moved to drafts", { variant: "info" });
       fetchBlogs();
     } catch (error) {
+      console.error("Error unpublishing blog:", error);
       enqueueSnackbar("Failed to unpublish blog", { variant: "error" });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Submit blog form (create or update)
-  const handleSubmit = async (status = formData.status) => {
+  const handleSubmit = async () => {
     try {
       setLoading(true);
       const formDataToSend = new FormData();
@@ -378,7 +430,7 @@ const AdminBlogs = () => {
       formDataToSend.append("author", formData.author);
       formDataToSend.append("isFeatured", formData.isFeatured.toString());
       formDataToSend.append("faqs", JSON.stringify(faqs));
-      formDataToSend.append("status", status);
+      formDataToSend.append("status", "published");
 
       if (selectedFile) {
         formDataToSend.append("image", selectedFile);
@@ -395,7 +447,7 @@ const AdminBlogs = () => {
             }
           }
         );
-        enqueueSnackbar(`Blog ${status === 'published' ? 'published' : 'updated'} successfully`, { 
+        enqueueSnackbar("Blog published successfully", { 
           variant: "success" 
         });
       } else {
@@ -408,7 +460,7 @@ const AdminBlogs = () => {
             }
           }
         );
-        enqueueSnackbar(`Blog ${status === 'published' ? 'published' : 'created'} successfully`, { 
+        enqueueSnackbar("Blog published successfully", { 
           variant: "success" 
         });
       }
@@ -419,7 +471,7 @@ const AdminBlogs = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error submitting blog:", error);
-      enqueueSnackbar(`Failed to ${isEditMode ? "update" : "create"} blog`, {
+      enqueueSnackbar(error.response?.data?.message || "Failed to publish blog", {
         variant: "error"
       });
       setLoading(false);
@@ -473,14 +525,14 @@ const AdminBlogs = () => {
   // Filter blogs based on search term
   const filteredBlogs = currentBlogs.filter(blog =>
     blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (blog.content && blog.content.toLowerCase().includes(searchTerm.toLowerCase())) ||
     blog.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     blog.author.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <Box sx={{ padding: "20px" }}>
-      {/* Header with stats */}
+      {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
           <Typography variant="h4">Blog Management</Typography>
@@ -488,12 +540,11 @@ const AdminBlogs = () => {
             variant="contained"
             startIcon={<Add />}
             onClick={handleOpenCreateDialog}
+            disabled={loading}
           >
             New Blog
           </Button>
         </Box>
-
-
       </Box>
 
       {/* Search and Tabs */}
@@ -508,20 +559,25 @@ const AdminBlogs = () => {
             InputProps={{
               startAdornment: <Search sx={{ mr: 1 }} />
             }}
+            disabled={loading}
           />
         </Box>
         
         <Tabs 
           value={activeTab} 
-          onChange={(e, newValue) => setActiveTab(newValue)}
+          onChange={(e, newValue) => {
+            setActiveTab(newValue);
+            setPage(0);
+          }}
           sx={{ mt: 2 }}
+          disabled={loading}
         >
           <Tab 
             icon={<Article />} 
             label={`All Blogs (${blogs.length})`} 
           />
           <Tab 
-            icon={<VisibilityIcon />} 
+            icon={<AutoAwesome />} 
             label={
               <Badge badgeContent={blogStats.published} color="success">
                 Published
@@ -539,7 +595,7 @@ const AdminBlogs = () => {
         </Tabs>
       </Paper>
 
-      {loading ? (
+      {loading && !isAutoSaving ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
         </Box>
@@ -566,18 +622,36 @@ const AdminBlogs = () => {
                   .map((blog) => (
                     <TableRow key={blog._id}>
                       <TableCell>
-                        <CardMedia
-                          component="img"
-                          sx={{ width: 80, height: 60, objectFit: "cover" }}
-                          image={blog.image}
-                          alt={blog.title}
-                        />
+                        {blog.image ? (
+                          <CardMedia
+                            component="img"
+                            sx={{ width: 80, height: 60, objectFit: "cover", borderRadius: 1 }}
+                            image={blog.image}
+                            alt={blog.title}
+                          />
+                        ) : (
+                          <Box sx={{ 
+                            width: 80, 
+                            height: 60, 
+                            bgcolor: 'grey.100',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 1
+                          }}>
+                            <Typography variant="caption" color="text.secondary">
+                              No image
+                            </Typography>
+                          </Box>
+                        )}
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle1">{blog.title}</Typography>
+                        <Typography variant="subtitle1">
+                          {blog.title || "Untitled Draft"}
+                        </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {blog.status === 'published' 
-                            ? new Date(blog.publishedAt).toLocaleDateString()
+                            ? new Date(blog.publishedAt || blog.createdAt).toLocaleDateString()
                             : new Date(blog.updatedAt).toLocaleDateString()
                           }
                         </Typography>
@@ -585,7 +659,7 @@ const AdminBlogs = () => {
                       <TableCell>
                         <Chip label={blog.category} color="primary" size="small" />
                       </TableCell>
-                      <TableCell>{blog.author}</TableCell>
+                      <TableCell>{blog.author || "Not set"}</TableCell>
                       <TableCell>
                         <Chip 
                           label={blog.status === 'published' ? 'Published' : 'Draft'} 
@@ -611,25 +685,41 @@ const AdminBlogs = () => {
                       <TableCell>
                         <Stack direction="row" spacing={1}>
                           <Tooltip title="Edit">
-                            <IconButton onClick={() => handleOpenEditDialog(blog)} size="small">
+                            <IconButton 
+                              onClick={() => handleOpenEditDialog(blog)} 
+                              size="small"
+                              disabled={loading}
+                            >
                               <Edit color="primary" />
                             </IconButton>
                           </Tooltip>
                           {blog.status === 'draft' ? (
                             <Tooltip title="Publish">
-                              <IconButton onClick={() => handlePublishBlog(blog._id)} size="small">
-                                <VisibilityIcon color="success" />
+                              <IconButton 
+                                onClick={() => handlePublishBlog(blog._id)} 
+                                size="small"
+                                disabled={loading}
+                              >
+                                <PublishIcon color="success" />
                               </IconButton>
                             </Tooltip>
                           ) : (
                             <Tooltip title="Move to Drafts">
-                              <IconButton onClick={() => handleUnpublishBlog(blog._id)} size="small">
-                                <VisibilityOffIcon color="warning" />
+                              <IconButton 
+                                onClick={() => handleUnpublishBlog(blog._id)} 
+                                size="small"
+                                disabled={loading}
+                              >
+                                <Schedule color="warning" />
                               </IconButton>
                             </Tooltip>
                           )}
                           <Tooltip title="Delete">
-                            <IconButton onClick={() => handleDelete(blog._id)} size="small">
+                            <IconButton 
+                              onClick={() => handleDelete(blog._id)} 
+                              size="small"
+                              disabled={loading}
+                            >
                               <Delete color="error" />
                             </IconButton>
                           </Tooltip>
@@ -648,6 +738,7 @@ const AdminBlogs = () => {
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            disabled={loading}
           />
         </>
       )}
@@ -672,26 +763,25 @@ const AdminBlogs = () => {
                   sx={{ ml: 2 }}
                 />
               )}
+              {isAutoSaving && (
+                <Chip 
+                  label="Auto-saving..." 
+                  color="info" 
+                  size="small" 
+                  sx={{ ml: 1 }}
+                />
+              )}
             </Typography>
             <Stack direction="row" spacing={2} alignItems="center">
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.status === 'published'}
-                    onChange={handleStatusChange}
-                    color="success"
-                  />
-                }
-                label={formData.status === 'published' ? "Published" : "Draft"}
-              />
               <Tooltip title="Save as Draft">
                 <Button
                   variant="outlined"
                   startIcon={<SaveIcon />}
                   onClick={handleSaveDraft}
-                  disabled={!hasUnsavedChanges}
+                  disabled={!hasUnsavedChanges || loading || isAutoSaving}
+                  size="small"
                 >
-                  Save
+                  Save Draft
                 </Button>
               </Tooltip>
             </Stack>
@@ -708,6 +798,10 @@ const AdminBlogs = () => {
                 onChange={handleInputChange}
                 margin="normal"
                 required
+                placeholder="Enter blog title"
+                disabled={loading}
+                error={!formData.title.trim()}
+                helperText={!formData.title.trim() ? "Title is required" : ""}
               />
               <FormControl fullWidth margin="normal" required>
                 <InputLabel>Category</InputLabel>
@@ -716,12 +810,15 @@ const AdminBlogs = () => {
                   value={formData.category}
                   onChange={handleInputChange}
                   label="Category"
+                  disabled={loading}
                 >
                   <MenuItem value="Technology">Technology</MenuItem>
                   <MenuItem value="Education">Education</MenuItem>
                   <MenuItem value="Health">Health</MenuItem>
                   <MenuItem value="Business">Business</MenuItem>
                   <MenuItem value="Entertainment">Entertainment</MenuItem>
+                  <MenuItem value="Lifestyle">Lifestyle</MenuItem>
+                  <MenuItem value="Sports">Sports</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -731,7 +828,8 @@ const AdminBlogs = () => {
                 value={formData.author}
                 onChange={handleInputChange}
                 margin="normal"
-                required
+                placeholder="Enter author name"
+                disabled={loading}
               />
               <FormControlLabel
                 control={
@@ -740,6 +838,7 @@ const AdminBlogs = () => {
                     checked={formData.isFeatured}
                     onChange={handleInputChange}
                     color="primary"
+                    disabled={loading}
                   />
                 }
                 label="Featured Blog"
@@ -751,14 +850,16 @@ const AdminBlogs = () => {
                   id="blog-image-upload"
                   type="file"
                   onChange={handleFileChange}
+                  disabled={loading}
                 />
                 <label htmlFor="blog-image-upload">
                   <Button
                     variant="contained"
                     component="span"
                     startIcon={<CloudUpload />}
+                    disabled={loading}
                   >
-                    Upload Cover Image
+                    {previewImage ? "Change Cover Image" : "Upload Cover Image"}
                   </Button>
                 </label>
                 {previewImage && (
@@ -767,7 +868,12 @@ const AdminBlogs = () => {
                     <img
                       src={previewImage}
                       alt="Preview"
-                      style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "8px" }}
+                      style={{ 
+                        maxWidth: "100%", 
+                        maxHeight: "200px", 
+                        borderRadius: "8px",
+                        objectFit: 'cover' 
+                      }}
                     />
                   </Box>
                 )}
@@ -778,6 +884,7 @@ const AdminBlogs = () => {
                 expanded={faqExpanded} 
                 onChange={() => setFaqExpanded(!faqExpanded)}
                 sx={{ mt: 3 }}
+                disabled={loading}
               >
                 <AccordionSummary expandIcon={<ExpandMore />}>
                   <Typography variant="h6">Blog FAQs ({faqs.length})</Typography>
@@ -791,6 +898,8 @@ const AdminBlogs = () => {
                       value={currentFaq.question}
                       onChange={handleFaqChange}
                       margin="normal"
+                      placeholder="Enter a question"
+                      disabled={loading}
                     />
                     <TextField
                       fullWidth
@@ -801,11 +910,15 @@ const AdminBlogs = () => {
                       margin="normal"
                       multiline
                       rows={2}
+                      placeholder="Enter the answer"
+                      disabled={loading}
                     />
                     <Button
                       variant="outlined"
                       onClick={handleAddFaq}
                       sx={{ mt: 1 }}
+                      startIcon={<AddIcon />}
+                      disabled={loading || !currentFaq.question.trim() || !currentFaq.answer.trim()}
                     >
                       Add FAQ
                     </Button>
@@ -823,12 +936,21 @@ const AdminBlogs = () => {
                             edge="end" 
                             onClick={() => handleRemoveFaq(faq.id)}
                             color="error"
+                            disabled={loading}
                           >
                             <RemoveIcon />
                           </IconButton>
                         </ListItemSecondaryAction>
                       </ListItem>
                     ))}
+                    {faqs.length === 0 && (
+                      <ListItem>
+                        <ListItemText
+                          primary="No FAQs added yet"
+                          secondary="Add questions and answers that readers might have about this blog"
+                        />
+                      </ListItem>
+                    )}
                   </List>
                 </AccordionDetails>
               </Accordion>
@@ -847,28 +969,33 @@ const AdminBlogs = () => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="inherit">
+          <Button 
+            onClick={handleCloseDialog} 
+            color="inherit"
+            disabled={loading || isAutoSaving}
+          >
             Cancel
           </Button>
           <Button
-            onClick={() => handleSubmit('draft')}
+            onClick={handleSaveDraft}
             variant="outlined"
             color="secondary"
-            disabled={loading || !formData.title || !formData.content}
+            disabled={loading || !formData.title.trim() || isAutoSaving}
+            startIcon={<SaveIcon />}
           >
             Save as Draft
           </Button>
           <Button
-            onClick={() => handleSubmit('published')}
+            onClick={handleSubmit}
             variant="contained"
             color="success"
-            disabled={loading || !formData.title || !formData.content}
-            startIcon={formData.status === 'published' ? <PublishedWithChanges /> : <VisibilityIcon />}
+            disabled={loading || !formData.title.trim() || !formData.content.trim() || isAutoSaving}
+            startIcon={<PublishIcon />}
           >
             {loading ? (
               <CircularProgress size={24} />
             ) : isEditMode ? (
-              formData.status === 'published' ? 'Update & Publish' : 'Publish Now'
+              'Update & Publish'
             ) : (
               'Create & Publish'
             )}
@@ -876,12 +1003,16 @@ const AdminBlogs = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Auto-save notification */}
+      {/* Auto-save notifications */}
       <Snackbar 
-        open={hasUnsavedChanges} 
-        message="Saving draft automatically..." 
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      />
+        open={isAutoSaving}
+        autoHideDuration={2000}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert severity="info" icon={<SaveIcon fontSize="small" />}>
+          Auto-saving draft...
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

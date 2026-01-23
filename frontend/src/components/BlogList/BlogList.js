@@ -28,12 +28,19 @@ const BlogList = (props) => {
           params.append('featured', true);
         }
         
+        // 添加 status 参数，只获取已发布的博客
+        params.append('status', 'published');
+        
         if (params.toString()) {
           url += `?${params.toString()}`;
         }
         
         const response = await axios.get(url);
-        setBlogs(response.data);
+        
+        // 也可以在客户端进行额外的过滤（双重保障）
+        const publishedBlogs = response.data.filter(blog => blog.status === 'published');
+        
+        setBlogs(publishedBlogs);
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -43,7 +50,7 @@ const BlogList = (props) => {
     };
 
     fetchBlogs();
-  }, [props.category, props.featured, API_URL]); // Added API_URL to dependencies
+  }, [props.category, props.featured, API_URL]);
 
   if (loading) {
     return <div className="wpo-blog-pg-section section-padding">Loading blogs...</div>;
@@ -52,21 +59,39 @@ const BlogList = (props) => {
   if (error) {
     return <div className="wpo-blog-pg-section section-padding">Error: {error}</div>;
   }
-  console.log(blogs);
-  
+
+  // 如果过滤后没有博客
+  if (blogs.length === 0) {
+    return (
+      <section className="wpo-blog-pg-section ">
+        <br/>
+        <br/>
+        <div className="container">
+          <div className="row">
+            <div className="col col-12">
+              <div className="wpo-blog-content">
+                <div className="text-center">
+                  <h4>No published blogs available</h4>
+                  <p>Check back later for new content!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="wpo-blog-pg-section ">
       <br/>
       <br/>
-
       <div className="container">
         <div className="row">
-              {blogs.map((blog, bitem) => (
-
-          <div className={`col col-lg-4 col-12 `}>
-            <div className="wpo-blog-content">
-                <div className={`post ${blog.blClass}`} key={bitem}>
+          {blogs.map((blog, bitem) => (
+            <div className={`col col-lg-4 col-12 `} key={blog._id || bitem}>
+              <div className="wpo-blog-content">
+                <div className={`post ${blog.blClass}`}>
                   <div className="entry-media video-holder">
                     <img src={blog.image} alt={blog.title} />
                   </div>
@@ -79,32 +104,12 @@ const BlogList = (props) => {
                   </div>
                   <div className="entry-details">
                     <h6><Link className='text-dark' onClick={ClickHandler} to={`/blogs/${blog.slug}`}>{blog.title}</Link></h6>
-                    {/* <p>{blog.excerpt || "Law is a great career path if you want to build a broad skill set that includes everything from critical thinking and strategic planning to communications. If you love rising to a challenge."}</p> */}
                     <Link onClick={ClickHandler} to={`/blogs/${blog.slug}`} className="read-more">READ MORE...</Link>
                   </div>
                 </div>
-
-              {/* <div className="pagination-wrapper pagination-wrapper-left">
-                <ul className="pg-pagination">
-                  <li>
-                    <Link to="/blog-left-sidebar" aria-label="Previous">
-                      <i className="fi ti-angle-left"></i>
-                    </Link>
-                  </li>
-                  <li className="active"><Link to="/blog-left-sidebar">1</Link></li>
-                  <li><Link to="/blog-left-sidebar">2</Link></li>
-                  <li><Link to="/blog-left-sidebar">3</Link></li>
-                  <li>
-                    <Link to="/blog-left-sidebar" aria-label="Next">
-                      <i className="fi ti-angle-right"></i>
-                    </Link>
-                  </li>
-                </ul>
-              </div> */}
+              </div>
             </div>
-          </div>
-              ))}
-
+          ))}
           <BlogSidebar blLeft={props.blLeft} />
         </div>
       </div>

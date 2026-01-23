@@ -62,28 +62,39 @@ const documentStorage = new CloudinaryStorage({
   },
 });
 
-// Blog image storage
+// Blog image storage (for published blogs)
 const blogImageStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'blog_images',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
-    public_id: (req, file) => `blog_${Date.now()}-${file.originalname}`,
+    public_id: (req, file) => `blog_${Date.now()}_${Math.random().toString(36).substring(7)}`,
   },
 });
 
-// Blog content storage
+// Draft image storage (for draft blogs)
+const draftImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'draft_images',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
+    public_id: (req, file) => `draft_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+  },
+});
+
+// Blog content storage (for editor images)
 const blogContentStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'blog_content',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
-    public_id: (req, file) => `blog_content_${Date.now()}-${file.originalname}`,
+    public_id: (req, file) => `blog_content_${Date.now()}_${Math.random().toString(36).substring(7)}`,
   },
 });
 
 export const uploadDocument = multer({ storage: documentStorage });
 export const uploadBlogImage = multer({ storage: blogImageStorage });
+export const uploadDraftImage = multer({ storage: draftImageStorage });
 export const uploadBlogContent = multer({ 
   storage: blogContentStorage,
   limits: {
