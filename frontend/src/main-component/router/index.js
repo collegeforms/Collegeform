@@ -80,12 +80,10 @@ const AllRoute = () => {
       <DefaultSEO/>
       <ThemeProvider theme={theme}>
         <Router>
-          {/* 🔝 ScrollToTop ensures every route opens from top */}
           <ScrollToTop />
 
           <Routes>
 
-            {/* ===== Admin Routes ===== */}
             <Route
               path="/admin/*"
               element={
@@ -126,10 +124,8 @@ const AllRoute = () => {
               }
             />
 
-            {/* Admin Login */}
             <Route path="/admin/login" element={<AuthLogin />} />
 
-            {/* ===== User Routes ===== */}
             <Route path="/" element={<Homepage />} />
             <Route path="/video" element={<VideoCarousel />} />
             <Route path="/myaccount" element={<MyAccount />} />

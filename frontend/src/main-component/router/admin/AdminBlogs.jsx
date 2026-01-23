@@ -37,7 +37,15 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
+  Tabs,
+  Tab,
+  Alert,
+  Snackbar,
+  Badge,
+  Tooltip,
+  Switch,
+  Stack
 } from "@mui/material";
 import { 
   Delete, 
@@ -47,22 +55,28 @@ import {
   Search, 
   ExpandMore,
   Add as AddIcon,
-  Remove as RemoveIcon 
+  Remove as RemoveIcon,
+  Save as SaveIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  PublishedWithChanges,
+  Schedule,
+  Article,
+  Dashboard
 } from "@mui/icons-material";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
-
 import TiptapEditor from './TiptapEditor';
 
 const AdminBlogs = () => {
- const API_URL = "https://www.collegeforms.in";
-
-
+  const API_URL = "https://www.collegeforms.in";
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
   const [blogs, setBlogs] = useState([]);
+  const [drafts, setDrafts] = useState([]);
+  const [publishedBlogs, setPublishedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
@@ -72,6 +86,15 @@ const AdminBlogs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [activeTab, setActiveTab] = useState(0);
+  const [autoSaveTimer, setAutoSaveTimer] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [blogStats, setBlogStats] = useState({
+    total: 0,
+    published: 0,
+    drafts: 0,
+    featured: 0
+  });
 
   // Form state
   const [formData, setFormData] = useState({
@@ -79,7 +102,8 @@ const AdminBlogs = () => {
     content: "",
     category: "Technology",
     author: "",
-    isFeatured: false
+    isFeatured: false,
+    status: "draft" // default to draft
   });
 
   // FAQ state
@@ -87,22 +111,87 @@ const AdminBlogs = () => {
   const [currentFaq, setCurrentFaq] = useState({ question: "", answer: "" });
   const [faqExpanded, setFaqExpanded] = useState(false);
 
-  // Fetch all blogs
+  // Fetch all blogs and stats
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${API_URL}/api/blogs`);
-        setBlogs(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-        enqueueSnackbar("Failed to fetch blogs", { variant: "error" });
-        setLoading(false);
-      }
-    };
     fetchBlogs();
-  }, [API_URL, enqueueSnackbar]);
+    fetchBlogStats();
+  }, [activeTab]);
+
+  const fetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const [allBlogs, draftBlogs, publishedBlogs] = await Promise.all([
+        axios.get(`${API_URL}/api/blogs`),
+        axios.get(`${API_URL}/api/blogs/drafts`),
+        axios.get(`${API_URL}/api/blogs/published`)
+      ]);
+      
+      setBlogs(allBlogs.data);
+      setDrafts(draftBlogs.data);
+      setPublishedBlogs(publishedBlogs.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+      enqueueSnackbar("Failed to fetch blogs", { variant: "error" });
+      setLoading(false);
+    }
+  };
+
+  const fetchBlogStats = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/blogs/stats`);
+      setBlogStats(response.data);
+    } catch (error) {
+      console.error("Error fetching blog stats:", error);
+    }
+  };
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (hasUnsavedChanges && formData.title) {
+      const timer = setTimeout(async () => {
+        await handleAutoSave();
+      }, 5000); // Auto-save every 5 seconds after changes
+      
+      setAutoSaveTimer(timer);
+      return () => clearTimeout(timer);
+    }
+  }, [formData, faqs, selectedFile, hasUnsavedChanges]);
+
+  const handleAutoSave = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("content", formData.content);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("author", formData.author);
+      formDataToSend.append("isFeatured", formData.isFeatured.toString());
+      formDataToSend.append("status", formData.status);
+      formDataToSend.append("faqs", JSON.stringify(faqs));
+
+      if (currentBlog?._id) {
+        formDataToSend.append("id", currentBlog._id);
+      }
+
+      if (selectedFile) {
+        formDataToSend.append("image", selectedFile);
+      } else if (previewImage && !previewImage.startsWith('blob:')) {
+        // If no new file but existing image, we still need to save the image URL
+        formDataToSend.append("existingImage", previewImage);
+      }
+
+      await axios.post(`${API_URL}/api/blogs/draft`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      
+      setHasUnsavedChanges(false);
+      enqueueSnackbar("Draft auto-saved", { variant: "info" });
+    } catch (error) {
+      console.error("Error auto-saving draft:", error);
+    }
+  };
 
   // Handle image upload for Tiptap editor
   const handleImageUpload = async (file) => {
@@ -129,6 +218,7 @@ const AdminBlogs = () => {
     if (file) {
       setSelectedFile(file);
       setPreviewImage(URL.createObjectURL(file));
+      setHasUnsavedChanges(true);
     }
   };
 
@@ -139,6 +229,17 @@ const AdminBlogs = () => {
       ...formData,
       [name]: type === "checkbox" ? checked : value
     });
+    setHasUnsavedChanges(true);
+  };
+
+  // Handle status change
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.checked ? 'published' : 'draft';
+    setFormData(prev => ({
+      ...prev,
+      status: newStatus
+    }));
+    setHasUnsavedChanges(true);
   };
 
   // Handle FAQ input changes
@@ -155,6 +256,7 @@ const AdminBlogs = () => {
     if (currentFaq.question.trim() && currentFaq.answer.trim()) {
       setFaqs(prev => [...prev, { ...currentFaq, id: Date.now() }]);
       setCurrentFaq({ question: "", answer: "" });
+      setHasUnsavedChanges(true);
       enqueueSnackbar("FAQ added successfully", { variant: "success" });
     } else {
       enqueueSnackbar("Please fill both question and answer", { variant: "warning" });
@@ -164,6 +266,7 @@ const AdminBlogs = () => {
   // Remove FAQ from the list
   const handleRemoveFaq = (id) => {
     setFaqs(prev => prev.filter(faq => faq.id !== id));
+    setHasUnsavedChanges(true);
     enqueueSnackbar("FAQ removed", { variant: "info" });
   };
 
@@ -173,6 +276,7 @@ const AdminBlogs = () => {
       ...prev,
       content: content
     }));
+    setHasUnsavedChanges(true);
   }, []);
 
   // Open dialog for creating new blog
@@ -184,13 +288,15 @@ const AdminBlogs = () => {
       content: "",
       category: "Technology",
       author: "",
-      isFeatured: false
+      isFeatured: false,
+      status: "draft"
     });
     setSelectedFile(null);
     setPreviewImage("");
     setFaqs([]);
     setCurrentFaq({ question: "", answer: "" });
     setFaqExpanded(false);
+    setHasUnsavedChanges(false);
     setOpenDialog(true);
   };
 
@@ -203,20 +309,66 @@ const AdminBlogs = () => {
       content: blog.content,
       category: blog.category,
       author: blog.author,
-      isFeatured: blog.isFeatured
+      isFeatured: blog.isFeatured,
+      status: blog.status
     });
     setPreviewImage(blog.image);
     setFaqs(blog.faqs || []);
+    setHasUnsavedChanges(false);
     setOpenDialog(true);
   };
 
-  // Close dialog
+  // Close dialog with confirmation if unsaved changes
   const handleCloseDialog = () => {
-    setOpenDialog(false);
+    if (hasUnsavedChanges) {
+      if (window.confirm("You have unsaved changes. Do you want to save as draft?")) {
+        handleAutoSave().then(() => {
+          setOpenDialog(false);
+          fetchBlogs();
+        });
+      } else {
+        setOpenDialog(false);
+      }
+    } else {
+      setOpenDialog(false);
+    }
+  };
+
+  // Manual save as draft
+  const handleSaveDraft = async () => {
+    try {
+      await handleAutoSave();
+      enqueueSnackbar("Draft saved successfully", { variant: "success" });
+      fetchBlogs();
+    } catch (error) {
+      enqueueSnackbar("Failed to save draft", { variant: "error" });
+    }
+  };
+
+  // Publish a blog
+  const handlePublishBlog = async (id) => {
+    try {
+      await axios.put(`${API_URL}/api/blogs/${id}/publish`);
+      enqueueSnackbar("Blog published successfully", { variant: "success" });
+      fetchBlogs();
+    } catch (error) {
+      enqueueSnackbar("Failed to publish blog", { variant: "error" });
+    }
+  };
+
+  // Unpublish a blog (move to drafts)
+  const handleUnpublishBlog = async (id) => {
+    try {
+      await axios.put(`${API_URL}/api/blogs/${id}/unpublish`);
+      enqueueSnackbar("Blog moved to drafts", { variant: "info" });
+      fetchBlogs();
+    } catch (error) {
+      enqueueSnackbar("Failed to unpublish blog", { variant: "error" });
+    }
   };
 
   // Submit blog form (create or update)
-  const handleSubmit = async () => {
+  const handleSubmit = async (status = formData.status) => {
     try {
       setLoading(true);
       const formDataToSend = new FormData();
@@ -226,6 +378,7 @@ const AdminBlogs = () => {
       formDataToSend.append("author", formData.author);
       formDataToSend.append("isFeatured", formData.isFeatured.toString());
       formDataToSend.append("faqs", JSON.stringify(faqs));
+      formDataToSend.append("status", status);
 
       if (selectedFile) {
         formDataToSend.append("image", selectedFile);
@@ -242,7 +395,9 @@ const AdminBlogs = () => {
             }
           }
         );
-        enqueueSnackbar("Blog updated successfully", { variant: "success" });
+        enqueueSnackbar(`Blog ${status === 'published' ? 'published' : 'updated'} successfully`, { 
+          variant: "success" 
+        });
       } else {
         response = await axios.post(
           `${API_URL}/api/blogs`,
@@ -253,14 +408,14 @@ const AdminBlogs = () => {
             }
           }
         );
-        enqueueSnackbar("Blog created successfully", { variant: "success" });
+        enqueueSnackbar(`Blog ${status === 'published' ? 'published' : 'created'} successfully`, { 
+          variant: "success" 
+        });
       }
 
-      // Refresh blogs list
-      const blogsResponse = await axios.get(`${API_URL}/api/blogs`);
-      setBlogs(blogsResponse.data);
-
       setOpenDialog(false);
+      setHasUnsavedChanges(false);
+      fetchBlogs();
       setLoading(false);
     } catch (error) {
       console.error("Error submitting blog:", error);
@@ -277,8 +432,8 @@ const AdminBlogs = () => {
       try {
         setLoading(true);
         await axios.delete(`${API_URL}/api/blogs/${id}`);
-        setBlogs(blogs.filter(blog => blog._id !== id));
         enqueueSnackbar("Blog deleted successfully", { variant: "success" });
+        fetchBlogs();
         setLoading(false);
       } catch (error) {
         console.error("Error deleting blog:", error);
@@ -299,8 +454,24 @@ const AdminBlogs = () => {
     setPage(0);
   };
 
+  // Filter blogs based on active tab
+  const getCurrentBlogs = () => {
+    switch (activeTab) {
+      case 0: // All
+        return blogs;
+      case 1: // Published
+        return publishedBlogs;
+      case 2: // Drafts
+        return drafts;
+      default:
+        return [];
+    }
+  };
+
+  const currentBlogs = getCurrentBlogs();
+
   // Filter blogs based on search term
-  const filteredBlogs = blogs.filter(blog =>
+  const filteredBlogs = currentBlogs.filter(blog =>
     blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
     blog.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -309,19 +480,25 @@ const AdminBlogs = () => {
 
   return (
     <Box sx={{ padding: "20px" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4">Blog Management</Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={handleOpenCreateDialog}
-        >
-          New Blog
-        </Button>
+      {/* Header with stats */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Typography variant="h4">Blog Management</Typography>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={handleOpenCreateDialog}
+          >
+            New Blog
+          </Button>
+        </Box>
+
+
       </Box>
 
+      {/* Search and Tabs */}
       <Paper sx={{ mb: 3, p: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -333,6 +510,33 @@ const AdminBlogs = () => {
             }}
           />
         </Box>
+        
+        <Tabs 
+          value={activeTab} 
+          onChange={(e, newValue) => setActiveTab(newValue)}
+          sx={{ mt: 2 }}
+        >
+          <Tab 
+            icon={<Article />} 
+            label={`All Blogs (${blogs.length})`} 
+          />
+          <Tab 
+            icon={<VisibilityIcon />} 
+            label={
+              <Badge badgeContent={blogStats.published} color="success">
+                Published
+              </Badge>
+            } 
+          />
+          <Tab 
+            icon={<Schedule />} 
+            label={
+              <Badge badgeContent={blogStats.drafts} color="warning">
+                Drafts
+              </Badge>
+            } 
+          />
+        </Tabs>
       </Paper>
 
       {loading ? (
@@ -349,8 +553,10 @@ const AdminBlogs = () => {
                   <TableCell>Title</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Author</TableCell>
+                  <TableCell>Status</TableCell>
                   <TableCell>Featured</TableCell>
                   <TableCell>FAQs</TableCell>
+                  <TableCell>Last Updated</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -370,13 +576,23 @@ const AdminBlogs = () => {
                       <TableCell>
                         <Typography variant="subtitle1">{blog.title}</Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {new Date(blog.createdAt).toLocaleDateString()}
+                          {blog.status === 'published' 
+                            ? new Date(blog.publishedAt).toLocaleDateString()
+                            : new Date(blog.updatedAt).toLocaleDateString()
+                          }
                         </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip label={blog.category} color="primary" size="small" />
                       </TableCell>
                       <TableCell>{blog.author}</TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={blog.status === 'published' ? 'Published' : 'Draft'} 
+                          color={blog.status === 'published' ? 'success' : 'warning'} 
+                          size="small" 
+                        />
+                      </TableCell>
                       <TableCell>
                         {blog.isFeatured ? (
                           <Chip label="Featured" color="success" size="small" />
@@ -390,12 +606,34 @@ const AdminBlogs = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <IconButton onClick={() => handleOpenEditDialog(blog)}>
-                          <Edit color="primary" />
-                        </IconButton>
-                        <IconButton onClick={() => handleDelete(blog._id)}>
-                          <Delete color="error" />
-                        </IconButton>
+                        {new Date(blog.updatedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={1}>
+                          <Tooltip title="Edit">
+                            <IconButton onClick={() => handleOpenEditDialog(blog)} size="small">
+                              <Edit color="primary" />
+                            </IconButton>
+                          </Tooltip>
+                          {blog.status === 'draft' ? (
+                            <Tooltip title="Publish">
+                              <IconButton onClick={() => handlePublishBlog(blog._id)} size="small">
+                                <VisibilityIcon color="success" />
+                              </IconButton>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title="Move to Drafts">
+                              <IconButton onClick={() => handleUnpublishBlog(blog._id)} size="small">
+                                <VisibilityOffIcon color="warning" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          <Tooltip title="Delete">
+                            <IconButton onClick={() => handleDelete(blog._id)} size="small">
+                              <Delete color="error" />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -415,9 +653,49 @@ const AdminBlogs = () => {
       )}
 
       {/* Blog Form Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="lg">
+      <Dialog 
+        open={openDialog} 
+        onClose={handleCloseDialog} 
+        fullWidth 
+        maxWidth="lg"
+        fullScreen={window.innerWidth < 900}
+      >
         <DialogTitle>
-          {isEditMode ? "Edit Blog" : "Create New Blog"}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">
+              {isEditMode ? "Edit Blog" : "Create New Blog"}
+              {hasUnsavedChanges && (
+                <Chip 
+                  label="Unsaved changes" 
+                  color="warning" 
+                  size="small" 
+                  sx={{ ml: 2 }}
+                />
+              )}
+            </Typography>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.status === 'published'}
+                    onChange={handleStatusChange}
+                    color="success"
+                  />
+                }
+                label={formData.status === 'published' ? "Published" : "Draft"}
+              />
+              <Tooltip title="Save as Draft">
+                <Button
+                  variant="outlined"
+                  startIcon={<SaveIcon />}
+                  onClick={handleSaveDraft}
+                  disabled={!hasUnsavedChanges}
+                >
+                  Save
+                </Button>
+              </Tooltip>
+            </Stack>
+          </Box>
         </DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={3}>
@@ -489,7 +767,7 @@ const AdminBlogs = () => {
                     <img
                       src={previewImage}
                       alt="Preview"
-                      style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "8px" }}
                     />
                   </Box>
                 )}
@@ -569,23 +847,41 @@ const AdminBlogs = () => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleCloseDialog} color="inherit">
+            Cancel
+          </Button>
           <Button
-            onClick={handleSubmit}
-            variant="contained"
-            color="primary"
+            onClick={() => handleSubmit('draft')}
+            variant="outlined"
+            color="secondary"
             disabled={loading || !formData.title || !formData.content}
+          >
+            Save as Draft
+          </Button>
+          <Button
+            onClick={() => handleSubmit('published')}
+            variant="contained"
+            color="success"
+            disabled={loading || !formData.title || !formData.content}
+            startIcon={formData.status === 'published' ? <PublishedWithChanges /> : <VisibilityIcon />}
           >
             {loading ? (
               <CircularProgress size={24} />
             ) : isEditMode ? (
-              "Update Blog"
+              formData.status === 'published' ? 'Update & Publish' : 'Publish Now'
             ) : (
-              "Create Blog"
+              'Create & Publish'
             )}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Auto-save notification */}
+      <Snackbar 
+        open={hasUnsavedChanges} 
+        message="Saving draft automatically..." 
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      />
     </Box>
   );
 };

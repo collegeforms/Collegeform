@@ -1,7 +1,8 @@
 import React from "react";
 import Header from '../header/Header';
-import "./Marquee.jsx"
 import Marquee from "./Marquee.jsx";
+import FloatingButtons from "./FloatingButtons"; // Import the floating buttons component
+
 export default function Navbar(props) {
   const [scroll, setScroll] = React.useState(0);
 
@@ -12,18 +13,16 @@ export default function Navbar(props) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
-
   const className = scroll > 80 ? "fixed-navbar active" : "fixed-navbar";
 
   return (
     <>
-    
-    <div className={className}>
-       
+      <div className={className}>
         <Header hclass={props.hclass} Logo={props.Logo} topbarClass={props.topbarClass} />
-    </div>
+      </div>
+      
+      {/* Floating social media buttons */}
+      <FloatingButtons />
     </>
-
-  ); 
+  );
 }

@@ -9,7 +9,8 @@ const blogSchema = new mongoose.Schema({
   slug: {
     type: String,
     unique: true,
-    lowercase: true
+    lowercase: true,
+    sparse: true // Allow null for drafts
   },
   content: {
     type: String,
@@ -37,6 +38,14 @@ const blogSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  status: {
+    type: String,
+    enum: ['draft', 'published'],
+    default: 'draft'
+  },
+  publishedAt: {
+    type: Date
+  },
   faqs: [{
     question: String,
     answer: String
@@ -45,15 +54,26 @@ const blogSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Generate slug before saving
+// Generate slug before saving (only for published blogs)
 blogSchema.pre('save', function(next) {
-  if (this.isModified('title')) {
+  if (this.status === 'published' && !this.slug) {
     this.slug = this.title
       .toLowerCase()
       .replace(/[^a-zA-Z0-9]/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
   }
+  
+  // Set publishedAt when status changes to published
+  if (this.isModified('status') && this.status === 'published' && !this.publishedAt) {
+    this.publishedAt = new Date();
+  }
+  
+  // Generate excerpt if not provided
+  if (this.content && !this.excerpt) {
+    this.excerpt = this.content.substring(0, 160) + (this.content.length > 160 ? "..." : "");
+  }
+  
   next();
 });
 

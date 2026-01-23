@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -23,9 +23,8 @@ import {
   FormatAlignRight,
   FormatAlignJustify
 } from '@mui/icons-material';
-import axios from 'axios';
 
-const MenuBar = ({ editor, onImageUpload }) => {
+const MenuBar = ({ editor, onImageUpload, isSticky }) => {
   if (!editor) return null;
 
   const handleImageUpload = async () => {
@@ -37,7 +36,6 @@ const MenuBar = ({ editor, onImageUpload }) => {
       const file = event.target.files[0];
       if (file) {
         try {
-          // Call the image upload handler passed from parent
           const imageUrl = await onImageUpload(file);
           if (imageUrl) {
             editor.chain().focus().setImage({ src: imageUrl }).run();
@@ -69,17 +67,29 @@ const MenuBar = ({ editor, onImageUpload }) => {
   };
 
   return (
-    <Box sx={{ 
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '4px',
-      p: 1,
-      mb: 1,
-      borderBottom: 1,
-      borderColor: 'divider',
-      backgroundColor: 'background.paper',
-      borderRadius: '4px 4px 0 0'
-    }}>
+    <Box 
+      sx={{ 
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '4px',
+        p: 1,
+        mb: 1,
+        borderBottom: 1,
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
+        borderRadius: '4px 4px 0 0',
+        position: isSticky ? 'sticky' : 'static',
+        top: 0,
+        zIndex: 10,
+        boxShadow: isSticky ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
+        transition: 'all 0.3s ease',
+        backdropFilter: isSticky ? 'blur(8px)' : 'none',
+        backgroundColor: isSticky ? 'rgba(255, 255, 255, 0.95)' : 'background.paper',
+        '&:hover': {
+          backgroundColor: isSticky ? 'background.paper' : 'background.paper',
+        }
+      }}
+    >
       <ButtonGroup variant="outlined" size="small" sx={{ m: 0.5 }}>
         <Tooltip title="Bold">
           <button
@@ -232,6 +242,8 @@ const MenuBar = ({ editor, onImageUpload }) => {
 };
 
 const TiptapEditor = ({ content, onUpdate, onImageUpload }) => {
+  const [isToolbarSticky, setIsToolbarSticky] = useState(false);
+  const editorContainerRef = useRef(null);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -257,94 +269,159 @@ const TiptapEditor = ({ content, onUpdate, onImageUpload }) => {
     }
   }, [content, editor]);
 
-  return (
-    <Box sx={{ 
-      border: 1, 
-      borderColor: 'divider', 
-      borderRadius: 1,
-      backgroundColor: 'background.paper',
-      '& .menu-button': {
-        minWidth: '32px',
-        height: '32px',
-        padding: '4px',
-        margin: 0,
-        border: 'none',
-        backgroundColor: 'transparent',
-        color: 'text.primary',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        '&:hover': {
-          backgroundColor: 'action.hover',
-        },
-        '&.is-active': {
-          backgroundColor: 'action.selected',
-          color: 'primary.main',
-        },
-        '&:disabled': {
-          opacity: 0.5,
-          cursor: 'not-allowed',
-        },
-      },
-      '& .ProseMirror': {
-        minHeight: '300px',
-        padding: '16px',
-        '&:focus': {
-          outline: 'none'
-        },
-        '& ul, & ol': {
-          paddingLeft: '24px'
-        },
-        '& h1': { 
-          fontSize: '2em',
-          margin: '0.67em 0',
-          fontWeight: 'bold'
-        },
-        '& h2': { 
-          fontSize: '1.5em',
-          margin: '0.75em 0',
-          fontWeight: 'bold'
-        },
-        '& h3': { 
-          fontSize: '1.17em',
-          margin: '0.83em 0',
-          fontWeight: 'bold'
-        },
-        '& img': {
-          maxWidth: '100%',
-          height: 'auto',
-          borderRadius: '4px'
-        },
-        '& blockquote': {
-          borderLeft: '3px solid',
-          borderColor: 'primary.main',
-          paddingLeft: '1rem',
-          marginLeft: '0',
-          fontStyle: 'italic',
-          color: 'text.secondary'
-        },
-        '& code': {
-          backgroundColor: 'action.selected',
-          borderRadius: '3px',
-          padding: '0.2em 0.4em',
-          fontSize: '0.9em'
-        },
-        '& pre': {
-          backgroundColor: 'background.default',
-          padding: '1rem',
-          borderRadius: '4px',
-          overflowX: 'auto'
-        },
-        '& hr': {
-          border: 'none',
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          margin: '1rem 0'
-        }
+  useEffect(() => {
+    const handleScroll = () => {
+      if (editorContainerRef.current) {
+        const container = editorContainerRef.current;
+        const scrollTop = container.scrollTop;
+        
+        // Activate sticky toolbar when scrolled more than 10px
+        setIsToolbarSticky(scrollTop > 10);
       }
-    }}>
-      <MenuBar editor={editor} onImageUpload={onImageUpload} />
+    };
+
+    const editorContainer = editorContainerRef.current;
+    if (editorContainer) {
+      editorContainer.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (editorContainer) {
+        editorContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
+  return (
+    <Box 
+      ref={editorContainerRef}
+      sx={{ 
+        border: 1, 
+        borderColor: 'divider', 
+        borderRadius: 1,
+        backgroundColor: 'background.paper',
+        height: '500px', // Fixed height for scrolling
+        overflow: 'auto', // Enable scrolling
+        position: 'relative',
+        '& .menu-button': {
+          minWidth: '32px',
+          height: '32px',
+          padding: '4px',
+          margin: 0,
+          border: 'none',
+          backgroundColor: 'transparent',
+          color: 'text.primary',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '4px',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            backgroundColor: 'action.hover',
+            transform: 'translateY(-1px)',
+          },
+          '&.is-active': {
+            backgroundColor: 'primary.light',
+            color: 'primary.contrastText',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          },
+          '&:disabled': {
+            opacity: 0.5,
+            cursor: 'not-allowed',
+            transform: 'none',
+          },
+        },
+        '& .ProseMirror': {
+          minHeight: 'calc(500px - 60px)', // Account for toolbar height
+          padding: '16px',
+          '&:focus': {
+            outline: 'none'
+          },
+          '& ul, & ol': {
+            paddingLeft: '24px'
+          },
+          '& h1': { 
+            fontSize: '2em',
+            margin: '0.67em 0',
+            fontWeight: 'bold',
+            color: 'text.primary',
+          },
+          '& h2': { 
+            fontSize: '1.5em',
+            margin: '0.75em 0',
+            fontWeight: 'bold',
+            color: 'text.primary',
+          },
+          '& h3': { 
+            fontSize: '1.17em',
+            margin: '0.83em 0',
+            fontWeight: 'bold',
+            color: 'text.primary',
+          },
+          '& img': {
+            maxWidth: '100%',
+            height: 'auto',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'transform 0.3s ease',
+            '&:hover': {
+              transform: 'scale(1.01)',
+            }
+          },
+          '& blockquote': {
+            borderLeft: '4px solid',
+            borderColor: 'primary.main',
+            paddingLeft: '1.5rem',
+            marginLeft: '0',
+            fontStyle: 'italic',
+            color: 'text.secondary',
+            backgroundColor: 'action.hover',
+            padding: '1rem',
+            borderRadius: '0 8px 8px 0',
+          },
+          '& code': {
+            backgroundColor: 'action.selected',
+            borderRadius: '4px',
+            padding: '0.2em 0.4em',
+            fontSize: '0.9em',
+            fontFamily: 'monospace',
+          },
+          '& pre': {
+            backgroundColor: 'background.default',
+            padding: '1.2rem',
+            borderRadius: '8px',
+            overflowX: 'auto',
+            border: '1px solid',
+            borderColor: 'divider',
+            '& code': {
+              backgroundColor: 'transparent',
+              padding: '0',
+            }
+          },
+          '& hr': {
+            border: 'none',
+            borderTop: '2px solid',
+            borderColor: 'divider',
+            margin: '1.5rem 0',
+            opacity: 0.5,
+          },
+          '& a': {
+            color: 'primary.main',
+            textDecoration: 'none',
+            borderBottom: '1px dotted',
+            '&:hover': {
+              borderBottom: '1px solid',
+            }
+          }
+        }
+      }}
+    >
+      <MenuBar 
+        editor={editor} 
+        onImageUpload={onImageUpload} 
+        isSticky={isToolbarSticky}
+      />
       <EditorContent editor={editor} />
     </Box>
   );

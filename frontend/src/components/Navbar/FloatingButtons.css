@@ -1,0 +1,331 @@
+/* WhatsApp Floating Button */
+.floating-whatsapp {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9999;
+  background: linear-gradient(135deg, #25d366, #128C7E);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  box-shadow: 
+    0 8px 25px rgba(37, 211, 102, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.floating-whatsapp::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.floating-whatsapp .ri-icon {
+  font-size: 26px;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.floating-whatsapp:hover {
+  transform: translateY(-4px) scale(1.05);
+  color: white !important;
+  box-shadow: 
+    0 12px 35px rgba(37, 211, 102, 0.4),
+    0 6px 18px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.floating-whatsapp:hover::before {
+  opacity: 1;
+}
+
+.floating-whatsapp:hover .ri-icon {
+  transform: scale(1.1);
+}
+
+/* WhatsApp Pulse Animation */
+@keyframes whatsapp-pulse {
+  0% {
+    box-shadow: 
+      0 0 0 0 rgba(37, 211, 102, 0.4),
+      0 8px 25px rgba(37, 211, 102, 0.3);
+  }
+  70% {
+    box-shadow: 
+      0 0 0 10px rgba(37, 211, 102, 0),
+      0 8px 25px rgba(37, 211, 102, 0.3);
+  }
+  100% {
+    box-shadow: 
+      0 0 0 0 rgba(37, 211, 102, 0),
+      0 8px 25px rgba(37, 211, 102, 0.3);
+  }
+}
+
+.floating-whatsapp {
+  animation: whatsapp-pulse 2s infinite;
+}
+
+/* Social Media Floating Buttons */
+.floating-social {
+  position: fixed;
+  right: 20px;
+  top: 70%;
+  transform: translateY(-50%);
+  z-index: 9999;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-social li {
+  margin: 0;
+  position: relative;
+}
+
+.floating-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.15),
+    0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.floating-social a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.floating-social a .ri-icon {
+  font-size: 20px;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+/* Tooltip */
+.floating-social a::after {
+  content: attr(aria-label);
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.floating-social a::after {
+  right: auto;
+  left: 60px;
+}
+
+.floating-social a:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Brand colors with gradients */
+.social-facebook {
+  background: linear-gradient(135deg, #1877F2, #0D5FCC);
+}
+
+.social-instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #833ab4, #405de6);
+}
+
+.social-youtube {
+  background: linear-gradient(135deg, #FF0000, #CC0000);
+}
+
+/* Hover animation */
+.floating-social a:hover {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.2),
+    0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.floating-social a:hover::before {
+  opacity: 1;
+}
+
+.floating-social a:hover .ri-icon {
+  transform: scale(1.15);
+}
+
+/* Hide/Show animations */
+.floating-whatsapp,
+.floating-social {
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.floating-whatsapp.hidden {
+  transform: translateY(100px) scale(0.8);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.floating-social.hidden {
+  transform: translateY(-50%) translateX(100px);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.floating-whatsapp.visible {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.floating-social.visible {
+  transform: translateY(-50%) translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Bounce-in animation for initial load */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.floating-whatsapp.visible {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Staggered animation for social icons */
+.floating-social li:nth-child(1) a.visible {
+  animation: slideInRight 0.5s 0.1s both;
+}
+
+.floating-social li:nth-child(2) a.visible {
+  animation: slideInRight 0.5s 0.2s both;
+}
+
+.floating-social li:nth-child(3) a.visible {
+  animation: slideInRight 0.5s 0.3s both;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .floating-whatsapp {
+    bottom: 20px;
+    left: 20px;
+    width: 56px;
+    height: 56px;
+  }
+  
+  .floating-social {
+    right: 16px;
+    gap: 10px;
+  }
+  
+  .floating-social a {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .floating-social a .ri-icon {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-whatsapp {
+    bottom: 16px;
+    left: 16px;
+    width: 52px;
+    height: 52px;
+  }
+  
+  .floating-whatsapp .ri-icon {
+    font-size: 22px;
+  }
+  
+  .floating-social {
+    right: 12px;
+    gap: 8px;
+  }
+  
+  .floating-social a {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .floating-social a .ri-icon {
+    font-size: 16px;
+  }
+  
+  .floating-social a::after {
+    display: none; /* Hide tooltips on mobile */
+  }
+}
