@@ -18,8 +18,6 @@ const blogSchema = new mongoose.Schema({
     type: String,
     required: [true, "Title is required"],
     trim: true,
-    minlength: [5, "Title must be at least 5 characters"],
-    maxlength: [200, "Title cannot exceed 200 characters"]
   },
   slug: {
     type: String,
@@ -37,7 +35,6 @@ const blogSchema = new mongoose.Schema({
   excerpt: {
     type: String,
     trim: true,
-    maxlength: [300, "Excerpt cannot exceed 300 characters"]
   },
   image: {
     type: String,
@@ -97,16 +94,6 @@ const blogSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
-  metaTitle: {
-    type: String,
-    trim: true,
-    maxlength: [70, "Meta title cannot exceed 70 characters"]
-  },
-  metaDescription: {
-    type: String,
-    trim: true,
-    maxlength: [160, "Meta description cannot exceed 160 characters"]
-  },
   imageCredit: {
     type: String,
     trim: true
@@ -203,17 +190,6 @@ blogSchema.pre('save', async function(next) {
       this.readingTime = Math.max(1, Math.ceil(wordCount / 200));
     } else {
       this.readingTime = 5;
-    }
-    
-    // Generate meta fields
-    if (!this.metaTitle || this.metaTitle.trim().length === 0) {
-      this.metaTitle = this.title;
-    }
-    
-    if ((!this.metaDescription || this.metaDescription.trim().length === 0) && this.excerpt) {
-      this.metaDescription = this.excerpt.substring(0, 160);
-    } else if (!this.metaDescription) {
-      this.metaDescription = "";
     }
     
     next();
