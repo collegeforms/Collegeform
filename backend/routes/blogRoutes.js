@@ -8,27 +8,20 @@ import {
   deleteBlog,
   getFeaturedBlogs,
   getBlogBySlug,
-  saveDraft,
+  getBlogByCleanSlug,
   getDraftBlogs,
   getPublishedBlogs,
   publishBlog,
   unpublishBlog,
-  getBlogStats
+  getBlogStats,
+  checkSlug,
+  cleanBlogSlug
 } from "../controllers/blogController.js";
 
 const router = express.Router();
 
 // Create a new blog
 router.post("/", uploadBlogImage.single("image"), createBlog);
-
-// Save draft (auto-save) - Allow no image for drafts
-router.post("/draft", (req, res, next) => {
-  if (!req.headers['content-type']?.includes('multipart/form-data')) {
-    // If no file is being uploaded, skip multer
-    return next();
-  }
-  uploadBlogImage.single("image")(req, res, next);
-}, saveDraft);
 
 // Get all blogs
 router.get("/", getAllBlogs);
@@ -45,17 +38,26 @@ router.get("/published", getPublishedBlogs);
 // Get featured blogs
 router.get("/featured", getFeaturedBlogs);
 
-// Get a single blog by slug (only published)
+// Check if slug exists
+router.get("/check-slug/:slug", checkSlug);
+
+// Get a single blog by slug
 router.get("/:slug", getBlogBySlug);
+
+// Get a single blog by clean slug
+router.get("/slug/:slug", getBlogByCleanSlug);
 
 // Get a single blog by ID
 router.get("/id/:id", getBlogById);
 
-// Update a blog
+// Update a blog (for admin edits)
 router.put("/:id", uploadBlogImage.single("image"), updateBlog);
 
 // Publish a draft blog
 router.put("/:id/publish", publishBlog);
+
+// Clean blog slug
+router.put("/:id/clean-slug", cleanBlogSlug);
 
 // Move published blog to draft
 router.put("/:id/unpublish", unpublishBlog);

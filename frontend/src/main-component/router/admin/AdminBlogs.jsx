@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -39,8 +39,6 @@ import {
   Badge,
   Tooltip,
   Stack,
-  Snackbar,
-  Alert,
   LinearProgress
 } from "@mui/material";
 import { 
@@ -57,15 +55,17 @@ import {
   Schedule,
   Article,
   AutoAwesome,
-  Save
+  ArrowBack
 } from "@mui/icons-material";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import TiptapEditor from './TiptapEditor';
+import { useNavigate } from "react-router-dom";
 
 const AdminBlogs = () => {
   const API_URL = "https://www.collegeforms.in";
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   const [blogs, setBlogs] = useState([]);
   const [drafts, setDrafts] = useState([]);
@@ -87,18 +87,16 @@ const AdminBlogs = () => {
     drafts: 0,
     featured: 0
   });
-  const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const autoSaveTimerRef = useRef(null);
 
   // Form state
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    category: "Technology",
-    author: "",
+    category: "General",
+    author: "Admin",
     isFeatured: false,
-    status: "draft"
+    status: "draft" // Default for new blogs
   });
 
   // FAQ state
@@ -140,89 +138,6 @@ const AdminBlogs = () => {
       }
     } catch (error) {
       console.error("Error fetching blog stats:", error);
-    }
-  };
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (hasUnsavedChanges && formData.title && openDialog) {
-      // Clear any existing timer
-      if (autoSaveTimerRef.current) {
-        clearTimeout(autoSaveTimerRef.current);
-      }
-      
-      // Set new timer for 3 seconds
-      autoSaveTimerRef.current = setTimeout(async () => {
-        await handleAutoSave();
-      }, 3000);
-      
-      return () => {
-        if (autoSaveTimerRef.current) {
-          clearTimeout(autoSaveTimerRef.current);
-        }
-      };
-    }
-  }, [formData, faqs, selectedFile, hasUnsavedChanges, openDialog]);
-
-  const handleAutoSave = async () => {
-    if (!formData.title.trim()) {
-      return; // Don't auto-save empty drafts
-    }
-    
-    try {
-      setIsAutoSaving(true);
-      const formDataToSend = new FormData();
-      
-      // Only send necessary data
-      formDataToSend.append("title", formData.title || "Untitled Draft");
-      formDataToSend.append("content", formData.content || "");
-      formDataToSend.append("category", formData.category);
-      formDataToSend.append("author", formData.author || "");
-      formDataToSend.append("isFeatured", formData.isFeatured.toString());
-      formDataToSend.append("faqs", JSON.stringify(faqs));
-      
-      // If editing existing draft, send the ID
-      if (isEditMode && currentBlog?._id && currentBlog.status === 'draft') {
-        formDataToSend.append("id", currentBlog._id);
-      }
-      
-      // If there's a new file, append it
-      if (selectedFile) {
-        formDataToSend.append("image", selectedFile);
-      }
-
-      const response = await axios.post(`${API_URL}/api/blogs/draft`, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
-      
-      if (response.data.success) {
-        setHasUnsavedChanges(false);
-        
-        // Update current blog if editing
-        if (isEditMode && currentBlog) {
-          setCurrentBlog(response.data.blog);
-        }
-        
-        // Show snackbar only if not already saving
-        if (!isAutoSaving) {
-          enqueueSnackbar("Draft auto-saved", { 
-            variant: "info", 
-            autoHideDuration: 2000 
-          });
-        }
-        
-        // Refresh the drafts list
-        fetchBlogs();
-      }
-    } catch (error) {
-      console.error("Error auto-saving draft:", error);
-      enqueueSnackbar(error.response?.data?.message || "Failed to auto-save draft", { 
-        variant: "error" 
-      });
-    } finally {
-      setIsAutoSaving(false);
     }
   };
 
@@ -306,8 +221,8 @@ const AdminBlogs = () => {
     setFormData({
       title: "",
       content: "",
-      category: "Technology",
-      author: "",
+      category: "General",
+      author: "Admin",
       isFeatured: false,
       status: "draft"
     });
@@ -330,7 +245,7 @@ const AdminBlogs = () => {
       category: blog.category,
       author: blog.author,
       isFeatured: blog.isFeatured,
-      status: blog.status
+      status: blog.status // Preserve original status when editing
     });
     setPreviewImage(blog.image || "");
     setFaqs(blog.faqs || []);
@@ -340,68 +255,106 @@ const AdminBlogs = () => {
   };
 
   // Close dialog with confirmation if unsaved changes
-  const handleCloseDialog = async () => {
-    if (hasUnsavedChanges && formData.title.trim()) {
+  const handleCloseDialog = () => {
+    if (hasUnsavedChanges) {
       const shouldSave = window.confirm(
-        "You have unsaved changes. Do you want to save as draft before closing?"
+        "You have unsaved changes. Do you want to save before closing?"
       );
       if (shouldSave) {
-        await handleSaveDraft();
+        if (isEditMode) {
+          handleSubmit(); // Save as update for edit mode
+        } else {
+          handleSaveDraft(); // Save as draft for new blog
+        }
+        return;
       }
     }
     setOpenDialog(false);
   };
 
-  // Manual save as draft
+  // Save as draft (for new blogs only)
   const handleSaveDraft = async () => {
     try {
+      // Frontend validation
+      if (!formData.title.trim()) {
+        enqueueSnackbar("Title is required", { variant: "error" });
+        return;
+      }
+      
+      if (formData.title.trim().length < 5) {
+        enqueueSnackbar("Title must be at least 5 characters", { variant: "error" });
+        return;
+      }
+      
       setIsSaving(true);
       const formDataToSend = new FormData();
       
-      formDataToSend.append("title", formData.title || "Untitled Draft");
+      formDataToSend.append("title", formData.title);
       formDataToSend.append("content", formData.content || "");
       formDataToSend.append("category", formData.category);
-      formDataToSend.append("author", formData.author || "");
+      formDataToSend.append("author", formData.author || "Admin");
       formDataToSend.append("isFeatured", formData.isFeatured.toString());
-      formDataToSend.append("faqs", JSON.stringify(faqs));
+      formDataToSend.append("status", "draft");
       
-      // If editing existing draft, send the ID
-      if (isEditMode && currentBlog?._id && currentBlog.status === 'draft') {
-        formDataToSend.append("id", currentBlog._id);
+      // Add FAQs if any
+      if (faqs.length > 0) {
+        formDataToSend.append("faqs", JSON.stringify(faqs));
       }
       
       if (selectedFile) {
         formDataToSend.append("image", selectedFile);
       }
 
-      const response = await axios.post(`${API_URL}/api/blogs/draft`, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data"
+      // Always use POST for new blogs
+      const response = await axios.post(
+        `${API_URL}/api/blogs`,
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
         }
-      });
+      );
       
       if (response.data.success) {
         setHasUnsavedChanges(false);
-        enqueueSnackbar("Draft saved successfully", { variant: "success" });
+        enqueueSnackbar("Blog saved to drafts successfully", { variant: "success" });
         
-        // Update current blog if editing
-        if (isEditMode && currentBlog) {
-          setCurrentBlog(response.data.blog);
-        }
+        // Close dialog and redirect immediately
+        setOpenDialog(false);
+        navigate('/admin/addBlogs');
         
         fetchBlogs();
       }
     } catch (error) {
-      console.error("Error saving draft:", error);
-      enqueueSnackbar(error.response?.data?.message || "Failed to save draft", { 
-        variant: "error" 
-      });
+      console.error("Error saving blog:", error);
+      let errorMessage = "Failed to save blog";
+      let errors = [];
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      if (error.response?.data?.errors) {
+        errors = Array.isArray(error.response.data.errors) 
+          ? error.response.data.errors
+          : [String(error.response.data.errors)];
+      }
+      
+      // Show all validation errors
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          enqueueSnackbar(err, { variant: "error" });
+        });
+      } else {
+        enqueueSnackbar(errorMessage, { variant: "error" });
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Publish a draft
+  // Publish a blog from draft
   const handlePublishBlog = async (id) => {
     try {
       setLoading(true);
@@ -439,9 +392,44 @@ const AdminBlogs = () => {
     }
   };
 
-  // Submit blog form (create or update)
+  // Clean slug (remove -ml suffix)
+  const handleCleanSlug = async (id) => {
+    try {
+      setLoading(true);
+      const response = await axios.put(`${API_URL}/api/blogs/${id}/clean-slug`);
+      if (response.data.success) {
+        enqueueSnackbar("URL cleaned successfully", { variant: "success" });
+        fetchBlogs();
+      }
+    } catch (error) {
+      console.error("Error cleaning slug:", error);
+      enqueueSnackbar(error.response?.data?.message || "Failed to clean URL", { 
+        variant: "error" 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Submit blog form (publish immediately for new, update for edit)
   const handleSubmit = async () => {
     try {
+      // Frontend validation
+      if (!formData.title.trim()) {
+        enqueueSnackbar("Title is required", { variant: "error" });
+        return;
+      }
+      
+      if (formData.title.trim().length < 5) {
+        enqueueSnackbar("Title must be at least 5 characters", { variant: "error" });
+        return;
+      }
+      
+      if (!formData.content.trim()) {
+        enqueueSnackbar("Content is required", { variant: "error" });
+        return;
+      }
+      
       setIsSaving(true);
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
@@ -449,15 +437,19 @@ const AdminBlogs = () => {
       formDataToSend.append("category", formData.category);
       formDataToSend.append("author", formData.author);
       formDataToSend.append("isFeatured", formData.isFeatured.toString());
-      formDataToSend.append("faqs", JSON.stringify(faqs));
-      formDataToSend.append("status", "published");
+
+      // Add FAQs if any
+      if (faqs.length > 0) {
+        formDataToSend.append("faqs", JSON.stringify(faqs));
+      }
 
       if (selectedFile) {
         formDataToSend.append("image", selectedFile);
       }
 
       let response;
-      if (isEditMode) {
+      if (isEditMode && currentBlog?._id) {
+        // Update existing blog using PUT
         response = await axios.put(
           `${API_URL}/api/blogs/${currentBlog._id}`,
           formDataToSend,
@@ -468,6 +460,8 @@ const AdminBlogs = () => {
           }
         );
       } else {
+        // Create new blog with published status
+        formDataToSend.append("status", "published");
         response = await axios.post(
           `${API_URL}/api/blogs`,
           formDataToSend,
@@ -480,18 +474,42 @@ const AdminBlogs = () => {
       }
 
       if (response.data.success) {
-        enqueueSnackbar("Blog published successfully", { 
-          variant: "success" 
-        });
+        const message = isEditMode 
+          ? "Blog updated successfully" 
+          : "Blog published successfully";
+        
+        enqueueSnackbar(message, { variant: "success" });
         setOpenDialog(false);
         setHasUnsavedChanges(false);
+        
+        // Redirect to dashboard
+        navigate('/admin/addBlogs');
+        
         fetchBlogs();
       }
     } catch (error) {
       console.error("Error submitting blog:", error);
-      enqueueSnackbar(error.response?.data?.message || "Failed to publish blog", {
-        variant: "error"
-      });
+      let errorMessage = "Failed to save blog";
+      let errors = [];
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      if (error.response?.data?.errors) {
+        errors = Array.isArray(error.response.data.errors) 
+          ? error.response.data.errors
+          : [String(error.response.data.errors)];
+      }
+      
+      // Show all validation errors
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          enqueueSnackbar(err, { variant: "error" });
+        });
+      } else {
+        enqueueSnackbar(errorMessage, { variant: "error" });
+      }
     } finally {
       setIsSaving(false);
     }
@@ -568,6 +586,16 @@ const AdminBlogs = () => {
             New Blog
           </Button>
         </Box>
+        
+        {/* Back to Dashboard Button */}
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/admin/addBlogs')}
+          sx={{ mb: 2 }}
+        >
+          Back to Dashboard
+        </Button>
       </Box>
 
       {/* Search and Tabs */}
@@ -619,11 +647,11 @@ const AdminBlogs = () => {
       </Paper>
 
       {/* Loading indicator */}
-      {(loading || isAutoSaving) && (
+      {loading && (
         <LinearProgress sx={{ mb: 2 }} />
       )}
 
-      {loading && !isAutoSaving ? (
+      {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
         </Box>
@@ -687,16 +715,21 @@ const AdminBlogs = () => {
                             {blog.title || "Untitled Draft"}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {blog.status === 'published' 
-                              ? new Date(blog.publishedAt || blog.createdAt).toLocaleDateString()
-                              : new Date(blog.updatedAt).toLocaleDateString()
-                            }
+                            {blog.slug && blog.status === 'published' ? (
+                              <Box component="span" sx={{ display: 'block', fontFamily: 'monospace', fontSize: '0.7rem' }}>
+                                /blogs/{blog.slug}
+                              </Box>
+                            ) : blog.slug && blog.status === 'draft' ? (
+                              <Box component="span" sx={{ display: 'block', fontFamily: 'monospace', fontSize: '0.7rem', color: 'warning.main' }}>
+                                Draft Slug: {blog.slug}
+                              </Box>
+                            ) : null}
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <Chip label={blog.category} color="primary" size="small" />
                         </TableCell>
-                        <TableCell>{blog.author || "Not set"}</TableCell>
+                        <TableCell>{blog.author || "Admin"}</TableCell>
                         <TableCell>
                           <Chip 
                             label={blog.status === 'published' ? 'Published' : 'Draft'} 
@@ -741,15 +774,26 @@ const AdminBlogs = () => {
                                 </IconButton>
                               </Tooltip>
                             ) : (
-                              <Tooltip title="Move to Drafts">
-                                <IconButton 
-                                  onClick={() => handleUnpublishBlog(blog._id)} 
-                                  size="small"
-                                  disabled={loading}
-                                >
-                                  <Schedule color="warning" />
-                                </IconButton>
-                              </Tooltip>
+                              <>
+                                <Tooltip title="Clean URL (remove -ml suffix)">
+                                  <IconButton 
+                                    onClick={() => handleCleanSlug(blog._id)} 
+                                    size="small"
+                                    disabled={loading || !blog.slug?.includes('-ml')}
+                                  >
+                                    <AutoAwesome color="info" />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Move to Drafts">
+                                  <IconButton 
+                                    onClick={() => handleUnpublishBlog(blog._id)} 
+                                    size="small"
+                                    disabled={loading}
+                                  >
+                                    <Schedule color="warning" />
+                                  </IconButton>
+                                </Tooltip>
+                              </>
                             )}
                             <Tooltip title="Delete">
                               <IconButton 
@@ -786,7 +830,7 @@ const AdminBlogs = () => {
         open={openDialog} 
         onClose={handleCloseDialog} 
         fullWidth 
-        maxWidth="xll"
+        maxWidth="xl"
         fullScreen={window.innerWidth < 1900}
       >
         <DialogTitle>
@@ -801,28 +845,7 @@ const AdminBlogs = () => {
                   sx={{ ml: 2 }}
                 />
               )}
-              {isAutoSaving && (
-                <Chip 
-                  label="Auto-saving..." 
-                  color="info" 
-                  size="small" 
-                  sx={{ ml: 1 }}
-                />
-              )}
             </Typography>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Tooltip title="Save as Draft">
-                <Button
-                  variant="outlined"
-                  startIcon={<SaveIcon />}
-                  onClick={handleSaveDraft}
-                  disabled={!hasUnsavedChanges || isSaving || isAutoSaving}
-                  size="small"
-                >
-                  Save Draft
-                </Button>
-              </Tooltip>
-            </Stack>
           </Box>
         </DialogTitle>
         <DialogContent dividers>
@@ -836,10 +859,16 @@ const AdminBlogs = () => {
                 onChange={handleInputChange}
                 margin="normal"
                 required
-                placeholder="Enter blog title"
+                placeholder="Enter blog title (minimum 5 characters)"
                 disabled={isSaving}
-                error={!formData.title.trim()}
-                helperText={!formData.title.trim() ? "Title is required" : ""}
+                error={!formData.title.trim() || formData.title.trim().length < 5}
+                helperText={
+                  !formData.title.trim() 
+                    ? "Title is required" 
+                    : formData.title.trim().length < 5 
+                      ? "Title must be at least 5 characters" 
+                      : ""
+                }
               />
               <FormControl fullWidth margin="normal" required>
                 <InputLabel>Category</InputLabel>
@@ -859,6 +888,7 @@ const AdminBlogs = () => {
                   <MenuItem value="Sports">Sports</MenuItem>
                   <MenuItem value="Science">Science</MenuItem>
                   <MenuItem value="Travel">Travel</MenuItem>
+                  <MenuItem value="General">General</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -1012,47 +1042,39 @@ const AdminBlogs = () => {
           <Button 
             onClick={handleCloseDialog} 
             color="inherit"
-            disabled={isSaving || isAutoSaving}
+            disabled={isSaving}
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleSaveDraft}
-            variant="outlined"
-            color="secondary"
-            disabled={isSaving || !formData.title.trim() || isAutoSaving}
-            startIcon={<SaveIcon />}
-          >
-            {isSaving ? <CircularProgress size={20} /> : 'Save as Draft'}
-          </Button>
+          {/* Show Save as Draft button only for new blogs */}
+          {!isEditMode && (
+            <Button
+              onClick={handleSaveDraft}
+              variant="outlined"
+              color="secondary"
+              disabled={isSaving || !formData.title.trim() || formData.title.trim().length < 5}
+              startIcon={<SaveIcon />}
+            >
+              {isSaving ? <CircularProgress size={20} /> : 'Save as Draft'}
+            </Button>
+          )}
           <Button
             onClick={handleSubmit}
             variant="contained"
             color="success"
-            disabled={isSaving || !formData.title.trim() || !formData.content.trim() || isAutoSaving}
+            disabled={isSaving || !formData.title.trim() || formData.title.trim().length < 5 || !formData.content.trim()}
             startIcon={<PublishIcon />}
           >
             {isSaving ? (
               <CircularProgress size={24} color="inherit" />
             ) : isEditMode ? (
-              'Update & Publish'
+              'Update Blog'
             ) : (
-              'Create & Publish'
+              'Publish Now'
             )}
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Auto-save notifications */}
-      <Snackbar 
-        open={isAutoSaving}
-        autoHideDuration={2000}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      >
-        <Alert severity="info" icon={<SaveIcon fontSize="small" />}>
-          Auto-saving draft...
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

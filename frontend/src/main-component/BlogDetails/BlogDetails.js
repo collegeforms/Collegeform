@@ -81,6 +81,177 @@ const FAQAccordion = styled(Accordion)(({ theme }) => ({
   }
 }));
 
+// Custom styles for parsed HTML content
+const BlogContentStyles = styled(Box)(({ theme }) => ({
+  // General content styling
+  '& h2, & h3, & h4': {
+    color: theme.palette.text.primary,
+    fontWeight: 600,
+    lineHeight: 1.3,
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(2)
+  },
+  
+  '& h2': {
+    fontSize: '1.8rem',
+    borderBottom: `2px solid ${theme.palette.primary.light}`,
+    paddingBottom: '8px'
+  },
+  
+  '& h3': {
+    fontSize: '1.5rem'
+  },
+  
+  '& h4': {
+    fontSize: '1.3rem'
+  },
+  
+  '& p': {
+    marginBottom: theme.spacing(3),
+    lineHeight: 1.8,
+    fontSize: '1.1rem',
+    color: theme.palette.text.secondary
+  },
+  
+  // Image styling
+  '& img': {
+    maxWidth: '100%',
+    height: 'auto',
+    margin: `${theme.spacing(4)} 0`,
+    borderRadius: '12px',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+    display: 'block'
+  },
+  
+  // Blockquote styling
+  '& blockquote': {
+    borderLeft: `3px solid ${theme.palette.primary.main}`,
+    paddingLeft: theme.spacing(3),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    margin: `${theme.spacing(4)} 0`,
+    fontStyle: 'italic',
+    backgroundColor: theme.palette.mode === 'dark' ? 
+      'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+    borderRadius: '0 8px 8px 0',
+    '& p': {
+      marginBottom: 0,
+      color: theme.palette.text.primary
+    }
+  },
+  
+  // List styling - FIXED FOR BULLETS
+  '& ul, & ol': {
+    margin: `${theme.spacing(3)} 0`,
+    paddingLeft: theme.spacing(4),
+    '& li': {
+      marginBottom: theme.spacing(1.5),
+      lineHeight: 1.8,
+      fontSize: '1.1rem',
+      color: theme.palette.text.secondary,
+      position: 'relative',
+      paddingLeft: theme.spacing(2)
+    }
+  },
+  
+  // Unordered list (bullet points) specific styling
+  '& ul': {
+    listStyleType: 'none',
+    '& li': {
+      '&::before': {
+        content: '"•"',
+        position: 'absolute',
+        left: 0,
+        color: theme.palette.primary.main,
+        fontWeight: 'bold',
+        fontSize: '1.2rem'
+      }
+    }
+  },
+  
+  // Ordered list (numbered) specific styling
+
+  
+  // Nested list styling
+  '& ul ul, & ol ol, & ul ol, & ol ul': {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(3)
+  },
+  
+  '& ul ul li::before': {
+    content: '"○"'
+  },
+  
+  '& ul ol li::before': {
+    content: 'counter(item) "."'
+  },
+  
+  // Link styling
+  '& a': {
+    color: theme.palette.primary.main,
+    textDecoration: 'none',
+    fontWeight: 500,
+    '&:hover': {
+      textDecoration: 'underline'
+    }
+  },
+  
+  // Table styling
+  '& table': {
+    width: '100%',
+    borderCollapse: 'collapse',
+    margin: `${theme.spacing(4)} 0`,
+    overflowX: 'auto',
+    display: 'block'
+  },
+  
+  '& th, & td': {
+    border: `1px solid ${theme.palette.divider}`,
+    padding: theme.spacing(1.5),
+    textAlign: 'left'
+  },
+  
+  '& th': {
+    backgroundColor: theme.palette.mode === 'dark' ? 
+      'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+    fontWeight: 600
+  },
+  
+  // Code block styling
+  '& pre, & code': {
+    backgroundColor: theme.palette.mode === 'dark' ? 
+      'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.05)',
+    borderRadius: '4px',
+    padding: theme.spacing(1),
+    fontFamily: 'monospace',
+    fontSize: '0.9rem',
+    overflowX: 'auto'
+  },
+  
+  '& pre': {
+    padding: theme.spacing(2),
+    margin: `${theme.spacing(3)} 0`
+  },
+  
+  // Inline elements
+  '& strong, & b': {
+    fontWeight: 700,
+    color: theme.palette.text.primary
+  },
+  
+  '& em, & i': {
+    fontStyle: 'italic'
+  },
+  
+  // Horizontal rule
+  '& hr': {
+    border: 'none',
+    borderTop: `1px solid ${theme.palette.divider}`,
+    margin: `${theme.spacing(4)} 0`
+  }
+}));
+
 // Structured Data Component
 const StructuredData = ({ blog, metaDescription, metaImage, canonicalUrl }) => {
   if (!blog) return null;
@@ -192,7 +363,6 @@ const BlogDetails = () => {
 
   const fetchRelatedBlogs = async (category, excludeId) => {
     try {
-      // Updated to use correct API response structure
       const response = await axios.get(`${API_URL}/api/blogs`, {
         params: {
           category: category,
@@ -203,7 +373,6 @@ const BlogDetails = () => {
       
       if (response.data && response.data.success) {
         const blogs = response.data.blogs || [];
-        // Filter out current blog and ensure we have an array
         const filteredBlogs = Array.isArray(blogs) 
           ? blogs.filter(b => b._id !== excludeId && b.slug !== slug)
           : [];
@@ -224,10 +393,8 @@ const BlogDetails = () => {
   const generateMetaDescription = (content, maxLength = 160) => {
     if (!content || typeof content !== 'string') return '';
     
-    // Remove HTML tags and get plain text
     const plainText = content.replace(/<[^>]*>/g, '');
     
-    // Trim to max length without cutting words
     if (plainText.length <= maxLength) return plainText;
     
     return plainText.substring(0, maxLength).replace(/\s+\S*$/, '') + '...';
@@ -498,79 +665,14 @@ const BlogDetails = () => {
           </Button>
         </Box>
 
-        {/* Blog Content Section */}
-        <Box sx={{ 
-          '& h2': {
-            mt: 6,
-            mb: 3,
-            color: theme.palette.text.primary,
-            fontSize: '1.8rem',
-            fontWeight: 600,
-            lineHeight: 1.3,
-            borderBottom: `2px solid ${theme.palette.primary.light}`,
-            paddingBottom: '8px'
-          },
-          '& h3': {
-            mt: 5,
-            mb: 2,
-            color: theme.palette.text.primary,
-            fontSize: '1.5rem',
-            fontWeight: 600,
-            lineHeight: 1.3
-          },
-          '& p': {
-            mb: 3,
-            lineHeight: 1.8,
-            fontSize: '1.1rem',
-            color: theme.palette.text.secondary
-          },
-          '& img': {
-            maxWidth: '100%',
-            height: 'auto',
-            my: 4,
-            borderRadius: '12px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)'
-          },
-          '& blockquote': {
-            borderLeft: `3px solid ${theme.palette.primary.main}`,
-            pl: 3,
-            py: 1,
-            my: 4,
-            fontStyle: 'italic',
-            backgroundColor: theme.palette.mode === 'dark' ? 
-              'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-            borderRadius: '0 8px 8px 0',
-            '& p': {
-              mb: 0,
-              color: theme.palette.text.primary
-            }
-          },
-          '& ul, & ol': {
-            pl: 3,
-            mb: 3,
-            '& li': {
-              mb: 1.5,
-              lineHeight: 1.8,
-              '&::marker': {
-                color: theme.palette.primary.main
-              }
-            }
-          },
-          '& a': {
-            color: theme.palette.primary.main,
-            textDecoration: 'none',
-            fontWeight: 500,
-            '&:hover': {
-              textDecoration: 'underline'
-            }
-          }
-        }}>
+        {/* Blog Content Section with custom styling */}
+        <BlogContentStyles>
           {parsedContent || (
             <Alert severity="info">
               No content available for this blog.
             </Alert>
           )}
-        </Box>
+        </BlogContentStyles>
 
         {/* FAQ Section */}
         {blog.faqs && Array.isArray(blog.faqs) && blog.faqs.length > 0 && (
