@@ -39,7 +39,8 @@ import bannerEnquiryRoutes from './routes/bannerEnquiries.js';
 import { startCleanupService } from './services/cleanupService.js';
 
 // ✅ IMPORTANT: Import your SEO middleware
-import { seoMiddleware , debugSeoMiddleware} from './middleware/seoMiddleware.js';
+import {
+  blogCanonicalFix,    canonicalRedirectMiddleware,seoMiddleware , debugSeoMiddleware} from './middleware/seoMiddleware.js';
 
 // Load environment variables
 dotenv.config();
@@ -193,6 +194,8 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.use(blogCanonicalFix); 
+app.use(canonicalRedirectMiddleware);
 // ✅ Apply SEO Middleware BEFORE catch-all route
 app.use(seoMiddleware);
 

@@ -51,7 +51,6 @@ router.get("/sitemap.xml", async (req, res) => {
             { url: '/', priority: '1.0', changefreq: 'daily' },
             
             { url: '/colleges/', priority: '0.9', changefreq: 'daily' },
-            { url: '/step/', priority: '0.7', changefreq: 'weekly' },
             { url: '/offer/', priority: '0.7', changefreq: 'weekly' },
             { url: '/education/education-loan/', priority: '0.6', changefreq: 'monthly' },
             { url: '/education/accommodation/', priority: '0.6', changefreq: 'monthly' },
@@ -157,7 +156,6 @@ router.get("/sitemap.xml", async (req, res) => {
         
         // =============== ADDITIONAL PAGES ===============
         const additionalPages = [
-            '/education/engineering/',
         ];
         
         additionalPages.forEach(page => {

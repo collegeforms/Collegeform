@@ -2,32 +2,53 @@
 import College from '../models/College.js';
 import Blog from '../models/Blog.js';
 
+// Helper function to normalize URLs
+const normalizeUrl = (url) => {
+  // Remove query parameters
+  let cleanUrl = url.split('?')[0];
+  
+  // Remove tracking parameters from the URL for canonical
+  const canonicalUrl = cleanUrl.replace(/(\?|&)(utm_|ref|source|medium|campaign|term|content|fbclid|gclid|msclkid)=[^&]*/g, '');
+  
+  // Ensure trailing slash for consistency (except for files with extensions)
+  if (!canonicalUrl.endsWith('/') && !canonicalUrl.includes('.') && canonicalUrl !== '') {
+    return canonicalUrl + '/';
+  }
+  
+  return canonicalUrl;
+};
+
 const getDynamicMetaTags = async (url) => {
   const baseUrl = 'https://www.collegeforms.in';
   const siteName = 'College Forms';
   const currentYear = new Date().getFullYear();
+  
+  // Normalize URL first
+  const normalizedUrl = normalizeUrl(url);
   
   // Default meta tags for homepage
   let meta = {
     title: "India's most preferred and trusted online platform for discounted College Applications | College Forms",
     description: "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.",
     keywords: "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees",
-    canonical: baseUrl + url.split('?')[0],
+    canonical: baseUrl + normalizedUrl,
     ogImage: `${baseUrl}/uploads/og-default.jpg`,
     twitterImage: `${baseUrl}/uploads/twitter-default.jpg`,
     robots: 'index, follow, max-image-preview:large',
     author: 'College Forms',
     publisher: 'College Forms',
-    structuredData: null
+    structuredData: null,
+    hreflangs: [],
+    linkTags: []
   };
 
   try {
-    const cleanUrl = url.split('?')[0];
+    const cleanUrl = normalizedUrl.replace(/\/$/, ''); // Remove trailing slash for matching
     
     // ======================
     // HOMEPAGE & ALIASES
     // ======================
-    if (cleanUrl === '/' || cleanUrl === '' || cleanUrl === '/home') {
+    if (cleanUrl === '' || cleanUrl === '/' || cleanUrl === '/home' || cleanUrl === '/index') {
       meta.title = "India's most preferred and trusted online platform for discounted College Applications | College Forms";
       meta.description = "Explore top colleges, best courses after 12th, MBA & BBA entrance exams, and get expert college admission help. Discover scholarships, discounts on forms, and college guidance at CollegeForms.in.";
       meta.keywords = "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees";
@@ -53,7 +74,9 @@ const getDynamicMetaTags = async (url) => {
     // COLLEGE DETAIL PAGE
     // ======================
     else if (cleanUrl.startsWith('/college/')) {
-      const slug = cleanUrl.split('/college/')[1];
+      let slug = cleanUrl.split('/college/')[1];
+      slug = slug.replace(/\/$/, ''); // Remove trailing slash
+      
       if (slug) {
         console.log(`🔍 Fetching college data for slug: ${slug}`);
         
@@ -112,7 +135,7 @@ const getDynamicMetaTags = async (url) => {
           
           meta.keywords = `${college.name}, ${college.name} courses, ${college.name} fees ${currentYear}, ${college.name} placements, ${college.name} admission ${currentYear}, ${city} colleges, best colleges in ${state}, college admission help, discounted college forms`;
           
-          meta.canonical = `${baseUrl}/college/${slug}`;
+          meta.canonical = `${baseUrl}/college/${slug}/`;
           meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
           meta.ogImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/college-default.jpg`;
           meta.twitterImage = college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/twitter-default.jpg`;
@@ -123,7 +146,7 @@ const getDynamicMetaTags = async (url) => {
             "@type": "EducationalOrganization",
             "name": college.name,
             "description": college.shortDescription || college.description?.substring(0, 200) || `Information about ${college.name} college`,
-            "url": `${baseUrl}/college/${slug}`,
+            "url": `${baseUrl}/college/${slug}/`,
             "logo": college.image ? `${baseUrl}${college.image}` : `${baseUrl}/logo.png`,
             "image": college.image ? `${baseUrl}${college.image}` : `${baseUrl}/uploads/college-default.jpg`,
             "address": {
@@ -181,7 +204,7 @@ const getDynamicMetaTags = async (url) => {
           meta.title = `${collegeName} - Courses, Fees ${currentYear}, Placements, Admissions | College Forms`;
           meta.description = `${collegeName} in ${location}. Explore courses, fee structure ${currentYear}, placement records, admission process, scholarships, and application forms. Get expert admission guidance and exclusive discounts at College Forms.`;
           meta.keywords = `${collegeName}, ${collegeName} courses, ${collegeName} fees, ${collegeName} admission, ${location.split(',')[0]} colleges, college admission help, discounted application forms`;
-          meta.canonical = `${baseUrl}/college/${slug}`;
+          meta.canonical = `${baseUrl}/college/${slug}/`;
           meta.robots = 'index, follow, max-image-preview:large';
           
           meta.structuredData = {
@@ -189,7 +212,7 @@ const getDynamicMetaTags = async (url) => {
             "@type": "EducationalOrganization",
             "name": collegeName,
             "description": `Information about ${collegeName} college in ${location}`,
-            "url": `${baseUrl}/college/${slug}`,
+            "url": `${baseUrl}/college/${slug}/`,
             "address": {
               "@type": "PostalAddress",
               "addressLocality": location.split(',')[0],
@@ -208,7 +231,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Best Colleges in India ${currentYear} - Top Engineering, Medical, Management Colleges | College Forms`;
       meta.description = `Find and compare the best colleges in India for ${currentYear}. Explore top engineering, medical, management, arts colleges with fee structure, placement records, admission process, and exclusive discounts.`;
       meta.keywords = `best colleges in India ${currentYear}, top engineering colleges, medical colleges India, management colleges, college comparison, college fees, college admission`;
-      meta.canonical = `${baseUrl}/colleges`;
+      meta.canonical = `${baseUrl}/colleges/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -219,7 +242,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Step-by-Step College Admission Guide ${currentYear} | College Forms`;
       meta.description = `Complete step-by-step guide for college admissions. Learn how to choose the right college, prepare documents, apply online, and secure admission with expert guidance from College Forms.`;
       meta.keywords = `college admission guide, step by step admission, admission process, document preparation, college application steps`;
-      meta.canonical = `${baseUrl}/step`;
+      meta.canonical = `${baseUrl}/step/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -230,7 +253,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Exclusive Offers & Discounts on College Applications ${currentYear} | College Forms`;
       meta.description = `Get exclusive discounts and special offers on college application forms. Save money on admission fees with our limited-time offers for engineering, medical, management colleges.`;
       meta.keywords = `college application discounts, exclusive offers, admission fee discounts, special offers, save on college applications`;
-      meta.canonical = `${baseUrl}/offer`;
+      meta.canonical = `${baseUrl}/offer/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -241,7 +264,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Education Loan for College Studies - Complete Guide ${currentYear} | College Forms`;
       meta.description = `Get complete information about education loans for college studies. Compare interest rates, eligibility criteria, documents required, and apply for education loan with expert guidance.`;
       meta.keywords = `education loan, student loan, college education loan, loan for studies, education finance`;
-      meta.canonical = `${baseUrl}/education/education-loan`;
+      meta.canonical = `${baseUrl}/education/education-loan/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -252,18 +275,18 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `College Accommodation & Hostel Facilities ${currentYear} | College Forms`;
       meta.description = `Find college accommodation, hostel facilities, PG options near colleges. Get information on room types, fees, facilities, and book your stay with verified accommodation partners.`;
       meta.keywords = `college accommodation, hostel facilities, student hostel, PG near college, college hostel, accommodation for students`;
-      meta.canonical = `${baseUrl}/education/accommodation`;
+      meta.canonical = `${baseUrl}/education/accommodation/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
     // ======================
     // COMPETITIVE EXAMS PAGE
     // ======================
-    else if (cleanUrl === '/CompetitiveExams') {
+    else if (cleanUrl === '/competitiveexams' || cleanUrl === '/CompetitiveExams') {
       meta.title = `Competitive Exams for College Admissions ${currentYear} - JEE, NEET, CAT | College Forms`;
       meta.description = `Prepare for competitive exams like JEE, NEET, CAT, CLAT, and more. Get exam patterns, syllabus, preparation tips, and college admission guidance based on exam scores.`;
       meta.keywords = `competitive exams, JEE preparation, NEET exam, CAT exam, entrance exams, exam preparation`;
-      meta.canonical = `${baseUrl}/CompetitiveExams`;
+      meta.canonical = `${baseUrl}/competitiveexams/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -274,7 +297,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Study Abroad Programs & International Colleges ${currentYear} | College Forms`;
       meta.description = `Explore study abroad opportunities in USA, UK, Canada, Australia, and other countries. Get guidance on admission process, visas, scholarships for international education.`;
       meta.keywords = `study abroad, international education, foreign universities, overseas education, study in USA, study in UK`;
-      meta.canonical = `${baseUrl}/studyabroad`;
+      meta.canonical = `${baseUrl}/studyabroad/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -285,7 +308,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Online Tests & Practice Papers for College Admissions ${currentYear} | College Forms`;
       meta.description = `Take free online tests and practice papers for college entrance exams. Get instant results, performance analysis, and personalized preparation guidance.`;
       meta.keywords = `online tests, practice papers, mock tests, entrance exam practice, test preparation`;
-      meta.canonical = `${baseUrl}/students/tests`;
+      meta.canonical = `${baseUrl}/students/tests/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -294,16 +317,23 @@ const getDynamicMetaTags = async (url) => {
     // ======================
     else if (cleanUrl.startsWith('/blogs')) {
       // Blog listing page (/blogs)
-      if (cleanUrl === '/blogs' || cleanUrl === '/blogs/') {
+      if (cleanUrl === '/blogs' || cleanUrl === '/blogs/' || cleanUrl === '/blogs/index') {
         meta.title = `College Admission Blogs & Articles ${currentYear} - Expert Guidance | College Forms`;
         meta.description = `Read expert articles on college admissions, entrance exams, career guidance, and study tips. Get the latest updates on admissions, scholarships, and educational trends at College Forms.`;
         meta.keywords = `college admission blogs, education articles, study tips, entrance exam preparation, career guidance, admission tips, college guidance blogs`;
-        meta.canonical = `${baseUrl}/blogs`;
+        meta.canonical = `${baseUrl}/blogs/`;  // ENSURE trailing slash
         meta.robots = 'index, follow, max-image-preview:large';
         meta.author = 'College Forms';
         meta.publisher = 'College Forms';
         meta.ogImage = `${baseUrl}/uploads/blog-listing-default.jpg`;
         meta.twitterImage = `${baseUrl}/uploads/blog-listing-default.jpg`;
+        
+        // Add explicit link tags for blog listing
+        meta.linkTags = [
+          { rel: 'canonical', href: `${baseUrl}/blogs/` },
+          { rel: 'alternate', hreflang: 'x-default', href: `${baseUrl}/blogs/` },
+          { rel: 'alternate', hreflang: 'en-in', href: `${baseUrl}/blogs/` }
+        ];
         
         // Structured Data for Blog Listing
         meta.structuredData = {
@@ -311,7 +341,7 @@ const getDynamicMetaTags = async (url) => {
           "@type": "Blog",
           "name": "College Forms Education Blog",
           "description": "Expert articles on college admissions, entrance exams, career guidance, and educational trends",
-          "url": `${baseUrl}/blogs`,
+          "url": `${baseUrl}/blogs/`,
           "publisher": {
             "@type": "Organization",
             "name": "College Forms",
@@ -324,13 +354,15 @@ const getDynamicMetaTags = async (url) => {
           },
           "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": `${baseUrl}/blogs`
+            "@id": `${baseUrl}/blogs/`
           }
         };
       } 
       // Individual blog post (/blogs/slug-here)
       else if (cleanUrl.startsWith('/blogs/')) {
-        const slug = cleanUrl.split('/blogs/')[1];
+        let slug = cleanUrl.split('/blogs/')[1];
+        slug = slug.replace(/\/$/, ''); // Remove trailing slash
+        
         if (slug && slug !== '') {
           console.log(`🔍 Fetching blog data for slug: ${slug}`);
           
@@ -352,7 +384,7 @@ const getDynamicMetaTags = async (url) => {
               meta.title = `${blog.title} | College Forms Blog`;
               meta.description = blogExcerpt;
               meta.keywords = `${blog.category}, ${blog.title.toLowerCase().replace(/[^a-zA-Z0-9]/g, ' ')}, college admission tips, education blog, study tips`;
-              meta.canonical = `${baseUrl}/blogs/${slug}`;
+              meta.canonical = `${baseUrl}/blogs/${slug}/`;
               meta.robots = 'index, follow, max-image-preview:large';
               meta.author = blog.author;
               meta.publisher = 'College Forms';
@@ -387,7 +419,7 @@ const getDynamicMetaTags = async (url) => {
                 },
                 "mainEntityOfPage": {
                   "@type": "WebPage",
-                  "@id": `${baseUrl}/blogs/${slug}`
+                  "@id": `${baseUrl}/blogs/${slug}/`
                 }
               };
               
@@ -417,7 +449,7 @@ const getDynamicMetaTags = async (url) => {
               meta.title = `${blogTitle} - College Admission Blog | College Forms`;
               meta.description = `Read about ${blogTitle.toLowerCase()} on College Forms blog. Get expert insights and tips for college admissions, entrance exams, and career guidance.`;
               meta.keywords = `${blogTitle.toLowerCase()}, college admission blog, education article, study tips, career guidance`;
-              meta.canonical = `${baseUrl}/blogs/${slug}`;
+              meta.canonical = `${baseUrl}/blogs/${slug}/`;
               meta.robots = 'index, follow, max-image-preview:large';
               meta.author = 'College Forms';
               meta.publisher = 'College Forms';
@@ -456,18 +488,18 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `College Admission Events & Webinars ${currentYear} | College Forms`;
       meta.description = `Join free college admission events, webinars, and counseling sessions. Meet admission experts, get application guidance, and discover scholarship opportunities.`;
       meta.keywords = `college admission events, admission webinars, free counseling, education events, college guidance sessions`;
-      meta.canonical = `${baseUrl}/events`;
+      meta.canonical = `${baseUrl}/events/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
     // ======================
     // CONTACT US PAGE
     // ======================
-    else if (cleanUrl === '/contactus') {
+    else if (cleanUrl === '/contactus' || cleanUrl === '/contact') {
       meta.title = `Contact College Forms - Get Admission Help & Support ${currentYear} | College Forms`;
       meta.description = `Get in touch with College Forms for admission guidance, application help, scholarship information, and college selection support. Our experts are here to help you.`;
       meta.keywords = `contact college forms, admission help, college guidance support, application assistance, admission counseling`;
-      meta.canonical = `${baseUrl}/contactus`;
+      meta.canonical = `${baseUrl}/contactus/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -478,7 +510,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Privacy Policy - College Forms | Your Data Protection`;
       meta.description = `Read College Forms privacy policy to understand how we protect your personal information and ensure data security during the college admission process.`;
       meta.keywords = `privacy policy, data protection, privacy terms, college forms privacy`;
-      meta.canonical = `${baseUrl}/privacy`;
+      meta.canonical = `${baseUrl}/privacy/`;
       meta.robots = 'index, follow';
     }
     
@@ -489,7 +521,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Terms & Conditions - College Forms | Platform Usage Terms`;
       meta.description = `Read College Forms terms and conditions for using our platform, services, and understanding your rights and responsibilities during college admissions.`;
       meta.keywords = `terms and conditions, usage terms, platform terms, college forms terms`;
-      meta.canonical = `${baseUrl}/terms`;
+      meta.canonical = `${baseUrl}/terms/`;
       meta.robots = 'index, follow';
     }
     
@@ -500,7 +532,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Overseas Education & Study Abroad Guidance ${currentYear} | College Forms`;
       meta.description = `Get complete guidance for overseas education including country selection, university admission, visa process, scholarships, and pre-departure preparations.`;
       meta.keywords = `overseas education, study abroad guidance, international studies, foreign education, study overseas`;
-      meta.canonical = `${baseUrl}/education/overseas`;
+      meta.canonical = `${baseUrl}/education/overseas/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -511,7 +543,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Engineering Colleges & Courses ${currentYear} - Top B.Tech Programs | College Forms`;
       meta.description = `Explore top engineering colleges, B.Tech programs, admission process, and placement records. Get complete guidance for engineering admissions in India.`;
       meta.keywords = `engineering colleges, B.Tech programs, engineering courses, engineering admission, top engineering colleges`;
-      meta.canonical = `${baseUrl}/education/engineering`;
+      meta.canonical = `${baseUrl}/education/engineering/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -522,18 +554,7 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `Best Courses after 12th ${currentYear} - Engineering, Medical, Arts, Commerce | College Forms`;
       meta.description = `Explore the best courses after 12th for ${currentYear}. Get complete information about engineering, medical, arts, commerce, management courses with career scope, eligibility, and college options.`;
       meta.keywords = `best courses after 12th ${currentYear}, engineering courses, medical courses, arts courses, career guidance, course selection`;
-      meta.canonical = `${baseUrl}/courses`;
-      meta.robots = 'index, follow, max-image-preview:large';
-    }
-    
-    // ======================
-    // CONTACT PAGE (for backward compatibility)
-    // ======================
-    else if (cleanUrl === '/contact') {
-      meta.title = `Contact College Forms - Get Admission Help & Support ${currentYear} | College Forms`;
-      meta.description = `Get in touch with College Forms for admission guidance, application help, scholarship information, and college selection support. Our experts are here to help you.`;
-      meta.keywords = `contact college forms, admission help, college guidance support, application assistance`;
-      meta.canonical = `${baseUrl}/contact`;
+      meta.canonical = `${baseUrl}/courses/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
     
@@ -544,9 +565,15 @@ const getDynamicMetaTags = async (url) => {
       meta.title = `About College Forms - India's Trusted College Admission Platform`;
       meta.description = `Learn about College Forms - India's most preferred platform for discounted college applications, expert admission guidance, and comprehensive college information.`;
       meta.keywords = `about college forms, college admission platform, discounted applications, admission guidance`;
-      meta.canonical = `${baseUrl}/about`;
+      meta.canonical = `${baseUrl}/about/`;
       meta.robots = 'index, follow, max-image-preview:large';
     }
+    
+    // Add hreflang tags
+    meta.hreflangs = [
+      { lang: 'x-default', url: meta.canonical },
+      { lang: 'en-in', url: meta.canonical }
+    ];
     
   } catch (error) {
     console.error('SEO Meta Tag Generation Error:', error);
@@ -555,13 +582,24 @@ const getDynamicMetaTags = async (url) => {
   return meta;
 };
 
+// Generate SEO-optimized HTML for bots
 const generateBotHTML = (metaTags, url) => {
   const structuredDataHTML = metaTags.structuredData 
     ? `<script type="application/ld+json">${JSON.stringify(metaTags.structuredData, null, 2)}</script>`
     : '';
   
+  // Generate hreflang tags
+  const hreflangTags = metaTags.hreflangs.map(h => 
+    `<link rel="alternate" href="${h.url}" hreflang="${h.lang}" />`
+  ).join('\n    ');
+  
+  // Generate additional link tags
+  const linkTags = metaTags.linkTags ? metaTags.linkTags.map(link => 
+    `<link rel="${link.rel}" href="${link.href}" ${link.hreflang ? `hreflang="${link.hreflang}"` : ''} />`
+  ).join('\n    ') : '';
+  
   // Determine page type
-  const isBlogPage = url.includes('/blogs/') && url !== '/blogs';
+  const isBlogPage = url.includes('/blogs/') && url !== '/blogs/' && url !== '/blogs';
   const isBlogList = url === '/blogs' || url === '/blogs/';
   const isCollegePage = url.includes('/college/');
   
@@ -689,7 +727,7 @@ const generateBotHTML = (metaTags, url) => {
         </ul>
       </div>
     `;
-  } else if (url === '/step') {
+  } else if (url.includes('/step')) {
     pageSpecificContent = `
       <div class="step-content">
         <h2>Step-by-Step College Admission Guide</h2>
@@ -730,7 +768,7 @@ const generateBotHTML = (metaTags, url) => {
         </div>
       </div>
     `;
-  } else if (url === '/offer') {
+  } else if (url.includes('/offer')) {
     pageSpecificContent = `
       <div class="offer-content">
         <h2>Exclusive Offers & Discounts</h2>
@@ -774,7 +812,7 @@ const generateBotHTML = (metaTags, url) => {
         </ul>
       </div>
     `;
-  } else if (url === '/education/education-loan') {
+  } else if (url.includes('/education/education-loan')) {
     pageSpecificContent = `
       <div class="loan-content">
         <h2>Education Loan Assistance</h2>
@@ -870,10 +908,22 @@ const generateBotHTML = (metaTags, url) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Primary Meta Tags -->
-    <title>${metaTags.title}</title>
-    <meta name="description" content="${metaTags.description.replace(/"/g, '&quot;')}">
+    <title>${metaTags.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
+    <meta name="description" content="${metaTags.description.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
     <meta name="keywords" content="${metaTags.keywords}">
+    
+    <!-- Canonical URL - Explicit for blog listing -->
     <link rel="canonical" href="${metaTags.canonical}">
+    ${isBlogList ? `<!-- Explicit canonical for blog listing page -->
+    <link rel="canonical" href="https://www.collegeforms.in/blogs/">
+    <link rel="alternate" href="https://www.collegeforms.in/blogs/" hreflang="x-default">
+    <link rel="alternate" href="https://www.collegeforms.in/blogs/" hreflang="en-in">` : ''}
+    
+    <!-- Additional Link Tags -->
+    ${linkTags}
+    
+    <!-- Hreflang Tags -->
+    ${hreflangTags}
     
     <!-- Robots -->
     <meta name="robots" content="${metaTags.robots}">
@@ -892,20 +942,20 @@ const generateBotHTML = (metaTags, url) => {
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="${pageType}">
     <meta property="og:url" content="${metaTags.canonical}">
-    <meta property="og:title" content="${metaTags.title}">
-    <meta property="og:description" content="${metaTags.description.replace(/"/g, '&quot;')}">
+    <meta property="og:title" content="${metaTags.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
+    <meta property="og:description" content="${metaTags.description.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
     <meta property="og:image" content="${metaTags.ogImage}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="College Forms">
-    ${isBlogPage ? `<meta property="og:article:author" content="${metaTags.author}">` : ''}
-    ${isBlogPage ? `<meta property="og:article:published_time" content="${new Date().toISOString()}">` : ''}
+    ${isBlogPage ? `<meta property="article:author" content="${metaTags.author}">` : ''}
+    ${isBlogPage ? `<meta property="article:published_time" content="${new Date().toISOString()}">` : ''}
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="${metaTags.canonical}">
-    <meta name="twitter:title" content="${metaTags.title}">
-    <meta name="twitter:description" content="${metaTags.description.replace(/"/g, '&quot;')}">
+    <meta name="twitter:title" content="${metaTags.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
+    <meta name="twitter:description" content="${metaTags.description.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
     <meta name="twitter:image" content="${metaTags.twitterImage}">
     <meta name="twitter:site" content="@CollegeForms">
     <meta name="twitter:creator" content="@CollegeForms">
@@ -1052,8 +1102,8 @@ const generateBotHTML = (metaTags, url) => {
 </head>
 <body>
     <div class="seo-container">
-        <h1>${metaTags.title}</h1>
-        <p>${metaTags.description}</p>
+        <h1>${metaTags.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h1>
+        <p>${metaTags.description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
         
         ${pageSpecificContent}
         
@@ -1071,6 +1121,89 @@ const generateBotHTML = (metaTags, url) => {
 </html>`;
 };
 
+// Canonical redirect middleware - add this BEFORE seoMiddleware
+export const canonicalRedirectMiddleware = (req, res, next) => {
+  const url = req.url;
+  const hasTrailingSlash = url.endsWith('/');
+  const hasFileExtension = /\.\w+$/.test(url);
+  const isRoot = url === '/';
+  const hasQueryParams = url.includes('?');
+  
+  // List of affected pages that need canonical fixes
+  const affectedPages = [
+    '/blogs/cuet-ug-2026-colleges-courses-admission-process-explained',
+    '/studyabroad',
+    '/blogs/bba-llb-with-business-law-specialization-top-colleges-fees-and-career-scope',
+    '/blogs/best-government-bca-colleges-in-india-fees-admission-placements-2026',
+    '/offer',
+    '/students/tests',
+    '/competitiveexams',
+    '/CompetitiveExams'
+  ];
+  
+  // Get path without query parameters
+  const pathWithoutQuery = url.split('?')[0];
+  const normalizedPath = pathWithoutQuery.replace(/\/$/, ''); // Remove trailing slash for comparison
+  
+  // SPECIFIC FIX FOR /blogs PAGE
+  if (normalizedPath.toLowerCase() === '/blogs') {
+    const canonicalUrl = 'https://www.collegeforms.in/blogs/';
+    res.setHeader('Link', `<${canonicalUrl}>; rel="canonical"`);
+    res.setHeader('X-Robots-Tag', 'index, follow');
+    
+    // Redirect if missing trailing slash
+    if (!hasTrailingSlash && !hasFileExtension && !isRoot) {
+      console.log(`🔄 Redirecting /blogs to /blogs/`);
+      const queryString = hasQueryParams ? '?' + url.split('?')[1] : '';
+      return res.redirect(301, '/blogs/' + queryString);
+    }
+  }
+  
+  // Check if this is an affected page
+  if (affectedPages.includes(normalizedPath.toLowerCase())) {
+    const canonicalUrl = `https://www.collegeforms.in${normalizedPath}/`;
+    res.setHeader('Link', `<${canonicalUrl}>; rel="canonical"`);
+    
+    // Redirect if missing trailing slash
+    if (!hasTrailingSlash && !hasFileExtension && !isRoot) {
+      console.log(`🔄 Redirecting affected page: ${url} -> ${normalizedPath}/`);
+      const queryString = hasQueryParams ? '?' + url.split('?')[1] : '';
+      return res.redirect(301, normalizedPath + '/' + queryString);
+    }
+  }
+  
+  // Add trailing slash for all non-file URLs (general rule)
+  if (!hasTrailingSlash && !hasFileExtension && !isRoot && !url.includes('.')) {
+    // Preserve query parameters if any
+    const queryString = hasQueryParams ? '?' + url.split('?')[1] : '';
+    const newUrl = pathWithoutQuery + '/' + queryString;
+    
+    console.log(`🔄 Adding trailing slash: ${url} -> ${newUrl}`);
+    return res.redirect(301, newUrl);
+  }
+  
+  next();
+};
+
+// Specific middleware for blog canonical fix
+export const blogCanonicalFix = (req, res, next) => {
+  const url = req.url;
+  
+  // Fix for /blogs page (with or without slash)
+  if (url === '/blogs' || url === '/blogs/') {
+    // Set canonical header
+    res.setHeader('Link', '<https://www.collegeforms.in/blogs/>; rel="canonical"');
+    res.setHeader('X-Robots-Tag', 'index, follow');
+    
+    // Also set in response locals for use in template
+    res.locals.canonical = 'https://www.collegeforms.in/blogs/';
+    
+    console.log('✅ Set canonical for /blogs/ page');
+  }
+  
+  next();
+};
+
 // Enhanced SEO Middleware with better bot detection
 export const seoMiddleware = async (req, res, next) => {
   const userAgent = req.get('user-agent') || '';
@@ -1083,6 +1216,10 @@ export const seoMiddleware = async (req, res, next) => {
     '/api/',
     '/uploads/',
     '/static/',
+    '/_next/',
+    'manifest.json',
+    'robots.txt',
+    'sitemap.xml',
     '.json',
     '.xml',
     '.txt',
@@ -1096,7 +1233,8 @@ export const seoMiddleware = async (req, res, next) => {
     '.js',
     '.woff',
     '.woff2',
-    '.ttf'
+    '.ttf',
+    '.webp'
   ];
   
   if (skipPatterns.some(pattern => url.includes(pattern))) {
@@ -1140,6 +1278,10 @@ export const seoMiddleware = async (req, res, next) => {
       'exabot',
       'ccbot',
       'gptbot',
+      'chatgpt',
+      'anthropic',
+      'claudebot',
+      'perplexity',
       'bot',
       'crawler',
       'spider',
@@ -1165,6 +1307,7 @@ export const seoMiddleware = async (req, res, next) => {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=7200');
       res.setHeader('Vary', 'User-Agent');
+      res.setHeader('X-Robots-Tag', metaTags.robots);
       
       console.log(`✅ Serving SEO HTML for: ${url}`);
       console.log(`📝 Title: ${metaTags.title.substring(0, 50)}...`);
