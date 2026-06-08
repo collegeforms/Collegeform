@@ -1,3 +1,4 @@
+
 // /var/www/collegeform/backend/server.js
 import express from "express";
 import dotenv from "dotenv";
@@ -9,7 +10,7 @@ import bannerRoutes from "./routes/bannerRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import path from "path";
 import { fileURLToPath } from 'url';
-import LogoRoutes from "./routes/LogoRoutes.js"; 
+import LogoRoutes from "./routes/LogoRoutes.js";
 import courseRoutes from './routes/courses.js';
 import userauth from './routes/userauth.js';
 import locationRoutes from './routes/locations.js';
@@ -26,21 +27,23 @@ import adminTestSeriesRoutes from "./routes/adminTestSeriesRoutes.js";
 import searchHistoryRoutes from "./routes/searchHistoryRoutes.js";
 import sliderRoutes from "./routes/sliderRoutes.js";
 import exams from "./routes/exams.js";
-import reviewRoutes  from "./routes/reviewRoutes.js";
-import documents  from "./routes/documents.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import documents from "./routes/documents.js";
 import sitemapRouter from "./routes/sitemap.js";
 import faqRoutes from "./routes/faq.js";
 import upload from "./routes/upload.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import callbackRoutes from "./routes/callbackRoutes.js";
 import managexams from "./routes/managexams.js";
-import examEnquiryRoutes  from "./routes/examenquiry.js";
+import examEnquiryRoutes from "./routes/examenquiry.js";
 import bannerEnquiryRoutes from './routes/bannerEnquiries.js';
 import { startCleanupService } from './services/cleanupService.js';
-
-// ✅ IMPORTANT: Import your SEO middleware
 import {
-  blogCanonicalFix,    canonicalRedirectMiddleware,seoMiddleware , debugSeoMiddleware} from './middleware/seoMiddleware.js';
+  blogCanonicalFix,
+  canonicalRedirectMiddleware,
+  seoMiddleware,
+  debugSeoMiddleware
+} from './middleware/seoMiddleware.js';
 
 // Load environment variables
 dotenv.config();
@@ -66,9 +69,8 @@ const allowedOrigins = [
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.some(allowed => 
-      origin === allowed || 
+    if (allowedOrigins.some(allowed =>
+      origin === allowed ||
       origin.startsWith(allowed) ||
       new RegExp(`^https?://(.*\.)?${allowed.replace(/^https?:\/\//, '')}$`).test(origin)
     )) {
@@ -81,8 +83,8 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: [
-    "Content-Type", 
-    "Authorization", 
+    "Content-Type",
+    "Authorization",
     "X-Requested-With",
     "Accept",
     "Origin",
@@ -102,27 +104,62 @@ const corsOptions = {
   optionsSuccessStatus: 204
 };
 
-// Apply CORS middleware
-app.use(cors(corsOptions));
+// =============================================
+// MIDDLEWARE ORDER — BILKUL MAT BADALNA !!
+// =============================================
 
-// Explicit OPTIONS handler
+// 1. CORS
+app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-// Body parser middleware
+// 2. Body parser
 app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ 
+app.use(bodyParser.urlencoded({
   extended: true,
   limit: '50mb',
   parameterLimit: 100000
 }));
 
-// Serve static files from uploads
+// 3. Sirf uploads ke liye static (images, files)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ CRITICAL: Serve React build files BEFORE SEO middleware
-app.use(express.static(path.join(__dirname, "../frontend/build")));
+// 4. ✅ SEO MIDDLEWARE SABSE PEHLE — React static se PEHLE
+//    Googlebot yahan pakda jaata hai aur sahi HTML milta hai
+app.use(blogCanonicalFix);
+app.use(canonicalRedirectMiddleware);
+app.use(seoMiddleware);
 
-// API Routes
+// 5. Debug endpoint
+app.get('/debug-seo', debugSeoMiddleware);
+
+// 6. Health check endpoints
+app.get("/start", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+app.get("/ping", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    service: "College Forms API",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// 7. Sitemap route
+app.use('/', sitemapRouter);
+
+// 8. API Routes
 app.use("/api/colleges", collegeRoutes);
 app.use("/api/banners", bannerRoutes);
 app.use("/api/slider", sliderRoutes);
@@ -137,8 +174,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/exams", exams);
 app.use("/api/courses", courseRoutes);
 app.use("/api/locations", locationRoutes);
-
-app.get('/debug-seo', debugSeoMiddleware);
 app.use("/api/logos", LogoRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/mbanner", mbanner);
@@ -155,60 +190,18 @@ app.use("/api/managexams", managexams);
 app.use('/api', examEnquiryRoutes);
 app.use('/api/banner-enquiries', bannerEnquiryRoutes);
 
-// ✅ Sitemap route
-app.use('/', sitemapRouter);
-app.use((req, res, next) => {
-  if (
-    req.method === "GET" &&
-    req.path.startsWith("/college/") &&
-    !req.path.endsWith("/")
-  ) {
-    return res.redirect(301, req.path + "/" + (req.url.includes("?") ? "?" + req.url.split("?")[1] : ""));
-  }
-  next();
-});
+// 9. ✅ React build — Normal users ke liye (bots yahan tak nahi aate)
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
-// Health check endpoints
-app.get("/start", (req, res) => {
-  res.status(200).json({ 
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-app.get("/ping", (req, res) => {
-  res.status(200).json({ 
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ 
-    status: "healthy",
-    service: "College Forms API",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-app.use(blogCanonicalFix); 
-app.use(canonicalRedirectMiddleware);
-// ✅ Apply SEO Middleware BEFORE catch-all route
-app.use(seoMiddleware);
-
-// ✅ Catch-all route for React app (will be used for normal users)
+// 10. Catch-all — React app serve karo
 app.get("*", (req, res) => {
   const indexPath = path.join(__dirname, "../frontend/build/index.html");
   res.sendFile(indexPath);
 });
 
-// Error handling middleware
+// 11. Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
       error: 'CORS Policy',
@@ -216,14 +209,13 @@ app.use((err, req, res, next) => {
       allowedOrigins
     });
   }
-  
   res.status(500).json({
     error: 'Internal Server Error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong!'
   });
 });
 
-// 404 Handler for API routes
+// 12. 404 Handler
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
@@ -231,7 +223,7 @@ app.use((req, res) => {
   });
 });
 
-// Server config
+// Server start
 const PORT = process.env.PORT || 5000;
 const ENV = process.env.NODE_ENV || 'development';
 
@@ -240,5 +232,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Allowed CORS origins: ${allowedOrigins.join(', ')}`);
   console.log(`🗺️  Sitemap available at: /sitemap.xml`);
   console.log(`🤖 SEO Bot detection: ENABLED`);
-  console.log(`🎯 Bot detection will serve meta tags, normal users get React app`);
+  console.log(`🎯 SEO middleware is now BEFORE React static — bots will get proper HTML`);
 });

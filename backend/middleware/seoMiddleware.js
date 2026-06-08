@@ -1172,15 +1172,15 @@ export const canonicalRedirectMiddleware = (req, res, next) => {
     }
   }
   
-  // Add trailing slash for all non-file URLs (general rule)
-  if (!hasTrailingSlash && !hasFileExtension && !isRoot && !url.includes('.')) {
-    // Preserve query parameters if any
-    const queryString = hasQueryParams ? '?' + url.split('?')[1] : '';
-    const newUrl = pathWithoutQuery + '/' + queryString;
+  // // Add trailing slash for all non-file URLs (general rule)
+  // if (!hasTrailingSlash && !hasFileExtension && !isRoot && !url.includes('.')) {
+  //   // Preserve query parameters if any
+  //   const queryString = hasQueryParams ? '?' + url.split('?')[1] : '';
+  //   const newUrl = pathWithoutQuery + '/' + queryString;
     
-    console.log(`🔄 Adding trailing slash: ${url} -> ${newUrl}`);
-    return res.redirect(301, newUrl);
-  }
+  //   console.log(`🔄 Adding trailing slash: ${url} -> ${newUrl}`);
+  //   return res.redirect(301, newUrl);
+  // }
   
   next();
 };

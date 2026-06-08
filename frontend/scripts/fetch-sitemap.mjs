@@ -2,7 +2,8 @@ import fs from "fs";
 import fetch from "node-fetch";
 
 // Backend ka sitemap URL
-const BACKEND_SITEMAP =  "https://www.collegeforms.in";
+// const BACKEND_SITEMAP =  "https://www.collegeforms.in";
+const BACKEND_SITEMAP = "https://www.collegeforms.in/sitemap.xml";
 
 
 // Output file frontend ke public folder me
