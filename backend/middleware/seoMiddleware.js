@@ -795,17 +795,17 @@ const getDynamicMetaTags = async (url) => {
       meta.keywords = "best colleges in India, college admission help, MBA entrance exams, course selection guidance, tuition fee discounts, scholarships after 12th, scholarships on tuition fees";
       meta.canonical = `${baseUrl}/`;
       meta.robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
-      meta.structuredData = {
+      meta.structuredData = { 
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "College Forms",
         "url": baseUrl,
         "description": "India's most trusted platform for college admissions with exclusive discounts",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": `${baseUrl}/search?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
+        // "potentialAction": {
+        //   "@type": "SearchAction",
+        //   "target": `${baseUrl}/search?q={search_term_string}`,
+        //   "query-input": "required name=search_term_string"
+        // }
       };
     }
 
@@ -1264,7 +1264,7 @@ const generateBotHTML = (metaTags, url) => {
     <meta name="googlebot" content="${metaTags.robots}">
     <meta name="author" content="${metaTags.author}">
     <meta name="publisher" content="${metaTags.publisher}">
-    <meta name="language" content="en">
+    <meta name="language" content="en"> 
     <meta property="og:locale" content="en_IN">
     <meta property="og:type" content="${pageType}">
     <meta property="og:url" content="${metaTags.canonical}">

@@ -54,7 +54,8 @@ router.get("/sitemap.xml", async (req, res) => {
             { url: '/offer/', priority: '0.7', changefreq: 'weekly' },
             { url: '/education/education-loan/', priority: '0.6', changefreq: 'monthly' },
             { url: '/education/accommodation/', priority: '0.6', changefreq: 'monthly' },
-            { url: '/CompetitiveExams/', priority: '0.7', changefreq: 'weekly' },
+            { url: '/competitiveexams/', priority: '0.7', changefreq: 'weekly' },
+
             
             { url: '/studyabroad/', priority: '0.8', changefreq: 'weekly' },
             
